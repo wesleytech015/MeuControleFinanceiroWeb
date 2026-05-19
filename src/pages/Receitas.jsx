@@ -1,43 +1,75 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import Layout from "../components/Layout";
+import "../styles/formulario.css";
+import { useFinanceiro } from "../context/FinanceContext";
 
 function Receitas() {
-  function salvar(e) {
+  const { adicionarMovimentacao } = useFinanceiro();
+
+  const [descricao, setDescricao] = useState("");
+  const [valor, setValor] = useState("");
+
+  function salvarReceita(e) {
     e.preventDefault();
 
-    const descricao = e.target.descricao.value;
-    const valor = parseFloat(e.target.valor.value);
+    if (descricao === "" || valor === "") {
+      alert("Preencha todos os campos.");
+      return;
+    }
 
-    const nova = {
-      tipo: "receita",
-      descricao,
-      valor,
-      data: new Date().toLocaleDateString()
+    const novaReceita = {
+      tipo: "Receita",
+      descricao: descricao,
+
+      // CONVERTE 10.000,00 -> 10000.00
+      valor: Number(
+        valor
+          .replace(/\./g, "")
+          .replace(",", ".")
+      ),
+
+      data: new Date().toLocaleDateString("pt-BR"),
     };
 
-    const lista = JSON.parse(localStorage.getItem("movimentacoes")) || [];
-    lista.push(nova);
+    adicionarMovimentacao(novaReceita);
 
-    localStorage.setItem("movimentacoes", JSON.stringify(lista));
+    setDescricao("");
+    setValor("");
 
-    alert("Receita salva!");
-    e.target.reset();
+    alert("Receita cadastrada com sucesso!");
   }
 
   return (
-    <div className="tela">
-      <div className="card">
+    <Layout>
+      <div className="page-header">
         <h1>Receitas</h1>
-
-        <form onSubmit={salvar}>
-          <input name="descricao" placeholder="Descrição" required />
-          <input name="valor" type="number" placeholder="Valor" required />
-
-          <button type="submit">Salvar</button>
-        </form>
-
-        <Link to="/dashboard">Voltar</Link>
+        <p>Cadastre e acompanhe suas entradas financeiras.</p>
       </div>
-    </div>
+
+      <div className="form-card">
+        <h2>Nova Receita</h2>
+
+        <form className="form-grid" onSubmit={salvarReceita}>
+          <input
+            type="text"
+            placeholder="Descrição"
+            value={descricao}
+            onChange={(e) => setDescricao(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Ex: 10.000,00"
+            value={valor}
+            onChange={(e) => setValor(e.target.value)}
+          />
+
+          <button type="submit">
+            Salvar Receita
+          </button>
+        </form>
+      </div>
+    </Layout>
   );
 }
 
