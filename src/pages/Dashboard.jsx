@@ -1,59 +1,70 @@
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import Layout from "../components/Layout";
+import "../styles/dashboard.css";
+import { useFinanceiro } from "../context/FinanceContext";
 
 function Dashboard() {
-  const [receitas, setReceitas] = useState(0);
-  const [despesas, setDespesas] = useState(0);
+  const { movimentacoes } = useFinanceiro();
 
-  useEffect(() => {
-    const dados = JSON.parse(localStorage.getItem("movimentacoes")) || [];
+  const totalReceitas = movimentacoes
+    .filter((item) => item.tipo === "Receita")
+    .reduce((total, item) => total + item.valor, 0);
 
-    let totalReceitas = 0;
-    let totalDespesas = 0;
+  const totalDespesas = movimentacoes
+    .filter((item) => item.tipo === "Despesa")
+    .reduce((total, item) => total + item.valor, 0);
 
-    dados.forEach((item) => {
-      if (item.tipo === "receita") {
-        totalReceitas += item.valor;
-      } else {
-        totalDespesas += item.valor;
-      }
-    });
-
-    setReceitas(totalReceitas);
-    setDespesas(totalDespesas);
-  }, []);
-
-  const saldo = receitas - despesas;
+  const saldo = totalReceitas - totalDespesas;
 
   return (
-    <div className="tela">
-      <div className="card">
+    <Layout>
+      <div className="dashboard-header">
         <h1>Dashboard</h1>
+        <p>Resumo geral das suas finanças.</p>
+      </div>
 
-        <div className="resumo">
-          <div>
-            <h3>Receitas</h3>
-            <p>R$ {receitas}</p>
-          </div>
+      <section className="cards-grid">
+        <div className="finance-card receita">
+          <h3>Receitas</h3>
 
-          <div>
-            <h3>Despesas</h3>
-            <p>R$ {despesas}</p>
-          </div>
+          <h2>
+            {totalReceitas.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </h2>
 
-          <div>
-            <h3>Saldo</h3>
-            <p>R$ {saldo}</p>
-          </div>
+          <span>Total cadastrado</span>
         </div>
 
-        <nav className="menu">
-          <Link to="/receitas">Receitas</Link>
-          <Link to="/despesas">Despesas</Link>
-          <Link to="/movimentacoes">Movimentações</Link>
-        </nav>
-      </div>
-    </div>
+        <div className="finance-card despesa">
+          <h3>Despesas</h3>
+
+          <h2>
+            {totalDespesas.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </h2>
+
+          <span>Total cadastrado</span>
+        </div>
+
+        <div className="finance-card saldo">
+          <h3>Saldo Atual</h3>
+
+          <h2>
+            {saldo.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </h2>
+
+          <span>
+            {saldo >= 0 ? "Saldo positivo" : "Saldo negativo"}
+          </span>
+        </div>
+      </section>
+    </Layout>
   );
 }
 
