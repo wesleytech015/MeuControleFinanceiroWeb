@@ -13,7 +13,7 @@ app.use(express.json());
 
 // rotas
 const testeRoutes = require('./routes/testeroutes');
-const loginRoutes = require('../routes/loginRoutes');
+const loginRoutes = require('./routes/loginRoutes');
 const usuariosRoutes = require('./routes/usuariosRoutes');
 const transacoesRoutes = require('./routes/transacoesRoutes');
 
