@@ -1,44 +1,38 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../styles/login.css";
 
 function Login() {
-  const navigate = useNavigate();
-
-  function entrar(event) {
-    event.preventDefault();
-
-    const email = event.target.email.value;
-    const senha = event.target.senha.value;
-
-    if (email === "" || senha === "") {
-      alert("Preencha e-mail e senha.");
-      return;
-    }
-
-    // Simulando login
-    navigate("/dashboard");
-  }
-
   return (
-    <div className="tela-login">
-      <h1>MEU CONTROLE</h1>
-      <p>FINANCEIRO</p>
+    <div className="login-page">
+      <section className="login-left">
+        <div className="login-overlay">
+          <h1>Meu Controle Financeiro</h1>
+          <p>Organize suas receitas, despesas, metas e cartões em um só lugar.</p>
+        </div>
+      </section>
 
-      <div className="caixa-login">
-        <h2>ENTRAR</h2>
+      <section className="login-right">
+        <div className="login-card">
+          <h2>Entrar</h2>
+          <p className="login-subtitle">Acesse sua conta para continuar</p>
 
-        <form onSubmit={entrar}>
-          <label>E-mail:</label>
-          <input type="email" name="email" />
+          <form>
+            <label>E-mail</label>
+            <input type="email" placeholder="seu@email.com" />
 
-          <label>Senha:</label>
-          <input type="password" name="senha" />
+            <label>Senha</label>
+            <input type="password" placeholder="Digite sua senha" />
 
-          <button type="submit">Entrar</button>
-        </form>
+            <Link className="login-button" to="/dashboard">
+              Entrar
+            </Link>
+          </form>
 
-        <Link to="/cadastro">Criar conta</Link>
-      </div>
+          <p className="login-footer">
+            Ainda não tem conta? <Link to="/cadastro">Criar conta</Link>
+          </p>
+        </div>
+      </section>
     </div>
   );
 }

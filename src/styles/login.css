@@ -1,79 +1,131 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  background: #f4f7fb;
 }
 
-.tela-login {
-  width: 100%;
-  height: 100vh;
-  background: linear-gradient(135deg, #0f766e, #134e4a);
+.login-left {
+  width: 50%;
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.7), rgba(37, 99, 235, 0.7)),
+    url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1200&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: Arial, sans-serif;
+  padding: 60px;
+  color: white;
 }
 
-.tela-login h1 {
-  color: white;
-  font-size: 42px;
-  margin-bottom: 5px;
+.login-overlay {
+  max-width: 480px;
 }
 
-.tela-login p {
-  color: white;
-  font-size: 18px;
+.login-overlay h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.login-overlay p {
+  font-size: 20px;
+  line-height: 1.5;
+  color: #dbeafe;
+}
+
+.login-right {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.login-card h2 {
+  font-size: 32px;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  color: #64748b;
   margin-bottom: 30px;
-  letter-spacing: 4px;
 }
 
-.caixa-login {
-  width: 350px;
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+.login-card form {
+  display: flex;
+  flex-direction: column;
 }
 
-.caixa-login h2 {
-  text-align: center;
-  margin-bottom: 25px;
-  color: #134e4a;
-}
-
-.caixa-login label {
+.login-card label {
   font-weight: bold;
-  color: #333;
+  margin-bottom: 8px;
+  color: #334155;
 }
 
-.caixa-login input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0 18px 0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+.login-card input {
+  padding: 14px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
 }
 
-.caixa-login button {
-  width: 100%;
-  padding: 12px;
-  background: #0f766e;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.caixa-login button:hover {
-  background: #115e59;
-}
-
-.caixa-login a {
+.login-button {
   display: block;
   text-align: center;
-  margin-top: 18px;
-  color: #0f766e;
+  padding: 14px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 8px;
   text-decoration: none;
+}
+
+.login-button:hover {
+  background: #1d4ed8;
+}
+
+.login-footer {
+  margin-top: 24px;
+  text-align: center;
+  color: #64748b;
+}
+
+.login-footer a {
+  color: #2563eb;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .login-page {
+    flex-direction: column;
+  }
+
+  .login-left,
+  .login-right {
+    width: 100%;
+  }
+
+  .login-left {
+    min-height: 260px;
+  }
+
+  .login-overlay h1 {
+    font-size: 34px;
+  }
 }

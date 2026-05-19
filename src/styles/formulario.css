@@ -1,0 +1,47 @@
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  font-size: 32px;
+  color: #0f172a;
+}
+
+.page-header p {
+  color: #64748b;
+  margin-top: 6px;
+}
+
+.form-card {
+  background: white;
+  padding: 28px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  max-width: 800px;
+}
+
+.form-card h2 {
+  margin-bottom: 20px;
+  color: #0f172a;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+}
+
+.form-grid input {
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+.form-grid button {
+  padding: 14px 22px;
+  border-radius: 12px;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+}
