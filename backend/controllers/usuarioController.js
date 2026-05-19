@@ -5,8 +5,13 @@ const bcrypt = require('bcrypt');
 const usuarioController = {
     criar: async (req, res) => {
         try {
-            const { nome, email, senha } = req.body;
-            const senhaCriptografada = await bcrypt.hash(senha, 10);
+           const { nome, email, senha } = req.body;
+
+if (!nome || !email || !senha) {
+  return res.status(400).json({ erro: 'Dados obrigatórios' });
+}
+
+const senhaCriptografada = await bcrypt.hash(senha, 10);
 
             if (!nome || !email || !senha) {
                 return res.status(400).json({ erro: 'Dados obrigatórios' });
