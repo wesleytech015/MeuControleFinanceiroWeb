@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ==================== ARQUIVOS SENSÍVEIS ====================
+.env
+.env.local
+.env*.local
+.env.production
+.env.development
