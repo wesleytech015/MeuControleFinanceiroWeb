@@ -8,58 +8,100 @@ total (somando receitas e subtraindo despesas) antes de enviar para a tela de Da
 const Transacao = require('../models/transacao');
 
 const transacaoController = {
-    listar: async (req, res) => {
-        try {
-            const resultados = await Transacao.listarTodas();
+  listar: async (req, res) => {
+    try {
+      const usuario_id = req.usuario.id;
 
-            const saldo = resultados.reduce((acumulador, transacao) => {
-                return transacao.tipo === 'receita'
-                    ? acumulador + transacao.valor
-                    : acumulador - transacao.valor;
-            }, 0);
+      const resultados = await Transacao.listarTodas(usuario_id);
 
-            res.json({ saldo, transacoes: resultados });
-        } catch (erro) {
-            console.error('Erro ao buscar dados:', erro);
-            res.status(500).json({ erro: 'Erro ao buscar dados' });
-        }
-    },
+      const saldo = resultados.reduce((acumulador, transacao) => {
+        const valor = Number(transacao.valor);
 
-    criar: async (req, res) => {
-        try {
-            const { descricao, valor, tipo, data } = req.body;
+        return transacao.tipo === 'receita'
+          ? acumulador + valor
+          : acumulador - valor;
+      }, 0);
 
-            if (!descricao || valor == null || !tipo) {
-                return res.status(400).json({ erro: 'Dados obrigatórios' });
-            }
+      const receitas = resultados
+        .filter((transacao) => transacao.tipo === 'receita')
+        .reduce((total, transacao) => total + Number(transacao.valor), 0);
 
-            const result = await Transacao.criar({
-                descricao,
-                valor: Number(valor),
-                tipo,
-                data: data || new Date().toISOString().split('T')[0]
-            });
+      const despesas = resultados
+        .filter((transacao) => transacao.tipo === 'despesa')
+        .reduce((total, transacao) => total + Number(transacao.valor), 0);
 
-            res.status(201).json({
-                mensagem: 'Salvo no banco!',
-                id: result.insertId
-            });
-        } catch (err) {
-            console.error('Erro ao criar transação:', err);
-            res.status(500).json({ erro: err.message });
-        }
-    },
-
-    deletar: async (req, res) => {
-        try {
-            const { id } = req.params;
-            await Transacao.deletar(id);
-            res.json({ mensagem: 'Deletado com sucesso' });
-        } catch (erro) {
-            console.error('Erro ao deletar transação:', erro);
-            res.status(500).json({ erro: 'Erro ao deletar' });
-        }
+      res.json({
+        saldo,
+        receitas,
+        despesas,
+        transacoes: resultados
+      });
+    } catch (erro) {
+      console.error('Erro ao buscar dados:', erro);
+      res.status(500).json({ erro: 'Erro ao buscar dados' });
     }
+  },
+
+  criar: async (req, res) => {
+    try {
+      const usuario_id = req.usuario.id;
+      const { descricao, valor, tipo, data } = req.body;
+
+      if (!descricao || valor == null || !tipo) {
+        return res.status(400).json({
+          erro: 'Dados obrigatórios'
+        });
+      }
+
+      if (tipo !== 'receita' && tipo !== 'despesa') {
+        return res.status(400).json({
+          erro: 'Tipo deve ser receita ou despesa'
+        });
+      }
+
+      const result = await Transacao.criar({
+        usuario_id,
+        descricao,
+        valor: Number(valor),
+        tipo,
+        data: data || new Date().toISOString().split('T')[0]
+      });
+
+      res.status(201).json({
+        mensagem: 'Transação salva no banco!',
+        id: result.insertId
+      });
+    } catch (err) {
+      console.error('Erro ao criar transação:', err);
+      res.status(500).json({
+        erro: 'Erro ao criar transação'
+      });
+    }
+  },
+
+  deletar: async (req, res) => {
+    try {
+      const usuario_id = req.usuario.id;
+      const { id } = req.params;
+
+      const result = await Transacao.deletar(id, usuario_id);
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          erro: 'Transação não encontrada'
+        });
+      }
+
+      res.json({
+        mensagem: 'Transação deletada com sucesso'
+      });
+    } catch (erro) {
+      console.error('Erro ao deletar transação:', erro);
+      res.status(500).json({
+        erro: 'Erro ao deletar transação'
+      });
+    }
+  }
 };
 
 module.exports = transacaoController;
