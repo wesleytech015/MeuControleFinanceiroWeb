@@ -1,10 +1,13 @@
 const conexao = require('../database/conexao');
 
 class Transacao {
-    static async listarTodas() {
-        const [rows] = await conexao.query('SELECT * FROM movimentacoes');
-        return rows;
-    }
+    // listarTodas
+static async listarTodas(usuario_id) {
+  const [rows] = await conexao.query(
+    'SELECT * FROM movimentacoes WHERE usuario_id = ?', [usuario_id]
+  );
+  return rows;
+}
 
     static async criar(transacao) {
         const { descricao, valor, tipo, data } = transacao;
@@ -16,13 +19,13 @@ class Transacao {
         return result;
     }
 
-    static async deletar(id) {
-        const [result] = await conexao.query(
-            'DELETE FROM movimentacoes WHERE id = ?',
-            [id]
-        );
-        return result;
-    }
+    // deletar
+static async deletar(id, usuario_id) {
+  const [result] = await conexao.query(
+    'DELETE FROM movimentacoes WHERE id = ? AND usuario_id = ?', [id, usuario_id]
+  );
+  return result;
+}
 }
 
 module.exports = Transacao;
