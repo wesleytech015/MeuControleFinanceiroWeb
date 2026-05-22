@@ -1,79 +1,321 @@
+/* ========================================
+   LAYOUT PRINCIPAL
+======================================== */
+
 .layout {
+
+  /* ALTURA TOTAL DA TELA */
   min-height: 100vh;
+
+  /* ORGANIZAÇÃO HORIZONTAL */
   display: flex;
+
+  /* COR DE FUNDO */
   background: #f4f7fb;
 }
 
+
+/* ========================================
+   SIDEBAR (MENU LATERAL)
+======================================== */
+
 .sidebar {
+
+  /* LARGURA FIXA */
   width: 260px;
-  background: linear-gradient(180deg, #0f172a, #1e3a8a);
+
+  /* FUNDO EM GRADIENTE */
+  background: linear-gradient(
+    180deg,
+    #0f172a,
+    #1e3a8a
+  );
+
+  /* COR DO TEXTO */
   color: white;
+
+  /* ESPAÇAMENTO INTERNO */
   padding: 28px 20px;
 }
 
+
+/* ========================================
+   LOGO DA SIDEBAR
+======================================== */
+
 .sidebar-logo {
+
+  /* TAMANHO DA FONTE */
   font-size: 24px;
+
+  /* ESPAÇAMENTO INFERIOR */
   margin-bottom: 36px;
 }
 
+
+/* ========================================
+   MENU DA SIDEBAR
+======================================== */
+
 .sidebar-menu {
+
+  /* ORGANIZAÇÃO VERTICAL */
   display: flex;
+
   flex-direction: column;
+
+  /* ESPAÇAMENTO ENTRE LINKS */
   gap: 12px;
 }
 
+
+/* ========================================
+   LINKS DO MENU
+======================================== */
+
 .sidebar-menu a {
+
+  /* COR DOS LINKS */
   color: #dbeafe;
+
+  /* ESPAÇAMENTO INTERNO */
   padding: 14px 16px;
+
+  /* BORDAS ARREDONDADAS */
   border-radius: 12px;
+
+  /* ANIMAÇÃO */
   transition: 0.2s;
 }
 
+
+/* ========================================
+   HOVER DOS LINKS
+======================================== */
+
 .sidebar-menu a:hover {
+
+  /* FUNDO TRANSPARENTE */
   background: rgba(255, 255, 255, 0.12);
+
+  /* TEXTO BRANCO */
   color: white;
 }
 
+
+/* ========================================
+   LINK ATIVO
+======================================== */
+
+.sidebar-menu a.active {
+
+  /* FUNDO DESTACADO */
+  background: rgba(255, 255, 255, 0.18);
+
+  /* TEXTO */
+  color: white;
+
+  font-weight: bold;
+}
+
+
+/* ========================================
+   ÁREA PRINCIPAL
+======================================== */
+
 .layout-main {
+
+  /* OCUPA TODO ESPAÇO DISPONÍVEL */
   flex: 1;
+
+  /* ORGANIZAÇÃO VERTICAL */
   display: flex;
+
   flex-direction: column;
 }
 
+
+/* ========================================
+   NAVBAR SUPERIOR
+======================================== */
+
 .navbar {
+
+  /* ALTURA FIXA */
   height: 82px;
+
+  /* FUNDO */
   background: white;
+
+  /* LINHA INFERIOR */
   border-bottom: 1px solid #e5e7eb;
+
+  /* ESPAÇAMENTO INTERNO */
   padding: 0 32px;
+
+  /* ORGANIZAÇÃO */
   display: flex;
-  align-items: center;
+
   justify-content: space-between;
+
+  align-items: center;
 }
 
+
+/* ========================================
+   TÍTULO DA NAVBAR
+======================================== */
+
 .navbar h3 {
+
   color: #0f172a;
+
   font-size: 22px;
 }
 
+
+/* ========================================
+   SUBTÍTULO DA NAVBAR
+======================================== */
+
 .navbar p {
+
   color: #64748b;
+
   font-size: 14px;
 }
 
+
+/* ========================================
+   ÁREA DIREITA DA NAVBAR
+======================================== */
+
+.navbar-actions {
+
+  /* ORGANIZAÇÃO HORIZONTAL */
+  display: flex;
+
+  align-items: center;
+
+  /* ESPAÇAMENTO ENTRE ELEMENTOS */
+  gap: 14px;
+}
+
+
+/* ========================================
+   ÁREA DO USUÁRIO
+======================================== */
+
 .navbar-user {
+
+  /* ALINHAMENTO */
+  display: flex;
+
+  align-items: center;
+}
+
+
+/* ========================================
+   BADGE DO USUÁRIO
+======================================== */
+
+.user-badge {
+
+  /* FUNDO */
   background: #eff6ff;
+
+  /* COR DO TEXTO */
   color: #2563eb;
+
+  /* ESPAÇAMENTO */
   padding: 10px 16px;
+
+  /* FORMATO REDONDO */
   border-radius: 999px;
+
+  /* TEXTO */
   font-weight: bold;
 }
+
+
+/* ========================================
+   BOTÃO SAIR
+======================================== */
+
+.btn-sair {
+
+  /* FUNDO EM GRADIENTE */
+  background: linear-gradient(
+    135deg,
+    #ef4444,
+    #dc2626
+  );
+
+  /* COR DO TEXTO */
+  color: white;
+
+  /* REMOVE BORDA */
+  border: none;
+
+  /* ESPAÇAMENTO */
+  padding: 10px 18px;
+
+  /* BORDAS ARREDONDADAS */
+  border-radius: 12px;
+
+  /* TEXTO */
+  font-size: 14px;
+
+  font-weight: 600;
+
+  /* CURSOR */
+  cursor: pointer;
+
+  /* SOMBRA */
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+
+  /* ANIMAÇÃO */
+  transition: all 0.3s ease;
+}
+
+
+/* ========================================
+   HOVER DO BOTÃO
+======================================== */
+
+.btn-sair:hover {
+
+  /* ESCURECE O BOTÃO */
+  background: linear-gradient(
+    135deg,
+    #dc2626,
+    #b91c1c
+  );
+
+  /* LEVE MOVIMENTO */
+  transform: translateY(-2px);
+
+  /* SOMBRA MAIS FORTE */
+  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.35);
+}
+
+
+/* ========================================
+   EFEITO AO CLICAR
+======================================== */
+
+.btn-sair:active {
+
+  transform: translateY(0);
+}
+
+
+/* ========================================
+   CONTEÚDO PRINCIPAL
+======================================== */
 
 .layout-content {
-  padding: 32px;
-}
 
-.sidebar-menu a.active {
-  background: rgba(255, 255, 255, 0.18);
-  color: white;
-  font-weight: bold;
+  /* ESPAÇAMENTO INTERNO */
+  padding: 32px;
 }
