@@ -1,0 +1,229 @@
+/* =========================
+   CONFIGURAÇÃO GERAL DA PÁGINA
+========================= */
+
+.cadastro-page {
+
+  /* ALTURA TOTAL DA TELA */
+  min-height: 100vh;
+
+  /* FUNDO EM DEGRADÊ */
+  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+
+  /* CENTRALIZAÇÃO */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* FONTE */
+  font-family: Arial, sans-serif;
+}
+
+
+/* =========================
+   CARD CENTRAL
+========================= */
+
+.cadastro-card {
+
+  /* FUNDO BRANCO */
+  background: #ffffff;
+
+  /* LARGURA */
+  width: 400px;
+
+  /* ESPAÇAMENTO INTERNO */
+  padding: 35px;
+
+  /* BORDAS ARREDONDADAS */
+  border-radius: 18px;
+
+  /* SOMBRA */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+
+/* =========================
+   TÍTULO
+========================= */
+
+.cadastro-card h1 {
+
+  /* CENTRALIZAÇÃO */
+  text-align: center;
+
+  /* COR */
+  color: #0f172a;
+
+  /* ESPAÇAMENTO */
+  margin-bottom: 8px;
+}
+
+
+/* =========================
+   SUBTÍTULO
+========================= */
+
+.cadastro-card p {
+
+  /* CENTRALIZAÇÃO */
+  text-align: center;
+
+  /* COR */
+  color: #64748b;
+
+  /* ESPAÇAMENTO */
+  margin-bottom: 25px;
+}
+
+
+/* =========================
+   FORMULÁRIO
+========================= */
+
+.cadastro-card form {
+
+  /* ORGANIZAÇÃO VERTICAL */
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =========================
+   LABELS
+========================= */
+
+.cadastro-card label {
+
+  /* ESPAÇAMENTO SUPERIOR */
+  margin-top: 12px;
+
+  /* ESPAÇAMENTO INFERIOR */
+  margin-bottom: 6px;
+
+  /* NEGRITO */
+  font-weight: bold;
+
+  /* COR */
+  color: #334155;
+}
+
+
+/* =========================
+   CAMPOS INPUT
+========================= */
+
+.cadastro-card input {
+
+  /* ESPAÇAMENTO INTERNO */
+  padding: 12px;
+
+  /* BORDA */
+  border: 1px solid #cbd5e1;
+
+  /* BORDAS ARREDONDADAS */
+  border-radius: 10px;
+
+  /* TAMANHO DA FONTE */
+  font-size: 14px;
+}
+
+
+/* =========================
+   INPUT EM FOCO
+========================= */
+
+.cadastro-card input:focus {
+
+  /* REMOVE BORDA PADRÃO */
+  outline: none;
+
+  /* COR DA BORDA */
+  border-color: #2563eb;
+}
+
+
+/* =========================
+   BOTÃO
+========================= */
+
+.cadastro-card button {
+
+  /* ESPAÇAMENTO SUPERIOR */
+  margin-top: 22px;
+
+  /* ESPAÇAMENTO INTERNO */
+  padding: 13px;
+
+  /* REMOVE BORDA */
+  border: none;
+
+  /* BORDAS ARREDONDADAS */
+  border-radius: 10px;
+
+  /* COR DE FUNDO */
+  background: #2563eb;
+
+  /* COR DO TEXTO */
+  color: white;
+
+  /* TAMANHO DA FONTE */
+  font-size: 16px;
+
+  /* NEGRITO */
+  font-weight: bold;
+
+  /* CURSOR */
+  cursor: pointer;
+
+  /* TRANSIÇÃO */
+  transition: 0.3s;
+}
+
+
+/* =========================
+   EFEITO HOVER NO BOTÃO
+========================= */
+
+.cadastro-card button:hover {
+
+  /* MUDA COR */
+  background: #1d4ed8;
+}
+
+
+/* =========================
+   TEXTO INFERIOR
+========================= */
+
+.cadastro-card span {
+
+  /* EXIBE EM BLOCO */
+  display: block;
+
+  /* CENTRALIZAÇÃO */
+  text-align: center;
+
+  /* ESPAÇAMENTO */
+  margin-top: 18px;
+
+  /* COR */
+  color: #475569;
+}
+
+
+/* =========================
+   LINK
+========================= */
+
+.cadastro-card a {
+
+  /* COR */
+  color: #2563eb;
+
+  /* NEGRITO */
+  font-weight: bold;
+
+  /* REMOVE SUBLINHADO */
+  text-decoration: none;
+}
