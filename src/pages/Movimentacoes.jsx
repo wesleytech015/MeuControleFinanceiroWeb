@@ -19,26 +19,42 @@ function Movimentacoes() {
   // ESTADO DO FILTRO POR TIPO
   const [tipoFiltro, setTipoFiltro] = useState("Todos");
 
-  // ESTADO DO FILTRO POR DATA
-  const [dataFiltro, setDataFiltro] = useState("");
+  // ESTADO DO FILTRO DE DATA INICIAL
+  const [dataInicio, setDataInicio] = useState("");
+
+  // ESTADO DO FILTRO DE DATA FINAL
+  const [dataFim, setDataFim] = useState("");
 
   // CONVERTE DATA BRASILEIRA PARA FORMATO HTML
-  // Exemplo: 13/05/2026 -> 2026-05-13
+  // EXEMPLO: 13/05/2026 -> 2026-05-13
   function converterDataParaInput(dataBR) {
+    // VERIFICA SE A DATA EXISTE
+    if (!dataBR) {
+      return "";
+    }
+
+    // SEPARA DIA, MÊS E ANO
     const partes = dataBR.split("/");
 
+    // VERIFICA SE A DATA TEM 3 PARTES
     if (partes.length !== 3) {
       return "";
     }
 
+    // PEGA O DIA
     const dia = partes[0];
+
+    // PEGA O MÊS
     const mes = partes[1];
+
+    // PEGA O ANO
     const ano = partes[2];
 
+    // RETORNA A DATA NO FORMATO YYYY-MM-DD
     return `${ano}-${mes}-${dia}`;
   }
 
-  // FILTRA AS MOVIMENTAÇÕES POR BUSCA, TIPO E DATA
+  // FILTRA AS MOVIMENTAÇÕES POR BUSCA, TIPO, DATA INICIAL E DATA FINAL
   const movimentacoesFiltradas = movimentacoes.filter((item) => {
     // FILTRO POR DESCRIÇÃO
     const correspondeBusca = item.descricao
@@ -49,13 +65,24 @@ function Movimentacoes() {
     const correspondeTipo =
       tipoFiltro === "Todos" || item.tipo === tipoFiltro;
 
-    // FILTRO POR DATA
-    const correspondeData =
-      dataFiltro === "" ||
-      converterDataParaInput(item.data) === dataFiltro;
+    // CONVERTE A DATA DA MOVIMENTAÇÃO PARA O FORMATO HTML
+    const dataMovimentacao = converterDataParaInput(item.data);
 
-    // RETORNA APENAS OS ITENS QUE PASSAM NOS 3 FILTROS
-    return correspondeBusca && correspondeTipo && correspondeData;
+    // FILTRO POR DATA INICIAL
+    const correspondeDataInicio =
+      dataInicio === "" || dataMovimentacao >= dataInicio;
+
+    // FILTRO POR DATA FINAL
+    const correspondeDataFim =
+      dataFim === "" || dataMovimentacao <= dataFim;
+
+    // RETORNA APENAS OS ITENS QUE PASSAM NOS FILTROS
+    return (
+      correspondeBusca &&
+      correspondeTipo &&
+      correspondeDataInicio &&
+      correspondeDataFim
+    );
   });
 
   return (
@@ -86,12 +113,22 @@ function Movimentacoes() {
           <option value="Despesa">Despesas</option>
         </select>
 
-        {/* FILTRO POR DATA */}
-        <input
-          type="date"
-          value={dataFiltro}
-          onChange={(e) => setDataFiltro(e.target.value)}
-        />
+        {/* ÁREA DOS FILTROS DE DATA */}
+        <div className="filtros-data">
+          {/* FILTRO POR DATA INICIAL */}
+          <input
+            type="date"
+            value={dataInicio}
+            onChange={(e) => setDataInicio(e.target.value)}
+          />
+
+          {/* FILTRO POR DATA FINAL */}
+          <input
+            type="date"
+            value={dataFim}
+            onChange={(e) => setDataFim(e.target.value)}
+          />
+        </div>
       </div>
 
       {/* CARD DA TABELA */}
@@ -162,4 +199,5 @@ function Movimentacoes() {
   );
 }
 
+// EXPORTA O COMPONENTE
 export default Movimentacoes;
