@@ -1,4 +1,4 @@
-# ==================== DEPENDÊNCIAS ====================
+# ==================== DEPENDÊNCIAS / BUILD ====================
 node_modules
 dist
 dist-ssr
@@ -20,6 +20,9 @@ lerna-debug.log*
 .env.production
 .env.development
 .env.test
+*.env
+!*.env.example
+!.env.example
 
 # ==================== EDITOR / IDE ====================
 .vscode/*
@@ -33,7 +36,6 @@ lerna-debug.log*
 *.sw?
 
 # ==================== OUTROS ====================
-.env.example   # ← NÃO ignore este (é bom ele ficar no GitHub)
 coverage
 *.env.backup
 *.env.bak

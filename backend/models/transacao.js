@@ -10,14 +10,23 @@ static async listarTodas(usuario_id) {
 }
 
     static async criar(transacao) {
-        const { descricao, valor, tipo, data } = transacao;
-        const sql = `
-            INSERT INTO movimentacoes (descricao, valor, tipo, data)
-            VALUES (?, ?, ?, ?)
-        `;
-        const [result] = await conexao.query(sql, [descricao, valor, tipo, data]);
-        return result;
-    }
+  const { usuario_id, descricao, valor, tipo, data } = transacao;
+
+  const sql = `
+    INSERT INTO movimentacoes (usuario_id, descricao, valor, tipo, data)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  const [result] = await conexao.query(sql, [
+    usuario_id,
+    descricao,
+    valor,
+    tipo,
+    data
+  ]);
+
+  return result;
+}
 
     // deletar
 static async deletar(id, usuario_id) {
