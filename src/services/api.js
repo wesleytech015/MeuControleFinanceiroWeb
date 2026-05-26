@@ -1,56 +1,50 @@
-import axios from "axios";
+// URL base do backend.
+// Todas as requisições do frontend serão enviadas para esse endereço.
+const API_URL = "http://localhost:3000/api";
 
-const api = axios.create({
-  baseURL: "http://localhost:3000/api"
-});
-
-// Injeta o token em toda requisição automaticamente
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Redireciona para login se token expirar
-api.interceptors.response.use(
-  (resposta) => resposta,
-  (erro) => {
-    if (erro.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("usuario");
-      window.location.href = "/";
-    }
-    return Promise.reject(erro);
-  }
-);
-
-// Auth
+// Função responsável por fazer login do usuário.
 export async function login(email, senha) {
-  const resposta = await api.post("/login", { email, senha });
-  return resposta.data; // { token, usuario }
+  // Envia os dados de login para a rota /api/login do backend.
+  const resposta = await fetch(`${API_URL}/login`, {
+    method: "POST", // Define que estamos enviando dados.
+    headers: {
+      "Content-Type": "application/json", // Informa que os dados estão em JSON.
+    },
+    body: JSON.stringify({
+      email: email, // E-mail digitado pelo usuário.
+      senha: senha, // Senha digitada pelo usuário.
+    }),
+  });
+
+  // Se o backend retornar erro, interrompe o login.
+  if (!resposta.ok) {
+    throw new Error("Erro ao fazer login");
+  }
+
+  // Retorna os dados enviados pelo backend.
+  return await resposta.json();
 }
 
+// Função responsável por cadastrar um novo usuário.
 export async function cadastrar(nome, email, senha) {
-  const resposta = await api.post("/usuarios", { nome, email, senha });
-  return resposta.data;
-}
+  // Envia os dados do cadastro para a rota /api/usuarios do backend.
+  const resposta = await fetch(`${API_URL}/usuarios`, {
+    method: "POST", // Define que estamos criando um novo registro.
+    headers: {
+      "Content-Type": "application/json", // Informa que o corpo da requisição está em JSON.
+    },
+    body: JSON.stringify({
+      nome: nome, // Nome digitado no formulário.
+      email: email, // E-mail digitado no formulário.
+      senha: senha, // Senha digitada no formulário.
+    }),
+  });
 
-// Transações
-export async function listarTransacoes() {
-  const resposta = await api.get("/transacoes");
-  return resposta.data; // { saldo, receitas, despesas, transacoes[] }
-}
+  // Se o backend retornar erro, interrompe o cadastro.
+  if (!resposta.ok) {
+    throw new Error("Erro ao cadastrar usuário");
+  }
 
-export async function criarTransacao(transacao) {
-  const resposta = await api.post("/transacoes", transacao);
-  return resposta.data;
+  // Retorna a resposta do backend.
+  return await resposta.json();
 }
-
-export async function deletarTransacao(id) {
-  const resposta = await api.delete(`/transacoes/${id}`);
-  return resposta.data;
-}
-
-export default api;
