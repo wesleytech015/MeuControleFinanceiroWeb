@@ -1,79 +1,319 @@
-.metas-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
+/* ========================================
+   CONTAINER PRINCIPAL DA PÁGINA
+======================================== */
+
+.page-container {
+  padding: 32px;
 }
 
-.meta-card {
+
+/* ========================================
+   SUBTÍTULO
+======================================== */
+
+.page-subtitle {
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+
+/* ========================================
+   FORMULÁRIO
+======================================== */
+
+.meta-form {
+
+  /* GRID RESPONSIVO */
+  display: grid;
+
+  /* COLUNAS */
+  grid-template-columns: 1fr 1fr 1fr 300px;
+
+  /* ESPAÇAMENTO */
+  gap: 16px;
+
+  /* DISTÂNCIA INFERIOR */
+  margin-bottom: 32px;
+}
+
+
+/* ========================================
+   INPUTS
+======================================== */
+
+.meta-form input,
+.input-adicionar-valor {
+
+  /* ESPAÇAMENTO */
+  padding: 14px;
+
+  /* BORDAS */
+  border: 1px solid #cbd5e1;
+
+  /* BORDAS ARREDONDADAS */
+  border-radius: 14px;
+
+  /* FUNDO */
   background: white;
-  padding: 28px;
-  border-radius: 24px;
+
+  /* TAMANHO TEXTO */
+  font-size: 14px;
+
+  /* REMOVE BORDA AZUL */
+  outline: none;
+}
+
+
+/* ========================================
+   BOTÃO ADICIONAR META
+======================================== */
+
+.meta-form button {
+
+  /* REMOVE BORDA */
+  border: none;
+
+  /* FUNDO */
+  background: #2563eb;
+
+  /* TEXTO */
+  color: white;
+  font-weight: bold;
+
+  /* BORDAS */
+  border-radius: 14px;
+
+  /* CURSOR */
+  cursor: pointer;
+
+  /* TRANSIÇÃO */
+  transition: 0.3s;
+}
+
+
+/* HOVER BOTÃO */
+.meta-form button:hover {
+  opacity: 0.9;
+}
+
+
+/* ========================================
+   GRID DAS METAS
+======================================== */
+
+.metas-grid {
+
+  /* GRID */
+  display: grid;
+
+  /* COLUNAS AUTOMÁTICAS */
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+
+  /* ESPAÇAMENTO */
+  gap: 24px;
+}
+
+
+/* ========================================
+   CARD DA META
+======================================== */
+
+.meta-card {
+
+  /* FUNDO */
+  background: white;
+
+  /* ESPAÇAMENTO */
+  padding: 24px;
+
+  /* BORDAS */
+  border-radius: 22px;
+
+  /* SOMBRA */
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
+
+/* ========================================
+   TOPO DO CARD
+======================================== */
+
 .meta-header {
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  margin-bottom: 18px;
 }
 
-.meta-header h2 {
+
+/* TÍTULO */
+.meta-header h3 {
+  font-size: 24px;
   color: #0f172a;
 }
 
-.meta-header span {
+
+/* PORCENTAGEM */
+.meta-percent {
+
   background: #eff6ff;
   color: #2563eb;
+
   padding: 8px 12px;
+
   border-radius: 999px;
+
+  font-size: 14px;
   font-weight: bold;
 }
 
+
+/* ========================================
+   TEXO DOS VALORES
+======================================== */
+
 .meta-card p {
+
   color: #64748b;
-  margin: 16px 0;
+
+  margin-bottom: 18px;
+
+  font-size: 15px;
 }
 
-.meta-progress {
+
+/* ========================================
+   BARRA DE PROGRESSO
+======================================== */
+
+.progress-bar {
+
   width: 100%;
   height: 14px;
+
   background: #e2e8f0;
+
   border-radius: 999px;
+
   overflow: hidden;
+
   margin-bottom: 20px;
 }
 
-.meta-fill {
+
+/* PREENCHIMENTO */
+.progress-fill {
+
   height: 100%;
+
+  background: linear-gradient(
+    90deg,
+    #2563eb,
+    #3b82f6
+  );
+
   border-radius: 999px;
 }
 
-.meta-fill.notebook {
-  width: 70%;
+
+/* ========================================
+   INPUT ADICIONAR VALOR
+======================================== */
+
+.input-adicionar-valor {
+  margin-bottom: 16px;
+}
+
+
+/* ========================================
+   ÁREA DOS BOTÕES
+======================================== */
+
+.meta-actions {
+
+  display: flex;
+
+  gap: 12px;
+}
+
+
+/* ========================================
+   BOTÃO ADICIONAR VALOR
+======================================== */
+
+.btn-adicionar-valor {
+
+  flex: 1;
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 14px;
+
   background: #2563eb;
-}
 
-.meta-fill.viagem {
-  width: 45%;
-  background: #22c55e;
-}
-
-.meta-fill.reserva {
-  width: 30%;
-  background: #ef4444;
-}
-
-.meta-card button {
-  width: 100%;
-  padding: 13px;
-  border-radius: 12px;
-  background: #2563eb;
   color: white;
+
   font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.3s;
 }
 
-@media (max-width: 900px) {
-  .metas-grid {
+
+/* HOVER */
+.btn-adicionar-valor:hover {
+  opacity: 0.9;
+}
+
+
+/* ========================================
+   BOTÃO EXCLUIR
+======================================== */
+
+.btn-excluir-meta {
+
+  flex: 1;
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #ef4444;
+
+  color: white;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+
+/* HOVER */
+.btn-excluir-meta:hover {
+  opacity: 0.9;
+}
+
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 1000px) {
+
+  .meta-form {
     grid-template-columns: 1fr;
+  }
+
+  .meta-actions {
+    flex-direction: column;
   }
 }
