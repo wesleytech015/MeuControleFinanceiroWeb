@@ -1,60 +1,164 @@
+// IMPORTA OS HOOKS DO REACT
+import { useEffect, useState } from "react";
+
+// IMPORTA O LAYOUT PADRÃO
 import Layout from "../components/Layout";
+
+// IMPORTA O CSS DA PÁGINA
 import "../styles/cartoes.css";
 
 function Cartoes() {
+  // BUSCA OS CARTÕES SALVOS NO NAVEGADOR
+  const [cartoes, setCartoes] = useState(() => {
+    const cartoesSalvos = localStorage.getItem("cartoes");
+
+    return cartoesSalvos ? JSON.parse(cartoesSalvos) : [];
+  });
+
+  // CAMPOS DO FORMULÁRIO
+  const [nome, setNome] = useState("");
+  const [limite, setLimite] = useState("");
+  const [vencimento, setVencimento] = useState("");
+  const [finalCartao, setFinalCartao] = useState("");
+
+  // SALVA OS CARTÕES SEMPRE QUE A LISTA MUDA
+  useEffect(() => {
+    localStorage.setItem("cartoes", JSON.stringify(cartoes));
+  }, [cartoes]);
+
+  // FORMATA VALOR PARA PADRÃO BRASILEIRO
+  function formatarMoeda(valor) {
+    const somenteNumeros = valor.replace(/\D/g, "");
+
+    return (Number(somenteNumeros) / 100).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  }
+
+  // CONVERTE MOEDA FORMATADA PARA NÚMERO
+  function converterMoedaParaNumero(valor) {
+    return Number(
+      valor
+        .replace("R$", "")
+        .replace(/\./g, "")
+        .replace(",", ".")
+        .trim()
+    );
+  }
+
+  // CADASTRA UM NOVO CARTÃO
+  function cadastrarCartao(event) {
+    event.preventDefault();
+
+    const novoCartao = {
+      id: Date.now(),
+      nome,
+      limite: converterMoedaParaNumero(limite),
+      vencimento,
+      finalCartao,
+      fatura: 0,
+    };
+
+    setCartoes([...cartoes, novoCartao]);
+
+    setNome("");
+    setLimite("");
+    setVencimento("");
+    setFinalCartao("");
+  }
+
   return (
     <Layout>
-      <div className="page-header">
+      <div className="page-container">
         <h1>Cartões</h1>
-        <p>Controle seus cartões, limites e faturas.</p>
+
+        <p className="page-subtitle">
+          Controle seus cartões, limites e faturas.
+        </p>
+
+        <form className="cartao-form" onSubmit={cadastrarCartao}>
+          <input
+            type="text"
+            placeholder="Nome do cartão"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            required
+          />
+
+          <input
+            type="text"
+            placeholder="Limite Ex: R$ 5.000,00"
+            value={limite}
+            onChange={(e) => setLimite(formatarMoeda(e.target.value))}
+            required
+          />
+
+          <input
+            type="text"
+            placeholder="Vencimento Ex: 15/06/2026"
+            value={vencimento}
+            onChange={(e) => setVencimento(e.target.value)}
+            required
+          />
+
+          <input
+            type="text"
+            placeholder="Final do cartão"
+            maxLength="4"
+            value={finalCartao}
+            onChange={(e) => setFinalCartao(e.target.value)}
+            required
+          />
+
+          <button type="submit">Cadastrar cartão</button>
+        </form>
+
+        <div className="cartoes-grid">
+          {cartoes.length === 0 ? (
+            <p>Nenhum cartão cadastrado.</p>
+          ) : (
+            cartoes.map((cartao, index) => (
+              <div
+                key={cartao.id}
+                className={`credit-card ${
+                  index % 3 === 0
+                    ? "roxo"
+                    : index % 3 === 1
+                    ? "azul"
+                    : "verde"
+                }`}
+              >
+                <div className="card-top">
+                  <span>{cartao.nome}</span>
+                  <span>•••• {cartao.finalCartao}</span>
+                </div>
+
+                <h2>
+                  {cartao.fatura.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </h2>
+
+                <p>Fatura atual</p>
+
+                <div className="card-bottom">
+                  <span>
+                    Limite:{" "}
+                    {cartao.limite.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </span>
+
+                  <span>Venc. {cartao.vencimento}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
-
-      <section className="cartoes-grid">
-        <div className="credit-card roxo">
-          <div className="card-top">
-            <span>Nubank</span>
-            <strong>●●●● 4821</strong>
-          </div>
-
-          <h2>R$ 2.300</h2>
-          <p>Fatura atual</p>
-
-          <div className="card-bottom">
-            <span>Limite: R$ 5.000</span>
-            <span>Venc. 10/06</span>
-          </div>
-        </div>
-
-        <div className="credit-card azul">
-          <div className="card-top">
-            <span>Inter</span>
-            <strong>●●●● 7365</strong>
-          </div>
-
-          <h2>R$ 1.200</h2>
-          <p>Limite utilizado</p>
-
-          <div className="card-bottom">
-            <span>Limite: R$ 4.000</span>
-            <span>Venc. 15/06</span>
-          </div>
-        </div>
-
-        <div className="credit-card verde">
-          <div className="card-top">
-            <span>PicPay</span>
-            <strong>●●●● 9284</strong>
-          </div>
-
-          <h2>R$ 5.000</h2>
-          <p>Limite disponível</p>
-
-          <div className="card-bottom">
-            <span>Limite: R$ 6.000</span>
-            <span>Venc. 20/06</span>
-          </div>
-        </div>
-      </section>
     </Layout>
   );
 }

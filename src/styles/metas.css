@@ -1,79 +1,268 @@
+/* ============================================
+   GRID DAS METAS
+============================================ */
+
 .metas-grid {
+
+  /* ORGANIZA OS CARDS EM GRID */
   display: grid;
+
+  /* CRIA 3 COLUNAS */
   grid-template-columns: repeat(3, 1fr);
+
+  /* ESPAÇAMENTO ENTRE OS CARDS */
   gap: 22px;
+
+  /* ESPAÇAMENTO SUPERIOR */
+  margin-top: 30px;
 }
 
+
+/* ============================================
+   CARD DAS METAS
+============================================ */
+
 .meta-card {
+
+  /* FUNDO BRANCO */
   background: white;
+
+  /* ESPAÇAMENTO INTERNO */
   padding: 28px;
+
+  /* BORDAS ARREDONDADAS */
   border-radius: 24px;
+
+  /* SOMBRA SUAVE */
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
+
+/* ============================================
+   TOPO DO CARD
+============================================ */
+
 .meta-header {
+
+  /* ORGANIZA ITENS LADO A LADO */
   display: flex;
+
+  /* UM ITEM EM CADA EXTREMIDADE */
   justify-content: space-between;
+
+  /* ALINHAMENTO VERTICAL */
   align-items: center;
 }
 
-.meta-header h2 {
+
+/* ============================================
+   TÍTULO DA META
+============================================ */
+
+.meta-header h3 {
+
+  /* COR ESCURA */
   color: #0f172a;
 }
 
-.meta-header span {
+
+/* ============================================
+   PORCENTAGEM
+============================================ */
+
+.meta-percent {
+
+  /* FUNDO AZUL CLARO */
   background: #eff6ff;
+
+  /* TEXTO AZUL */
   color: #2563eb;
+
+  /* ESPAÇAMENTO INTERNO */
   padding: 8px 12px;
+
+  /* FORMATO PIL */
   border-radius: 999px;
+
+  /* TEXTO EM NEGRITO */
   font-weight: bold;
 }
 
+
+/* ============================================
+   TEXTO DOS VALORES
+============================================ */
+
 .meta-card p {
+
+  /* COR CINZA */
   color: #64748b;
+
+  /* ESPAÇAMENTO VERTICAL */
   margin: 16px 0;
 }
 
-.meta-progress {
+
+/* ============================================
+   BARRA DE PROGRESSO
+============================================ */
+
+.progress-bar {
+
+  /* LARGURA TOTAL */
   width: 100%;
+
+  /* ALTURA DA BARRA */
   height: 14px;
+
+  /* COR DE FUNDO */
   background: #e2e8f0;
+
+  /* BORDAS ARREDONDADAS */
   border-radius: 999px;
+
+  /* ESCONDE EXCESSO */
   overflow: hidden;
+
+  /* ESPAÇAMENTO INFERIOR */
   margin-bottom: 20px;
 }
 
-.meta-fill {
+
+/* ============================================
+   PREENCHIMENTO DA BARRA
+============================================ */
+
+.progress-fill {
+
+  /* ALTURA TOTAL */
   height: 100%;
+
+  /* BORDAS ARREDONDADAS */
   border-radius: 999px;
+
+  /* GRADIENTE AZUL */
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #3b82f6
+  );
 }
 
-.meta-fill.notebook {
-  width: 70%;
-  background: #2563eb;
+
+/* ============================================
+   FORMULÁRIO DE METAS
+============================================ */
+
+.meta-form {
+
+  /* ORGANIZA EM GRID */
+  display: grid;
+
+  /* 4 COLUNAS */
+  grid-template-columns: repeat(4, 1fr);
+
+  /* ESPAÇAMENTO ENTRE CAMPOS */
+  gap: 14px;
+
+  /* ESPAÇAMENTO SUPERIOR */
+  margin-top: 24px;
+
+  /* ESPAÇAMENTO INFERIOR */
+  margin-bottom: 30px;
 }
 
-.meta-fill.viagem {
-  width: 45%;
-  background: #22c55e;
-}
 
-.meta-fill.reserva {
-  width: 30%;
-  background: #ef4444;
-}
+/* ============================================
+   INPUTS DO FORMULÁRIO
+============================================ */
 
-.meta-card button {
-  width: 100%;
-  padding: 13px;
+.meta-form input {
+
+  /* ESPAÇAMENTO INTERNO */
+  padding: 14px;
+
+  /* BORDAS ARREDONDADAS */
   border-radius: 12px;
-  background: #2563eb;
-  color: white;
-  font-weight: bold;
+
+  /* BORDA SUAVE */
+  border: 1px solid #cbd5e1;
+
+  /* REMOVE CONTORNO PADRÃO */
+  outline: none;
+
+  /* FUNDO BRANCO */
+  background: white;
+
+  /* TAMANHO DA FONTE */
+  font-size: 15px;
 }
+
+
+/* ============================================
+   BOTÃO DO FORMULÁRIO
+============================================ */
+
+.meta-form button {
+
+  /* REMOVE BORDA */
+  border: none;
+
+  /* BORDAS ARREDONDADAS */
+  border-radius: 12px;
+
+  /* FUNDO COM GRADIENTE */
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #3b82f6
+  );
+
+  /* TEXTO BRANCO */
+  color: white;
+
+  /* TEXTO EM NEGRITO */
+  font-weight: bold;
+
+  /* CURSOR DE MÃO */
+  cursor: pointer;
+
+  /* ANIMAÇÃO SUAVE */
+  transition: 0.3s;
+}
+
+
+/* ============================================
+   HOVER DO BOTÃO
+============================================ */
+
+.meta-form button:hover {
+
+  /* LEVANTA O BOTÃO */
+  transform: translateY(-2px);
+
+  /* LEVE TRANSPARÊNCIA */
+  opacity: 0.95;
+}
+
+
+/* ============================================
+   RESPONSIVIDADE
+============================================ */
 
 @media (max-width: 900px) {
+
+  /* GRID DAS METAS */
   .metas-grid {
+
+    /* APENAS 1 COLUNA */
+    grid-template-columns: 1fr;
+  }
+
+  /* FORMULÁRIO */
+  .meta-form {
+
+    /* CAMPOS UM ABAIXO DO OUTRO */
     grid-template-columns: 1fr;
   }
 }
