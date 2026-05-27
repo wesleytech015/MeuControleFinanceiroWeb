@@ -1,41 +1,81 @@
+// IMPORTA O HOOK useState DO REACT
 import { useState } from "react";
+
+// IMPORTA O LAYOUT PADRÃO
 import Layout from "../components/Layout";
+
+// IMPORTA O CSS DO FORMULÁRIO
 import "../styles/formulario.css";
+
+// IMPORTA O CONTEXTO FINANCEIRO
 import { useFinanceiro } from "../context/FinanceContext";
 
+// COMPONENTE DA TELA DE DESPESAS
 function Despesas() {
+
+  // FUNÇÃO PARA ADICIONAR MOVIMENTAÇÃO
   const { adicionarMovimentacao } = useFinanceiro();
 
+  // ESTADO DA DESCRIÇÃO
   const [descricao, setDescricao] = useState("");
+
+  // ESTADO DO VALOR
   const [valor, setValor] = useState("");
 
+  // FORMATA VALOR PARA MOEDA BRASILEIRA
+  function formatarMoeda(valorDigitado) {
+
+    // REMOVE TUDO QUE NÃO FOR NÚMERO
+    const somenteNumeros = valorDigitado.replace(/\D/g, "");
+
+    // CONVERTE PARA REAL
+    return (Number(somenteNumeros) / 100).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  }
+
+  // CONVERTE MOEDA FORMATADA PARA NÚMERO
+  function converterMoedaParaNumero(valorFormatado) {
+
+    // REMOVE R$, PONTOS E TROCA VÍRGULA POR PONTO
+    return Number(
+      valorFormatado
+        .replace("R$", "")
+        .replace(/\./g, "")
+        .replace(",", ".")
+        .trim()
+    );
+  }
+
+  // SALVA A DESPESA
   function salvarDespesa(e) {
+
+    // EVITA RECARREGAR A PÁGINA
     e.preventDefault();
 
+    // VALIDA OS CAMPOS
     if (descricao === "" || valor === "") {
       alert("Preencha todos os campos.");
       return;
     }
 
+    // CRIA NOVA DESPESA
     const novaDespesa = {
       tipo: "Despesa",
-      descricao: descricao,
-
-      // CONVERTE 3.000,00 -> 3000.00
-      valor: Number(
-        valor
-          .replace(/\./g, "")
-          .replace(",", ".")
-      ),
-
+      descricao,
+      valor: converterMoedaParaNumero(valor),
       data: new Date().toLocaleDateString("pt-BR"),
     };
 
+    // ADICIONA NO CONTEXTO
     adicionarMovimentacao(novaDespesa);
 
+    // LIMPA OS CAMPOS
     setDescricao("");
     setValor("");
 
+    // CONFIRMA CADASTRO
     alert("Despesa cadastrada com sucesso!");
   }
 
@@ -43,7 +83,10 @@ function Despesas() {
     <Layout>
       <div className="page-header">
         <h1>Despesas</h1>
-        <p>Registre e controle seus gastos mensais.</p>
+
+        <p>
+          Registre e controle seus gastos mensais.
+        </p>
       </div>
 
       <div className="form-card">
@@ -59,9 +102,11 @@ function Despesas() {
 
           <input
             type="text"
-            placeholder="Ex: 3.000,00"
+            placeholder="Ex: R$ 3.000,00"
             value={valor}
-            onChange={(e) => setValor(e.target.value)}
+            onChange={(e) =>
+              setValor(formatarMoeda(e.target.value))
+            }
           />
 
           <button type="submit">
@@ -73,4 +118,5 @@ function Despesas() {
   );
 }
 
+// EXPORTA O COMPONENTE
 export default Despesas;

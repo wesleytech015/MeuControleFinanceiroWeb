@@ -130,3 +130,23 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* BOTÃO EXCLUIR CARTÃO */
+.btn-excluir-cartao {
+  width: 100%;
+  padding: 12px;
+  margin-top: 18px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.95);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* HOVER DO BOTÃO */
+.btn-excluir-cartao:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}

@@ -7,11 +7,12 @@ import Layout from "../components/Layout";
 // IMPORTA O CSS DA PÁGINA
 import "../styles/cartoes.css";
 
+// COMPONENTE DA TELA DE CARTÕES
 function Cartoes() {
+
   // BUSCA OS CARTÕES SALVOS NO NAVEGADOR
   const [cartoes, setCartoes] = useState(() => {
     const cartoesSalvos = localStorage.getItem("cartoes");
-
     return cartoesSalvos ? JSON.parse(cartoesSalvos) : [];
   });
 
@@ -27,8 +28,8 @@ function Cartoes() {
   }, [cartoes]);
 
   // FORMATA VALOR PARA PADRÃO BRASILEIRO
-  function formatarMoeda(valor) {
-    const somenteNumeros = valor.replace(/\D/g, "");
+  function formatarMoeda(valorDigitado) {
+    const somenteNumeros = valorDigitado.replace(/\D/g, "");
 
     return (Number(somenteNumeros) / 100).toLocaleString("pt-BR", {
       style: "currency",
@@ -37,9 +38,9 @@ function Cartoes() {
   }
 
   // CONVERTE MOEDA FORMATADA PARA NÚMERO
-  function converterMoedaParaNumero(valor) {
+  function converterMoedaParaNumero(valorFormatado) {
     return Number(
-      valor
+      valorFormatado
         .replace("R$", "")
         .replace(/\./g, "")
         .replace(",", ".")
@@ -50,6 +51,11 @@ function Cartoes() {
   // CADASTRA UM NOVO CARTÃO
   function cadastrarCartao(event) {
     event.preventDefault();
+
+    if (!nome || !limite || !vencimento || !finalCartao) {
+      alert("Preencha todos os campos.");
+      return;
+    }
 
     const novoCartao = {
       id: Date.now(),
@@ -68,6 +74,23 @@ function Cartoes() {
     setFinalCartao("");
   }
 
+  // EXCLUI UM CARTÃO
+  function excluirCartao(id) {
+    const confirmar = window.confirm(
+      "Deseja realmente excluir este cartão?"
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    const cartoesAtualizados = cartoes.filter(
+      (cartao) => cartao.id !== id
+    );
+
+    setCartoes(cartoesAtualizados);
+  }
+
   return (
     <Layout>
       <div className="page-container">
@@ -77,6 +100,7 @@ function Cartoes() {
           Controle seus cartões, limites e faturas.
         </p>
 
+        {/* FORMULÁRIO DE CADASTRO */}
         <form className="cartao-form" onSubmit={cadastrarCartao}>
           <input
             type="text"
@@ -90,7 +114,9 @@ function Cartoes() {
             type="text"
             placeholder="Limite Ex: R$ 5.000,00"
             value={limite}
-            onChange={(e) => setLimite(formatarMoeda(e.target.value))}
+            onChange={(e) =>
+              setLimite(formatarMoeda(e.target.value))
+            }
             required
           />
 
@@ -111,9 +137,12 @@ function Cartoes() {
             required
           />
 
-          <button type="submit">Cadastrar cartão</button>
+          <button type="submit">
+            Cadastrar cartão
+          </button>
         </form>
 
+        {/* LISTA DE CARTÕES */}
         <div className="cartoes-grid">
           {cartoes.length === 0 ? (
             <p>Nenhum cartão cadastrado.</p>
@@ -129,11 +158,13 @@ function Cartoes() {
                     : "verde"
                 }`}
               >
+                {/* TOPO DO CARTÃO */}
                 <div className="card-top">
                   <span>{cartao.nome}</span>
                   <span>•••• {cartao.finalCartao}</span>
                 </div>
 
+                {/* FATURA ATUAL */}
                 <h2>
                   {cartao.fatura.toLocaleString("pt-BR", {
                     style: "currency",
@@ -143,6 +174,7 @@ function Cartoes() {
 
                 <p>Fatura atual</p>
 
+                {/* RODAPÉ DO CARTÃO */}
                 <div className="card-bottom">
                   <span>
                     Limite:{" "}
@@ -152,8 +184,18 @@ function Cartoes() {
                     })}
                   </span>
 
-                  <span>Venc. {cartao.vencimento}</span>
+                  <span>
+                    Venc. {cartao.vencimento}
+                  </span>
                 </div>
+
+                {/* BOTÃO EXCLUIR */}
+                <button
+                  className="btn-excluir-cartao"
+                  onClick={() => excluirCartao(cartao.id)}
+                >
+                  Excluir cartão
+                </button>
               </div>
             ))
           )}
@@ -163,4 +205,5 @@ function Cartoes() {
   );
 }
 
+// EXPORTA O COMPONENTE
 export default Cartoes;
