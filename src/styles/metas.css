@@ -1,268 +1,319 @@
-/* ============================================
-   GRID DAS METAS
-============================================ */
+/* ========================================
+   CONTAINER PRINCIPAL DA PÁGINA
+======================================== */
 
-.metas-grid {
-
-  /* ORGANIZA OS CARDS EM GRID */
-  display: grid;
-
-  /* CRIA 3 COLUNAS */
-  grid-template-columns: repeat(3, 1fr);
-
-  /* ESPAÇAMENTO ENTRE OS CARDS */
-  gap: 22px;
-
-  /* ESPAÇAMENTO SUPERIOR */
-  margin-top: 30px;
+.page-container {
+  padding: 32px;
 }
 
 
-/* ============================================
-   CARD DAS METAS
-============================================ */
+/* ========================================
+   SUBTÍTULO
+======================================== */
 
-.meta-card {
-
-  /* FUNDO BRANCO */
-  background: white;
-
-  /* ESPAÇAMENTO INTERNO */
-  padding: 28px;
-
-  /* BORDAS ARREDONDADAS */
-  border-radius: 24px;
-
-  /* SOMBRA SUAVE */
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-}
-
-
-/* ============================================
-   TOPO DO CARD
-============================================ */
-
-.meta-header {
-
-  /* ORGANIZA ITENS LADO A LADO */
-  display: flex;
-
-  /* UM ITEM EM CADA EXTREMIDADE */
-  justify-content: space-between;
-
-  /* ALINHAMENTO VERTICAL */
-  align-items: center;
-}
-
-
-/* ============================================
-   TÍTULO DA META
-============================================ */
-
-.meta-header h3 {
-
-  /* COR ESCURA */
-  color: #0f172a;
-}
-
-
-/* ============================================
-   PORCENTAGEM
-============================================ */
-
-.meta-percent {
-
-  /* FUNDO AZUL CLARO */
-  background: #eff6ff;
-
-  /* TEXTO AZUL */
-  color: #2563eb;
-
-  /* ESPAÇAMENTO INTERNO */
-  padding: 8px 12px;
-
-  /* FORMATO PIL */
-  border-radius: 999px;
-
-  /* TEXTO EM NEGRITO */
-  font-weight: bold;
-}
-
-
-/* ============================================
-   TEXTO DOS VALORES
-============================================ */
-
-.meta-card p {
-
-  /* COR CINZA */
+.page-subtitle {
   color: #64748b;
-
-  /* ESPAÇAMENTO VERTICAL */
-  margin: 16px 0;
+  margin-bottom: 24px;
 }
 
 
-/* ============================================
-   BARRA DE PROGRESSO
-============================================ */
-
-.progress-bar {
-
-  /* LARGURA TOTAL */
-  width: 100%;
-
-  /* ALTURA DA BARRA */
-  height: 14px;
-
-  /* COR DE FUNDO */
-  background: #e2e8f0;
-
-  /* BORDAS ARREDONDADAS */
-  border-radius: 999px;
-
-  /* ESCONDE EXCESSO */
-  overflow: hidden;
-
-  /* ESPAÇAMENTO INFERIOR */
-  margin-bottom: 20px;
-}
-
-
-/* ============================================
-   PREENCHIMENTO DA BARRA
-============================================ */
-
-.progress-fill {
-
-  /* ALTURA TOTAL */
-  height: 100%;
-
-  /* BORDAS ARREDONDADAS */
-  border-radius: 999px;
-
-  /* GRADIENTE AZUL */
-  background: linear-gradient(
-    135deg,
-    #2563eb,
-    #3b82f6
-  );
-}
-
-
-/* ============================================
-   FORMULÁRIO DE METAS
-============================================ */
+/* ========================================
+   FORMULÁRIO
+======================================== */
 
 .meta-form {
 
-  /* ORGANIZA EM GRID */
+  /* GRID RESPONSIVO */
   display: grid;
 
-  /* 4 COLUNAS */
-  grid-template-columns: repeat(4, 1fr);
+  /* COLUNAS */
+  grid-template-columns: 1fr 1fr 1fr 300px;
 
-  /* ESPAÇAMENTO ENTRE CAMPOS */
-  gap: 14px;
+  /* ESPAÇAMENTO */
+  gap: 16px;
 
-  /* ESPAÇAMENTO SUPERIOR */
-  margin-top: 24px;
-
-  /* ESPAÇAMENTO INFERIOR */
-  margin-bottom: 30px;
+  /* DISTÂNCIA INFERIOR */
+  margin-bottom: 32px;
 }
 
 
-/* ============================================
-   INPUTS DO FORMULÁRIO
-============================================ */
+/* ========================================
+   INPUTS
+======================================== */
 
-.meta-form input {
+.meta-form input,
+.input-adicionar-valor {
 
-  /* ESPAÇAMENTO INTERNO */
+  /* ESPAÇAMENTO */
   padding: 14px;
 
-  /* BORDAS ARREDONDADAS */
-  border-radius: 12px;
-
-  /* BORDA SUAVE */
+  /* BORDAS */
   border: 1px solid #cbd5e1;
 
-  /* REMOVE CONTORNO PADRÃO */
-  outline: none;
+  /* BORDAS ARREDONDADAS */
+  border-radius: 14px;
 
-  /* FUNDO BRANCO */
+  /* FUNDO */
   background: white;
 
-  /* TAMANHO DA FONTE */
-  font-size: 15px;
+  /* TAMANHO TEXTO */
+  font-size: 14px;
+
+  /* REMOVE BORDA AZUL */
+  outline: none;
 }
 
 
-/* ============================================
-   BOTÃO DO FORMULÁRIO
-============================================ */
+/* ========================================
+   BOTÃO ADICIONAR META
+======================================== */
 
 .meta-form button {
 
   /* REMOVE BORDA */
   border: none;
 
-  /* BORDAS ARREDONDADAS */
-  border-radius: 12px;
+  /* FUNDO */
+  background: #2563eb;
 
-  /* FUNDO COM GRADIENTE */
-  background: linear-gradient(
-    135deg,
-    #2563eb,
-    #3b82f6
-  );
-
-  /* TEXTO BRANCO */
+  /* TEXTO */
   color: white;
-
-  /* TEXTO EM NEGRITO */
   font-weight: bold;
 
-  /* CURSOR DE MÃO */
+  /* BORDAS */
+  border-radius: 14px;
+
+  /* CURSOR */
   cursor: pointer;
 
-  /* ANIMAÇÃO SUAVE */
+  /* TRANSIÇÃO */
   transition: 0.3s;
 }
 
 
-/* ============================================
-   HOVER DO BOTÃO
-============================================ */
-
+/* HOVER BOTÃO */
 .meta-form button:hover {
-
-  /* LEVANTA O BOTÃO */
-  transform: translateY(-2px);
-
-  /* LEVE TRANSPARÊNCIA */
-  opacity: 0.95;
+  opacity: 0.9;
 }
 
 
-/* ============================================
+/* ========================================
+   GRID DAS METAS
+======================================== */
+
+.metas-grid {
+
+  /* GRID */
+  display: grid;
+
+  /* COLUNAS AUTOMÁTICAS */
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+
+  /* ESPAÇAMENTO */
+  gap: 24px;
+}
+
+
+/* ========================================
+   CARD DA META
+======================================== */
+
+.meta-card {
+
+  /* FUNDO */
+  background: white;
+
+  /* ESPAÇAMENTO */
+  padding: 24px;
+
+  /* BORDAS */
+  border-radius: 22px;
+
+  /* SOMBRA */
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+
+/* ========================================
+   TOPO DO CARD
+======================================== */
+
+.meta-header {
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 18px;
+}
+
+
+/* TÍTULO */
+.meta-header h3 {
+  font-size: 24px;
+  color: #0f172a;
+}
+
+
+/* PORCENTAGEM */
+.meta-percent {
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  padding: 8px 12px;
+
+  border-radius: 999px;
+
+  font-size: 14px;
+  font-weight: bold;
+}
+
+
+/* ========================================
+   TEXO DOS VALORES
+======================================== */
+
+.meta-card p {
+
+  color: #64748b;
+
+  margin-bottom: 18px;
+
+  font-size: 15px;
+}
+
+
+/* ========================================
+   BARRA DE PROGRESSO
+======================================== */
+
+.progress-bar {
+
+  width: 100%;
+  height: 14px;
+
+  background: #e2e8f0;
+
+  border-radius: 999px;
+
+  overflow: hidden;
+
+  margin-bottom: 20px;
+}
+
+
+/* PREENCHIMENTO */
+.progress-fill {
+
+  height: 100%;
+
+  background: linear-gradient(
+    90deg,
+    #2563eb,
+    #3b82f6
+  );
+
+  border-radius: 999px;
+}
+
+
+/* ========================================
+   INPUT ADICIONAR VALOR
+======================================== */
+
+.input-adicionar-valor {
+  margin-bottom: 16px;
+}
+
+
+/* ========================================
+   ÁREA DOS BOTÕES
+======================================== */
+
+.meta-actions {
+
+  display: flex;
+
+  gap: 12px;
+}
+
+
+/* ========================================
+   BOTÃO ADICIONAR VALOR
+======================================== */
+
+.btn-adicionar-valor {
+
+  flex: 1;
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #2563eb;
+
+  color: white;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+
+/* HOVER */
+.btn-adicionar-valor:hover {
+  opacity: 0.9;
+}
+
+
+/* ========================================
+   BOTÃO EXCLUIR
+======================================== */
+
+.btn-excluir-meta {
+
+  flex: 1;
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #ef4444;
+
+  color: white;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+
+/* HOVER */
+.btn-excluir-meta:hover {
+  opacity: 0.9;
+}
+
+
+/* ========================================
    RESPONSIVIDADE
-============================================ */
+======================================== */
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
 
-  /* GRID DAS METAS */
-  .metas-grid {
-
-    /* APENAS 1 COLUNA */
+  .meta-form {
     grid-template-columns: 1fr;
   }
 
-  /* FORMULÁRIO */
-  .meta-form {
-
-    /* CAMPOS UM ABAIXO DO OUTRO */
-    grid-template-columns: 1fr;
+  .meta-actions {
+    flex-direction: column;
   }
 }

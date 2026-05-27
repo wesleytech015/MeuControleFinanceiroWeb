@@ -1,0 +1,179 @@
+/* ====================================
+   GRID PRINCIPAL DOS RELATÓRIOS
+==================================== */
+
+.relatorios-grid {
+
+  /* GRID */
+  display: grid;
+
+  /* DUAS COLUNAS */
+  grid-template-columns: 2fr 1fr;
+
+  /* ESPAÇAMENTO */
+  gap: 24px;
+
+  /* MARGEM SUPERIOR */
+  margin-top: 24px;
+}
+
+
+/* ====================================
+   CARDS
+==================================== */
+
+.grafico-card,
+.resumo-card {
+
+  /* FUNDO */
+  background: white;
+
+  /* ESPAÇAMENTO INTERNO */
+  padding: 24px;
+
+  /* BORDAS ARREDONDADAS */
+  border-radius: 20px;
+
+  /* SOMBRA */
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+
+/* ====================================
+   TÍTULOS DOS CARDS
+==================================== */
+
+.grafico-card h3,
+.resumo-card h3 {
+
+  color: #0f172a;
+
+  margin-bottom: 20px;
+}
+
+
+/* ====================================
+   ÁREA DO GRÁFICO
+==================================== */
+
+.grafico-barras {
+
+  /* ALTURA FIXA */
+  height: 220px;
+
+  /* FLEX */
+  display: flex;
+
+  /* ALINHA AS BARRAS EMBAIXO */
+  align-items: flex-end;
+
+  /* CENTRALIZA */
+  justify-content: center;
+
+  /* ESPAÇAMENTO */
+  gap: 24px;
+
+  /* FUNDO SUAVE */
+  background: #f8fafc;
+
+  /* BORDAS */
+  border-radius: 16px;
+
+  /* ESPAÇAMENTO INTERNO */
+  padding: 20px;
+}
+
+
+/* ====================================
+   BARRAS
+==================================== */
+
+.barra {
+
+  /* LARGURA */
+  width: 80px;
+
+  /* ALTURA MÍNIMA */
+  min-height: 20px;
+
+  /* BORDAS SUPERIORES */
+  border-radius: 12px 12px 0 0;
+
+  /* ANIMAÇÃO */
+  transition: 0.3s;
+}
+
+
+/* ====================================
+   CORES DAS BARRAS
+==================================== */
+
+.barra.receita {
+
+  background: #22c55e;
+}
+
+.barra.despesa {
+
+  background: #ef4444;
+}
+
+.barra.saldo {
+
+  background: #2563eb;
+}
+
+
+/* ====================================
+   EFEITO HOVER
+==================================== */
+
+.barra:hover {
+
+  opacity: 0.9;
+
+  transform: translateY(-4px);
+}
+
+
+/* ====================================
+   RESUMO FINANCEIRO
+==================================== */
+
+.resumo-card p {
+
+  /* ESPAÇAMENTO */
+  margin-bottom: 14px;
+
+  /* COR */
+  color: #475569;
+
+  /* PESO */
+  font-weight: 500;
+}
+
+
+/* ====================================
+   RESPONSIVIDADE
+==================================== */
+
+@media (max-width: 900px) {
+
+  .relatorios-grid {
+
+    /* UMA COLUNA */
+    grid-template-columns: 1fr;
+  }
+
+  .grafico-barras {
+
+    /* REDUZ ESPAÇAMENTO */
+    gap: 14px;
+  }
+
+  .barra {
+
+    /* REDUZ LARGURA */
+    width: 60px;
+  }
+}
