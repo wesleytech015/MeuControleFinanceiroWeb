@@ -1,101 +1,146 @@
 import { useState } from "react";
 
-// IMPORTA O LAYOUT PADRÃO DO SISTEMA
 import Layout from "../components/Layout";
-
-// IMPORTA O CSS DA TABELA
 import "../styles/tabela.css";
-
-// IMPORTA O CONTEXTO GLOBAL FINANCEIRO
 import { useFinanceiro } from "../context/FinanceContext";
 
 function Movimentacoes() {
-  // PEGA AS MOVIMENTAÇÕES E A FUNÇÃO DE EXCLUIR
-  const { movimentacoes, excluirMovimentacao } = useFinanceiro();
+  const {
+    movimentacoes,
+    excluirMovimentacao,
+    atualizarMovimentacao,
+    carregando = false,
+  } = useFinanceiro();
 
-  // ESTADO DO CAMPO DE BUSCA
   const [busca, setBusca] = useState("");
-
-  // ESTADO DO FILTRO POR TIPO
   const [tipoFiltro, setTipoFiltro] = useState("Todos");
-
-  // ESTADO DO FILTRO DE DATA INICIAL
   const [dataInicio, setDataInicio] = useState("");
-
-  // ESTADO DO FILTRO DE DATA FINAL
   const [dataFim, setDataFim] = useState("");
 
-  // CONVERTE DATA BRASILEIRA PARA FORMATO HTML
-  // EXEMPLO: 13/05/2026 -> 2026-05-13
-  function converterDataParaInput(dataBR) {
-    // VERIFICA SE A DATA EXISTE
-    if (!dataBR) {
-      return "";
+  const [editandoIndex, setEditandoIndex] = useState(null);
+  const [descricaoEditada, setDescricaoEditada] = useState("");
+  const [valorEditado, setValorEditado] = useState("");
+  const [dataEditada, setDataEditada] = useState("");
+
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
+
+  function converterDataParaInput(data) {
+    if (!data) return "";
+
+    if (data.includes("-")) {
+      return data.substring(0, 10);
     }
 
-    // SEPARA DIA, MÊS E ANO
-    const partes = dataBR.split("/");
+    const partes = data.split("/");
+    if (partes.length !== 3) return "";
 
-    // VERIFICA SE A DATA TEM 3 PARTES
-    if (partes.length !== 3) {
-      return "";
-    }
-
-    // PEGA O DIA
-    const dia = partes[0];
-
-    // PEGA O MÊS
-    const mes = partes[1];
-
-    // PEGA O ANO
-    const ano = partes[2];
-
-    // RETORNA A DATA NO FORMATO YYYY-MM-DD
+    const [dia, mes, ano] = partes;
     return `${ano}-${mes}-${dia}`;
   }
 
-  // FILTRA AS MOVIMENTAÇÕES POR BUSCA, TIPO, DATA INICIAL E DATA FINAL
-  const movimentacoesFiltradas = movimentacoes.filter((item) => {
-    // FILTRO POR DESCRIÇÃO
-    const correspondeBusca = item.descricao
-      .toLowerCase()
-      .includes(busca.toLowerCase());
+  function converterDataParaBR(data) {
+    if (!data) return "";
 
-    // FILTRO POR TIPO
-    const correspondeTipo =
-      tipoFiltro === "Todos" || item.tipo === tipoFiltro;
+    if (data.includes("/")) return data;
 
-    // CONVERTE A DATA DA MOVIMENTAÇÃO PARA O FORMATO HTML
-    const dataMovimentacao = converterDataParaInput(item.data);
+    const [ano, mes, dia] = data.split("-");
+    return `${dia}/${mes}/${ano}`;
+  }
 
-    // FILTRO POR DATA INICIAL
-    const correspondeDataInicio =
-      dataInicio === "" || dataMovimentacao >= dataInicio;
+  function iniciarEdicao(item, indiceOriginal) {
+    setEditandoIndex(indiceOriginal);
+    setDescricaoEditada(item.descricao);
+    setValorEditado(item.valor);
+    setDataEditada(converterDataParaInput(item.data));
+    setMensagem("");
+    setErro("");
+  }
 
-    // FILTRO POR DATA FINAL
-    const correspondeDataFim =
-      dataFim === "" || dataMovimentacao <= dataFim;
+  function salvarEdicao(indiceOriginal) {
+    if (!descricaoEditada || !valorEditado || !dataEditada) {
+      setErro("Preencha todos os campos antes de salvar.");
+      setMensagem("");
+      return;
+    }
 
-    // RETORNA APENAS OS ITENS QUE PASSAM NOS FILTROS
-    return (
-      correspondeBusca &&
-      correspondeTipo &&
-      correspondeDataInicio &&
-      correspondeDataFim
+    atualizarMovimentacao(indiceOriginal, {
+      descricao: descricaoEditada,
+      valor: Number(valorEditado),
+      data: converterDataParaBR(dataEditada),
+    });
+
+    setEditandoIndex(null);
+    setDescricaoEditada("");
+    setValorEditado("");
+    setDataEditada("");
+
+    setMensagem("Movimentação atualizada com sucesso!");
+    setErro("");
+  }
+
+  function cancelarEdicao() {
+    setEditandoIndex(null);
+    setDescricaoEditada("");
+    setValorEditado("");
+    setDataEditada("");
+    setMensagem("");
+    setErro("");
+  }
+
+  function excluirItem(indiceOriginal) {
+    const confirmar = window.confirm(
+      "Deseja realmente excluir esta movimentação?"
     );
-  });
+
+    if (!confirmar) return;
+
+    excluirMovimentacao(indiceOriginal);
+
+    setMensagem("Movimentação excluída com sucesso.");
+    setErro("");
+  }
+
+  const movimentacoesFiltradas = movimentacoes
+    .map((item, index) => ({
+      ...item,
+      indiceOriginal: index,
+    }))
+    .filter((item) => {
+      const correspondeBusca = item.descricao
+        ?.toLowerCase()
+        .includes(busca.toLowerCase());
+
+      const correspondeTipo =
+        tipoFiltro === "Todos" || item.tipo === tipoFiltro;
+
+      const dataMovimentacao = converterDataParaInput(item.data);
+
+      const correspondeDataInicio =
+        dataInicio === "" || dataMovimentacao >= dataInicio;
+
+      const correspondeDataFim =
+        dataFim === "" || dataMovimentacao <= dataFim;
+
+      return (
+        correspondeBusca &&
+        correspondeTipo &&
+        correspondeDataInicio &&
+        correspondeDataFim
+      );
+    });
 
   return (
     <Layout>
-      {/* CABEÇALHO DA PÁGINA */}
       <div className="page-header">
         <h1>Movimentações</h1>
         <p>Veja todas as receitas e despesas cadastradas.</p>
       </div>
 
-      {/* ÁREA DOS FILTROS */}
+      {mensagem && <p className="mensagem-sucesso">{mensagem}</p>}
+      {erro && <p className="mensagem-erro">{erro}</p>}
+
       <div className="filtros-card">
-        {/* CAMPO DE BUSCA */}
         <input
           type="text"
           placeholder="Buscar por descrição..."
@@ -103,7 +148,6 @@ function Movimentacoes() {
           onChange={(e) => setBusca(e.target.value)}
         />
 
-        {/* FILTRO POR TIPO */}
         <select
           value={tipoFiltro}
           onChange={(e) => setTipoFiltro(e.target.value)}
@@ -113,16 +157,13 @@ function Movimentacoes() {
           <option value="Despesa">Despesas</option>
         </select>
 
-        {/* ÁREA DOS FILTROS DE DATA */}
         <div className="filtros-data">
-          {/* FILTRO POR DATA INICIAL */}
           <input
             type="date"
             value={dataInicio}
             onChange={(e) => setDataInicio(e.target.value)}
           />
 
-          {/* FILTRO POR DATA FINAL */}
           <input
             type="date"
             value={dataFim}
@@ -131,10 +172,8 @@ function Movimentacoes() {
         </div>
       </div>
 
-      {/* CARD DA TABELA */}
       <div className="table-card">
         <table>
-          {/* CABEÇALHO DA TABELA */}
           <thead>
             <tr>
               <th>Tipo</th>
@@ -145,49 +184,112 @@ function Movimentacoes() {
             </tr>
           </thead>
 
-          {/* CORPO DA TABELA */}
           <tbody>
-            {movimentacoesFiltradas.map((item, index) => (
-              <tr key={index}>
-                {/* TIPO */}
-                <td>
-                  <span
-                    className={
-                      item.tipo === "Receita" ? "tag receita" : "tag despesa"
-                    }
-                  >
-                    {item.tipo}
-                  </span>
-                </td>
-
-                {/* DESCRIÇÃO */}
-                <td>{item.descricao}</td>
-
-                {/* VALOR FORMATADO */}
-                <td>
-                  {item.valor.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })}
-                </td>
-
-                {/* DATA */}
-                <td>{item.data}</td>
-
-                {/* AÇÕES */}
-                <td>
-                  <button
-                    className="btn-delete"
-                    onClick={() => excluirMovimentacao(index)}
-                  >
-                    Excluir
-                  </button>
-                </td>
+            {carregando && (
+              <tr>
+                <td colSpan="5">Carregando movimentações...</td>
               </tr>
-            ))}
+            )}
 
-            {/* MENSAGEM CASO NÃO ENCONTRE RESULTADOS */}
-            {movimentacoesFiltradas.length === 0 && (
+            {!carregando &&
+              movimentacoesFiltradas.map((item) => (
+                <tr key={item.indiceOriginal}>
+                  <td>
+                    <span
+                      className={
+                        item.tipo === "Receita"
+                          ? "tag receita"
+                          : "tag despesa"
+                      }
+                    >
+                      {item.tipo}
+                    </span>
+                  </td>
+
+                  <td>
+                    {editandoIndex === item.indiceOriginal ? (
+                      <input
+                        type="text"
+                        value={descricaoEditada}
+                        onChange={(e) =>
+                          setDescricaoEditada(e.target.value)
+                        }
+                      />
+                    ) : (
+                      item.descricao
+                    )}
+                  </td>
+
+                  <td>
+                    {editandoIndex === item.indiceOriginal ? (
+                      <input
+                        type="number"
+                        value={valorEditado}
+                        onChange={(e) =>
+                          setValorEditado(e.target.value)
+                        }
+                      />
+                    ) : (
+                      Number(item.valor).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })
+                    )}
+                  </td>
+
+                  <td>
+                    {editandoIndex === item.indiceOriginal ? (
+                      <input
+                        type="date"
+                        value={dataEditada}
+                        onChange={(e) => setDataEditada(e.target.value)}
+                      />
+                    ) : (
+                      item.data
+                    )}
+                  </td>
+
+                  <td>
+                    {editandoIndex === item.indiceOriginal ? (
+                      <>
+                        <button
+                          className="btn-edit"
+                          onClick={() => salvarEdicao(item.indiceOriginal)}
+                        >
+                          Salvar
+                        </button>
+
+                        <button
+                          className="btn-delete"
+                          onClick={cancelarEdicao}
+                        >
+                          Cancelar
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          className="btn-edit"
+                          onClick={() =>
+                            iniciarEdicao(item, item.indiceOriginal)
+                          }
+                        >
+                          Atualizar
+                        </button>
+
+                        <button
+                          className="btn-delete"
+                          onClick={() => excluirItem(item.indiceOriginal)}
+                        >
+                          Excluir
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+
+            {!carregando && movimentacoesFiltradas.length === 0 && (
               <tr>
                 <td colSpan="5">Nenhuma movimentação encontrada.</td>
               </tr>
@@ -199,5 +301,4 @@ function Movimentacoes() {
   );
 }
 
-// EXPORTA O COMPONENTE
 export default Movimentacoes;
