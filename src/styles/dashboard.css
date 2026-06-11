@@ -20,23 +20,49 @@
 }
 
 .finance-card {
+  position: relative;
+  overflow: hidden;
   padding: 28px;
-  border-radius: 22px;
+  border-radius: 24px;
   color: white;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  min-height: 180px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
 }
 
-.finance-card h3 {
-  font-size: 18px;
-  margin-bottom: 12px;
+.finance-card::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  bottom: -40px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.card-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+.finance-card span {
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .finance-card h2 {
   font-size: 34px;
-  margin-bottom: 10px;
+  margin: 10px 0;
 }
 
-.finance-card span {
+.finance-card p {
   opacity: 0.9;
 }
 
@@ -61,70 +87,96 @@
 
 .dashboard-card {
   background: white;
-  border-radius: 22px;
+  border-radius: 24px;
   padding: 28px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
 }
 
-.dashboard-card h3 {
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 24px;
+}
+
+.card-title h3 {
   color: #0f172a;
+  font-size: 20px;
+}
+
+.card-title span {
+  color: #64748b;
+  font-size: 14px;
 }
 
 .fake-chart {
-  display: flex;
-  align-items: end;
-  gap: 18px;
-  height: 220px;
+  position: relative;
+  height: 240px;
+  border-radius: 20px;
+  background:
+    linear-gradient(#eef2ff 1px, transparent 1px),
+    linear-gradient(90deg, #eef2ff 1px, transparent 1px);
+  background-size: 40px 40px;
+  overflow: hidden;
 }
 
-.bar {
-  width: 80px;
-  border-radius: 12px 12px 0 0;
-}
-
-.receita-bar {
-  height: 180px;
-  background: #22c55e;
-}
-
-.despesa-bar {
+.chart-line {
+  position: absolute;
+  left: 40px;
+  right: 40px;
+  bottom: 60px;
   height: 90px;
-  background: #ef4444;
+  border-bottom: 5px solid #3b82f6;
+  border-radius: 50%;
+  transform: rotate(-5deg);
+  opacity: 0.7;
 }
 
-.saldo-bar {
-  height: 140px;
-  background: #3b82f6;
+.chart-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #2563eb;
+  border-radius: 50%;
 }
 
-.meta-item {
-  margin-bottom: 24px;
+.dot-1 {
+  left: 20%;
+  bottom: 90px;
 }
 
-.meta-info {
+.dot-2 {
+  left: 42%;
+  bottom: 125px;
+}
+
+.dot-3 {
+  left: 65%;
+  bottom: 100px;
+}
+
+.dot-4 {
+  left: 82%;
+  bottom: 150px;
+}
+
+.cartao-resumo-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  padding: 16px 0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.progress {
-  width: 100%;
-  height: 12px;
-  background: #e2e8f0;
-  border-radius: 999px;
+.cartao-resumo-item:last-child {
+  border-bottom: none;
 }
 
-.progress-fill {
-  width: 70%;
-  height: 100%;
-  background: #2563eb;
-  border-radius: 999px;
+.cartao-resumo-item span {
+  color: #64748b;
 }
 
-.progress-fill.viagem {
-  width: 45%;
-  background: #22c55e;
+.cartao-resumo-item strong {
+  color: #0f172a;
 }
 
 .dashboard-table {
@@ -137,14 +189,32 @@
   padding: 16px;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.dashboard-table th {
+  color: #64748b;
 }
 
 .receita-text {
-  color: #16a34a;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 6px 12px;
+  border-radius: 999px;
   font-weight: bold;
 }
 
 .despesa-text {
-  color: #dc2626;
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 6px 12px;
+  border-radius: 999px;
   font-weight: bold;
+}
+
+@media (max-width: 1100px) {
+  .cards-grid,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 }

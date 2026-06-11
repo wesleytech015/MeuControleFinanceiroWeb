@@ -1,36 +1,25 @@
-// IMPORTA O HOOK useState DO REACT
 import { useState } from "react";
 
-// IMPORTA O LAYOUT PADRÃO
 import Layout from "../components/Layout";
-
-// IMPORTA O CSS DO FORMULÁRIO
 import "../styles/formulario.css";
-
-// IMPORTA O CONTEXTO FINANCEIRO
 import { useFinanceiro } from "../context/FinanceContext";
 
-// COMPONENTE DA TELA DE DESPESAS
 function Despesas() {
-  // FUNÇÃO PARA ADICIONAR MOVIMENTAÇÃO
   const { adicionarMovimentacao } = useFinanceiro();
 
-  // ESTADOS DO FORMULÁRIO
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
   const [categoria, setCategoria] = useState("");
   const [formaPagamento, setFormaPagamento] = useState("");
+  const [data, setData] = useState("");
   const [cartaoId, setCartaoId] = useState("");
+  const [parcelas, setParcelas] = useState("1");
 
-  // LISTA TEMPORÁRIA DE CARTÕES
-  // DEPOIS PODEMOS BUSCAR ESSA LISTA DO BACKEND
-  const cartoes = [
-    { id: 1, nome: "Nubank" },
-    { id: 2, nome: "Inter" },
-    { id: 3, nome: "Banco do Brasil" },
-  ];
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
 
-  // LISTA DE CATEGORIAS DE DESPESA
+  const cartoes = JSON.parse(localStorage.getItem("cartoes")) || [];
+
   const categorias = [
     "Alimentação",
     "Transporte",
@@ -45,7 +34,6 @@ function Despesas() {
     "Outros",
   ];
 
-  // FORMATA VALOR PARA MOEDA BRASILEIRA
   function formatarMoeda(valorDigitado) {
     const somenteNumeros = valorDigitado.replace(/\D/g, "");
 
@@ -55,7 +43,6 @@ function Despesas() {
     });
   }
 
-  // CONVERTE MOEDA FORMATADA PARA NÚMERO
   function converterMoedaParaNumero(valorFormatado) {
     return Number(
       valorFormatado
@@ -66,61 +53,90 @@ function Despesas() {
     );
   }
 
-  // SALVA A DESPESA
-  function salvarDespesa(e) {
-    e.preventDefault();
+  function converterDataParaBR(dataISO) {
+    const [ano, mes, dia] = dataISO.split("-");
+    return `${dia}/${mes}/${ano}`;
+  }
 
-    // VALIDAÇÃO DOS CAMPOS PRINCIPAIS
-    if (
-      descricao === "" ||
-      valor === "" ||
-      categoria === "" ||
-      formaPagamento === ""
-    ) {
-      alert("Preencha todos os campos obrigatórios.");
-      return;
-    }
-
-    // SE FOR CARTÃO DE CRÉDITO, O CARTÃO PRECISA SER INFORMADO
-    if (formaPagamento === "Cartão de Crédito" && cartaoId === "") {
-      alert("Selecione o cartão de crédito.");
-      return;
-    }
-
-    // CRIA NOVA DESPESA
-    const novaDespesa = {
-      tipo: "Despesa",
-      descricao,
-      valor: converterMoedaParaNumero(valor),
-      categoria,
-      forma_pagamento: formaPagamento,
-      cartao_id: formaPagamento === "Cartão de Crédito" ? Number(cartaoId) : null,
-      data: new Date().toLocaleDateString("pt-BR"),
-    };
-
-    // ADICIONA NO CONTEXTO
-    adicionarMovimentacao(novaDespesa);
-
-    // LIMPA OS CAMPOS
+  function limparFormulario() {
     setDescricao("");
     setValor("");
     setCategoria("");
     setFormaPagamento("");
+    setData("");
     setCartaoId("");
+    setParcelas("1");
+  }
 
-    alert("Despesa cadastrada com sucesso!");
+  function atualizarFaturaCartao(valorDespesa) {
+    const cartoesSalvos = JSON.parse(localStorage.getItem("cartoes")) || [];
+
+    const cartoesAtualizados = cartoesSalvos.map((cartao) =>
+      cartao.id === Number(cartaoId)
+        ? {
+            ...cartao,
+            fatura: Number(cartao.fatura || 0) + valorDespesa,
+          }
+        : cartao
+    );
+
+    localStorage.setItem("cartoes", JSON.stringify(cartoesAtualizados));
+  }
+
+  function salvarDespesa(e) {
+    e.preventDefault();
+
+    if (!descricao || !valor || !categoria || !formaPagamento || !data) {
+      setErro("Preencha todos os campos obrigatórios.");
+      setMensagem("");
+      return;
+    }
+
+    if (formaPagamento === "Cartão de Crédito" && !cartaoId) {
+      setErro("Selecione o cartão de crédito.");
+      setMensagem("");
+      return;
+    }
+
+    const valorNumerico = converterMoedaParaNumero(valor);
+
+    const novaDespesa = {
+      tipo: "Despesa",
+      descricao,
+      valor: valorNumerico,
+      categoria,
+      forma_pagamento: formaPagamento,
+      cartao_id:
+        formaPagamento === "Cartão de Crédito" ? Number(cartaoId) : null,
+      parcelas:
+        formaPagamento === "Cartão de Crédito" ? Number(parcelas) : 1,
+      data: converterDataParaBR(data),
+    };
+
+    adicionarMovimentacao(novaDespesa);
+
+    if (formaPagamento === "Cartão de Crédito") {
+      atualizarFaturaCartao(valorNumerico);
+    }
+
+    limparFormulario();
+
+    setMensagem("Despesa cadastrada com sucesso!");
+    setErro("");
   }
 
   return (
     <Layout>
       <div className="page-header">
         <h1>Despesas</h1>
-
         <p>Registre e controle seus gastos mensais.</p>
       </div>
 
       <div className="form-card">
         <h2>Nova Despesa</h2>
+
+        {mensagem && <p className="mensagem-sucesso">{mensagem}</p>}
+        {erro && <p className="mensagem-erro">{erro}</p>}
 
         <form className="form-grid" onSubmit={salvarDespesa}>
           <input
@@ -132,7 +148,7 @@ function Despesas() {
 
           <input
             type="text"
-            placeholder="Ex: R$ 3.000,00"
+            placeholder="Ex: R$ 300,00"
             value={valor}
             onChange={(e) => setValor(formatarMoeda(e.target.value))}
           />
@@ -142,7 +158,6 @@ function Despesas() {
             onChange={(e) => setCategoria(e.target.value)}
           >
             <option value="">Selecione a categoria</option>
-
             {categorias.map((item) => (
               <option key={item} value={item}>
                 {item}
@@ -155,9 +170,9 @@ function Despesas() {
             onChange={(e) => {
               setFormaPagamento(e.target.value);
 
-              // SE NÃO FOR CARTÃO DE CRÉDITO, REMOVE O CARTÃO SELECIONADO
               if (e.target.value !== "Cartão de Crédito") {
                 setCartaoId("");
+                setParcelas("1");
               }
             }}
           >
@@ -169,19 +184,37 @@ function Despesas() {
             <option value="Boleto">Boleto</option>
           </select>
 
-          {formaPagamento === "Cartão de Crédito" && (
-            <select
-              value={cartaoId}
-              onChange={(e) => setCartaoId(e.target.value)}
-            >
-              <option value="">Selecione o cartão</option>
+          <input
+            type="date"
+            value={data}
+            onChange={(e) => setData(e.target.value)}
+          />
 
-              {cartoes.map((cartao) => (
-                <option key={cartao.id} value={cartao.id}>
-                  {cartao.nome}
-                </option>
-              ))}
-            </select>
+          {formaPagamento === "Cartão de Crédito" && (
+            <>
+              <select
+                value={cartaoId}
+                onChange={(e) => setCartaoId(e.target.value)}
+              >
+                <option value="">Selecione o cartão</option>
+                {cartoes.map((cartao) => (
+                  <option key={cartao.id} value={cartao.id}>
+                    {cartao.nome} - •••• {cartao.final_cartao}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={parcelas}
+                onChange={(e) => setParcelas(e.target.value)}
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((numero) => (
+                  <option key={numero} value={numero}>
+                    {numero}x
+                  </option>
+                ))}
+              </select>
+            </>
           )}
 
           <button type="submit">Salvar Despesa</button>
@@ -191,5 +224,4 @@ function Despesas() {
   );
 }
 
-// EXPORTA O COMPONENTE
 export default Despesas;

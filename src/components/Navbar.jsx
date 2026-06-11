@@ -2,6 +2,15 @@
 
 function Navbar() {
 
+  // RECUPERA DADOS DO USUÁRIO LOGADO
+  const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
+
+  // DEFINE O NOME EXIBIDO
+  const nomeUsuario = usuario.nome || "Usuário";
+
+  // PEGA A PRIMEIRA LETRA DO NOME
+  const inicialUsuario = nomeUsuario.charAt(0).toUpperCase();
+
   // FUNÇÃO RESPONSÁVEL POR FAZER LOGOUT
   const sair = () => {
 
@@ -33,20 +42,39 @@ function Navbar() {
       {/* ÁREA DIREITA DA NAVBAR */}
       <div className="navbar-actions">
 
-        {/* NOME DO USUÁRIO */}
+        {/* USUÁRIO LOGADO */}
         <div className="navbar-user">
 
-          <span className="user-badge">
-            Olá, Eliézer
-          </span>
+          <div className="user-badge">
+
+            {/* AVATAR */}
+            <div className="user-avatar">
+              {inicialUsuario}
+            </div>
+
+            {/* DADOS DO USUÁRIO */}
+            <div className="user-info">
+
+              <small>
+                Usuário
+              </small>
+
+              <span>
+                {nomeUsuario}
+              </span>
+
+            </div>
+
+          </div>
 
         </div>
 
-        {/* BOTÃO SAIR SEPARADO */}
-        <button className="btn-sair" onClick={sair}>
-
+        {/* BOTÃO SAIR */}
+        <button
+          className="btn-sair"
+          onClick={sair}
+        >
           Sair
-
         </button>
 
       </div>
