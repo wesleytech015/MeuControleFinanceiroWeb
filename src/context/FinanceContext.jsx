@@ -8,53 +8,54 @@ import {
 const FinanceContext = createContext();
 
 export function FinanceProvider({ children }) {
-
-  // CARREGA DADOS SALVOS
   const [movimentacoes, setMovimentacoes] = useState(() => {
-
     const dadosSalvos = localStorage.getItem("movimentacoes");
-
-    return dadosSalvos
-      ? JSON.parse(dadosSalvos)
-      : [];
-
+    return dadosSalvos ? JSON.parse(dadosSalvos) : [];
   });
 
-  // SALVA AUTOMATICAMENTE
-  useEffect(() => {
+  const [carregando] = useState(false);
 
+  useEffect(() => {
     localStorage.setItem(
       "movimentacoes",
       JSON.stringify(movimentacoes)
     );
-
   }, [movimentacoes]);
 
   function adicionarMovimentacao(novaMovimentacao) {
-
-    setMovimentacoes([
-      ...movimentacoes,
+    setMovimentacoes((listaAtual) => [
+      ...listaAtual,
       novaMovimentacao,
     ]);
-
   }
 
   function excluirMovimentacao(index) {
-
-    const novaLista = movimentacoes.filter(
-      (_, i) => i !== index
+    setMovimentacoes((listaAtual) =>
+      listaAtual.filter((_, i) => i !== index)
     );
+  }
 
-    setMovimentacoes(novaLista);
-
+  function atualizarMovimentacao(index, dadosAtualizados) {
+    setMovimentacoes((listaAtual) =>
+      listaAtual.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              ...dadosAtualizados,
+            }
+          : item
+      )
+    );
   }
 
   return (
     <FinanceContext.Provider
       value={{
         movimentacoes,
+        carregando,
         adicionarMovimentacao,
         excluirMovimentacao,
+        atualizarMovimentacao,
       }}
     >
       {children}
