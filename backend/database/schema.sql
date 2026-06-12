@@ -13,6 +13,22 @@ CREATE TABLE IF NOT EXISTS usuarios (
     senha VARCHAR(255) NOT NULL,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- Tabela de Cartões
+CREATE TABLE IF NOT EXISTS cartoes (
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    banco VARCHAR(100) NOT NULL,
+    limite DECIMAL(10,2) NOT NULL,
+    dia_fechamento INT NOT NULL,
+    dia_vencimento INT NOT NULL,
+    final_cartao VARCHAR(4) NOT NULL,
+    cor VARCHAR(30) DEFAULT 'roxo',
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+
+);
 
 -- Tabela de Movimentações
 CREATE TABLE IF NOT EXISTS movimentacoes (
