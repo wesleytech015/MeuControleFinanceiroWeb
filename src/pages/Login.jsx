@@ -11,153 +11,125 @@ import { login } from "../services/api";
 import "../styles/login.css";
 
 function Login() {
-
-  // Hook responsável pela navegação entre páginas.
   const navigate = useNavigate();
 
-  // Estado que armazena o e-mail digitado.
   const [email, setEmail] = useState("");
-
-  // Estado que armazena a senha digitada.
   const [senha, setSenha] = useState("");
-
-  // Estado responsável por exibir mensagens de erro.
   const [erro, setErro] = useState("");
 
-  // Função executada quando o formulário é enviado.
-  async function handleLogin(event) {
+  // CONTROLA SE A TELA ESTÁ CARREGANDO
+  const [carregando, setCarregando] = useState(false);
 
-    // Impede o recarregamento da página.
+  // CONTROLA SE OS CAMPOS DEVEM FICAR VERMELHOS
+  const [erroLogin, setErroLogin] = useState(false);
+
+  async function handleLogin(event) {
     event.preventDefault();
 
-    try {
+    setErro("");
+    setErroLogin(false);
+    setCarregando(true);
 
-      // Chama a função login da API enviando email e senha.
+    try {
       const resposta = await login(email, senha);
 
-      // Salva o token retornado pelo backend.
       localStorage.setItem("token", resposta.token);
 
-      // Salva os dados do usuário.
       localStorage.setItem(
         "usuario",
         JSON.stringify(resposta.usuario)
       );
 
-      // Redireciona para o dashboard.
       navigate("/dashboard");
-
     } catch (error) {
-
-      // Exibe mensagem de erro caso o login falhe.
       setErro("E-mail ou senha inválidos.");
+      setErroLogin(true);
 
       console.error(error);
+    } finally {
+      setCarregando(false);
     }
   }
 
   return (
-
-    // Container principal da página.
     <div className="login-page">
+      {carregando && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+          <p>Entrando...</p>
+        </div>
+      )}
 
-      {/* LADO ESQUERDO */}
       <section className="login-left">
-
         <div className="login-overlay">
-
           <h1>Meu Controle Financeiro</h1>
 
           <p>
             Organize suas receitas, despesas,
             metas e cartões em um só lugar.
           </p>
-
         </div>
-
       </section>
 
-      {/* LADO DIREITO */}
       <section className="login-right">
-
         <div className="login-card">
-
           <h2>Entrar</h2>
 
           <p className="login-subtitle">
             Acesse sua conta para continuar
           </p>
 
-          {/* Exibe erro caso exista */}
-          {erro && (
-            <p className="erro-login">
-              {erro}
-            </p>
-          )}
+          {erro && <p className="erro-login">{erro}</p>}
 
-          {/* Formulário */}
           <form onSubmit={handleLogin}>
-
-            {/* Campo de e-mail */}
             <label>E-mail</label>
 
             <input
               type="email"
               placeholder="seu@email.com"
-
-              // Valor do input.
               value={email}
-
-              // Atualiza o estado ao digitar.
-              onChange={(e) =>
-                setEmail(e.target.value)
-              }
+              className={erroLogin ? "input-erro" : ""}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErro("");
+                setErroLogin(false);
+              }}
             />
 
-            {/* Campo de senha */}
             <label>Senha</label>
 
             <input
               type="password"
               placeholder="Digite sua senha"
-
-              // Valor do input.
               value={senha}
-
-              // Atualiza o estado ao digitar.
-              onChange={(e) =>
-                setSenha(e.target.value)
-              }
+              className={erroLogin ? "input-erro" : ""}
+              onChange={(e) => {
+                setSenha(e.target.value);
+                setErro("");
+                setErroLogin(false);
+              }}
             />
 
-            {/* Botão de login */}
             <button
               type="submit"
               className="login-button"
+              disabled={carregando}
             >
-              Entrar
+              {carregando ? "Entrando..." : "Entrar"}
             </button>
-
           </form>
 
-          {/* Link para cadastro */}
           <p className="login-footer">
-
             Ainda não tem conta?
 
             <Link to="/cadastro">
               Criar conta
             </Link>
-
           </p>
-
         </div>
-
       </section>
-
     </div>
   );
 }
 
-// Exporta o componente.
 export default Login;
