@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2');
 
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
@@ -10,8 +10,12 @@ const connection = mysql.createConnection({
   database: process.env.DB_NAME,
   ssl: {
     ca: fs.readFileSync(path.join(__dirname, '../certs/ca.pem')),
-    rejectUnauthorized: false
-  }
+    minVersion: 'TLSv1.2' // força versão TLS
+  },
+  connectTimeout: 20000,   // aumenta timeout para 20s
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-module.exports = connection;
+module.exports = pool.promise();

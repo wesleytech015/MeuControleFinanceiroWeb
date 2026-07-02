@@ -1,0 +1,26 @@
+* [33m429dca9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m)[m comentando apos confirmar ligacao com o back end em mensagem inseridas no codigo
+* [33mea20fcf[m nova alteração no api.js na pasta services. correção para testar a conexão do back-end com o front-end
+*   [33m9e50636[m Merge remote-tracking branch 'origin/main' into develop
+[32m|[m[33m\[m  
+[32m|[m *   [33m79e09e8[m[33m ([m[1;32mmain[m[33m)[m Merge pull request #2 from EliezerCosta57/feature/pages
+[32m|[m [34m|[m[35m\[m  
+[32m|[m [34m|[m * [33m848b200[m Atualização das páginas de nagegação
+[32m|[m [34m|[m * [33mfa798d9[m Continuação do desenvolvimento das páginas do Frontend
+[32m|[m * [35m|[m   [33meea6abf[m Merge pull request #1 from EliezerCosta57/feature/banco-dados-inicial
+[32m|[m [36m|[m[1;31m\[m [35m\[m  
+[32m|[m [36m|[m * [35m|[m [33m112abac[m[33m ([m[1;31morigin/feature/banco-dados-inicial[m[33m)[m docs: adiciona README inicial do banco de dados
+[32m|[m [36m|[m * [35m|[m [33m3d14cef[m feat: estrutura inicial do banco de dados
+[32m|[m [36m|[m [35m|[m[35m/[m  
+* [36m|[m [35m|[m [33mac0a4c2[m[33m ([m[1;31morigin/correcao-transacoes[m[33m)[m alterando o nome da pasta backend de servidor para backend
+* [36m|[m [35m|[m [33m60cb78e[m import do tslint no package json do servidor. e adição da lógica do arquivo api.js na pasta services
+* [36m|[m [35m|[m [33ma67feee[m adicionando funções para manipulação de transações viabilizando o uso de /api/transacoes
+* [36m|[m [35m|[m [33m8d7acb9[m corrigindo problemas do eslint com o backend
+* [36m|[m [35m|[m [33mcacb565[m Corrige controller e model de transações
+* [36m|[m [35m|[m [33m4567095[m adicionando arquivos db e database para banco de dados na pasta config arquivo transacaoController na pasta controllers transacao.js e usuario.js na pasta models pasta routes com transacoesRoutes
+* [36m|[m [35m|[m [33mfd70013[m adicionando back-end na pasta services com o arquivo api.js também realizando "npm install express cors" na pasta servidor para instalar as dependencias do express
+* [36m|[m [35m|[m [33mda21a4e[m adicionando pasta servidor para o back-end e arquivo server.js
+[35m|[m [36m|[m[35m/[m  
+[35m|[m[35m/[m[36m|[m   
+* [36m|[m [33m7cb2d0e[m feat: adiciona telas iniciais
+[36m|[m[36m/[m  
+* [33m64f77ad[m Primeiro commit do projeto

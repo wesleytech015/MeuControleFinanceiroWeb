@@ -1,0 +1,313 @@
+/* ============================================
+   GRID DOS CARTÕES
+============================================ */
+
+.cartoes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-top: 26px;
+}
+
+
+/* ============================================
+   CARD DO CARTÃO
+============================================ */
+
+.credit-card {
+  min-height: 230px;
+  border-radius: 26px;
+  padding: 28px;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+}
+
+
+/* ============================================
+   CORES DOS CARTÕES
+============================================ */
+
+.credit-card.roxo {
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+}
+
+.credit-card.azul {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+}
+
+.credit-card.verde {
+  background: linear-gradient(135deg, #166534, #22c55e);
+}
+
+
+/* ============================================
+   TOPO E RODAPÉ DO CARTÃO
+============================================ */
+
+.card-top,
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+/* ============================================
+   VALOR DA FATURA
+============================================ */
+
+.credit-card h2 {
+  font-size: 34px;
+}
+
+
+/* ============================================
+   TEXTOS DO CARTÃO
+============================================ */
+
+.credit-card p,
+.credit-card span {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+
+/* ============================================
+   FORMULÁRIO DE CADASTRO
+============================================ */
+
+.cartao-form {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+
+/* ============================================
+   CAMPOS DO FORMULÁRIO
+============================================ */
+
+.cartao-form input,
+.cartao-form select {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  outline: none;
+  background: white;
+  font-size: 14px;
+}
+
+/* ============================================
+   BOTÃO DO FORMULÁRIO
+============================================ */
+
+.cartao-form button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
+/* ============================================
+   RESPONSIVIDADE
+============================================ */
+
+@media (max-width: 1100px) {
+  .cartao-form {
+    grid-template-columns: 1fr;
+  }
+
+  .cartoes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* BOTÃO EXCLUIR CARTÃO */
+.btn-excluir-cartao {
+  width: 100%;
+  padding: 12px;
+  margin-top: 18px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.95);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* HOVER DO BOTÃO */
+.btn-excluir-cartao:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   MENSAGENS DO SISTEMA
+============================================ */
+
+.mensagem-sucesso {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin: 16px 0;
+}
+
+.mensagem-erro {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin: 16px 0;
+}
+
+
+/* ============================================
+   INFORMAÇÕES DO CARTÃO
+============================================ */
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.credit-card small {
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+}
+
+.credit-card h2 {
+  margin: 16px 0 6px;
+}
+
+
+/* ============================================
+   EFEITO HOVER DOS CARTÕES
+============================================ */
+
+.credit-card {
+  transition: 0.3s;
+}
+
+.credit-card:hover {
+  transform: translateY(-4px);
+}
+
+
+/* ============================================
+   ESTADO SEM CARTÕES
+============================================ */
+
+.cartoes-grid > p {
+  background: white;
+  padding: 22px;
+  border-radius: 16px;
+  color: #64748b;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+/* ============================================
+   RESUMO DOS CARTÕES
+============================================ */
+
+.resumo-cartoes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 24px 0;
+}
+
+.resumo-card {
+  background: white;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.resumo-card h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 24px;
+}
+
+.resumo-card span {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 1100px) {
+  .resumo-cartoes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   CARTÃO EM EDIÇÃO
+============================================ */
+
+.credit-card.editing {
+  border: 3px solid #fbbf24;
+  transform: scale(1.02);
+}
+
+
+/* ============================================
+   AÇÕES DOS BOTÕES DO CARTÃO
+============================================ */
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-editar-cartao {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-editar-cartao:hover {
+  background: #bfdbfe;
+  transform: translateY(-2px);
+}
+
+.card-actions .btn-excluir-cartao {
+  flex: 1;
+  margin-top: 0;
+}
+
+
+/* ============================================
+   BOTÃO CANCELAR EDIÇÃO
+============================================ */
+
+.btn-cancelar-cartao {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+}
+
+.btn-cancelar-cartao:hover {
+  background: #fecaca !important;
+}

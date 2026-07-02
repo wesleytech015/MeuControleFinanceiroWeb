@@ -1,16 +1,63 @@
-# React + Vite
+# Sistema de Controle Financeiro Pessoal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação Web desenvolvida para auxiliar no gerenciamento financeiro pessoal, permitindo o acompanhamento de receitas, despesas e indicadores financeiros de forma simples, organizada e segura.
+O projeto surgiu a partir da ideia de uma planilha de controle financeiro em Excel, evoluindo para uma plataforma digital moderna, com maior acessibilidade, confiabilidade e escalabilidade.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+# Sobre o Projeto
 
-## React Compiler
+Grande parte da população brasileira ainda possui dificuldades no controle das finanças pessoais, o que contribui para problemas de endividamento e falta de planejamento financeiro.
+Pensando nisso, este sistema foi desenvolvido com o objetivo de centralizar e facilitar o gerenciamento financeiro através de uma interface intuitiva e funcionalidades automatizadas.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+# Funcionalidades
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Cadastro de receitas;
+- Cadastro de despesas;
+- Controle de categorias financeiras;
+- Controle de formas de pagamento;
+- Dashboard financeiro;
+- Relatórios e gráficos;
+- Organização mensal das movimentações;
+- Sistema de autenticação de usuários;
+- Armazenamento seguro de dados;
+- Integração entre frontend e backend via API REST.
+
+---
+
+# Tecnologias Utilizadas
+
+## Frontend
+- React
+- Vite
+- JavaScript
+- HTML5
+- CSS3
+
+## Backend
+- Node.js
+- Express
+
+## Banco de Dados
+- MySQL
+
+- Aiven Cloud
+
+## Ferramentas e Metodologias
+- Git & GitHub
+- Scrum
+- API REST
+- BCrypt
+
+---
+
+# Arquitetura da Aplicação
+
+```bash id="o9j9vh"
+[ Frontend React ]
+          ↓
+[ API REST - Node.js ]
+          ↓
+[ Banco MySQL ]

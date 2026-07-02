@@ -1,4 +1,10 @@
-# Logs
+# ==================== DEPENDÊNCIAS / BUILD ====================
+node_modules
+dist
+dist-ssr
+*.local
+
+# ==================== LOGS ====================
 logs
 *.log
 npm-debug.log*
@@ -7,12 +13,18 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ==================== ARQUIVOS SENSÍVEIS ====================
+.env
+.env.local
+.env*.local
+.env.production
+.env.development
+.env.test
+*.env
+!*.env.example
+!.env.example
 
-# Editor directories and files
+# ==================== EDITOR / IDE ====================
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -23,9 +35,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# ==================== ARQUIVOS SENSÍVEIS ====================
-.env
-.env.local
-.env*.local
-.env.production
-.env.development
+# ==================== OUTROS ====================
+coverage
+*.env.backup
+*.env.bak

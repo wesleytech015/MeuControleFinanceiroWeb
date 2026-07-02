@@ -1,0 +1,346 @@
+/* =========================
+   CARD PRINCIPAL DA TABELA
+========================= */
+
+.table-card {
+
+  /* FUNDO BRANCO */
+  background: white;
+
+  /* ESPAÇAMENTO INTERNO */
+  padding: 24px;
+
+  /* BORDAS ARREDONDADAS */
+  border-radius: 20px;
+
+  /* SOMBRA SUAVE */
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+
+/* =========================
+   CONFIGURAÇÃO DA TABELA
+========================= */
+
+.table-card table {
+
+  /* TABELA OCUPA TODA A LARGURA */
+  width: 100%;
+
+  /* REMOVE ESPAÇOS ENTRE CÉLULAS */
+  border-collapse: collapse;
+}
+
+
+/* =========================
+   CABEÇALHO DA TABELA
+========================= */
+
+.table-card th {
+
+  /* ALINHAMENTO */
+  text-align: left;
+
+  /* ESPAÇAMENTO */
+  padding: 14px;
+
+  /* COR DO TEXTO */
+  color: #64748b;
+
+  /* LINHA INFERIOR */
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* =========================
+   CÉLULAS DA TABELA
+========================= */
+
+.table-card td {
+
+  /* ESPAÇAMENTO */
+  padding: 14px;
+
+  /* LINHA INFERIOR */
+  border-bottom: 1px solid #f1f5f9;
+
+  /* COR DO TEXTO */
+  color: #334155;
+}
+
+
+/* =========================
+   TAG PADRÃO
+========================= */
+
+.tag {
+
+  /* ESPAÇAMENTO INTERNO */
+  padding: 6px 12px;
+
+  /* FORMATO PILULA */
+  border-radius: 999px;
+
+  /* TAMANHO DA FONTE */
+  font-size: 13px;
+
+  /* TEXTO EM NEGRITO */
+  font-weight: bold;
+}
+
+
+/* =========================
+   TAG DE RECEITA
+========================= */
+
+.tag.receita {
+
+  /* FUNDO VERDE CLARO */
+  background: #dcfce7;
+
+  /* TEXTO VERDE */
+  color: #15803d;
+}
+
+
+/* =========================
+   TAG DE DESPESA
+========================= */
+
+.tag.despesa {
+
+  /* FUNDO VERMELHO CLARO */
+  background: #fee2e2;
+
+  /* TEXTO VERMELHO */
+  color: #b91c1c;
+}
+
+
+/* =========================
+   BOTÃO EXCLUIR
+========================= */
+
+.btn-delete {
+
+  /* FUNDO */
+  background: #fee2e2;
+
+  /* COR DO TEXTO */
+  color: #b91c1c;
+
+  /* ESPAÇAMENTO */
+  padding: 8px 12px;
+
+  /* BORDAS */
+  border-radius: 8px;
+
+  border: none;
+
+  /* TEXTO */
+  font-weight: bold;
+
+  /* CURSOR */
+  cursor: pointer;
+
+  /* ANIMAÇÃO */
+  transition: 0.2s;
+}
+
+
+/* EFEITO HOVER */
+.btn-delete:hover {
+
+  background: #fecaca;
+}
+
+
+/* =========================
+   CARD DOS FILTROS
+========================= */
+
+.filtros-card {
+
+  /* FUNDO */
+  background: white;
+
+  /* ESPAÇAMENTO */
+  padding: 20px;
+
+  /* BORDAS */
+  border-radius: 18px;
+
+  /* SOMBRA */
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+
+  /* ESPAÇO ABAIXO */
+  margin-bottom: 22px;
+
+  /* GRID */
+  display: grid;
+
+  /* BUSCA | TIPO | DATAS */
+  grid-template-columns: 1fr 220px 220px;
+
+  /* ESPAÇAMENTO */
+  gap: 16px;
+
+  /* ALINHAMENTO */
+  align-items: start;
+}
+
+
+/* =========================
+   INPUT E SELECT DOS FILTROS
+========================= */
+
+.filtros-card input,
+.filtros-card select {
+
+  /* ESPAÇAMENTO */
+  padding: 14px;
+
+  /* BORDA */
+  border: 1px solid #cbd5e1;
+
+  /* BORDAS ARREDONDADAS */
+  border-radius: 12px;
+
+  /* TAMANHO DA FONTE */
+  font-size: 15px;
+}
+
+
+/* =========================
+   EFEITO AO CLICAR NOS CAMPOS
+========================= */
+
+.filtros-card input:focus,
+.filtros-card select:focus {
+
+  /* REMOVE BORDA PADRÃO */
+  outline: none;
+
+  /* BORDA AZUL */
+  border-color: #2563eb;
+}
+
+
+/* =========================
+   ÁREA DOS FILTROS DE DATA
+========================= */
+
+.filtros-data {
+
+  /* ORGANIZA VERTICALMENTE */
+  display: flex;
+
+  /* DATA FINAL ABAIXO */
+  flex-direction: column;
+
+  /* ESPAÇAMENTO */
+  gap: 12px;
+
+  /* LARGURA */
+  width: 220px;
+}
+
+
+/* INPUTS DE DATA */
+.filtros-data input {
+
+  /* OCUPA TODA A LARGURA */
+  width: 100%;
+}
+
+
+/* =========================
+   RESPONSIVIDADE MOBILE
+========================= */
+
+@media (max-width: 768px) {
+
+  .filtros-card {
+
+    /* TRANSFORMA EM COLUNA */
+    grid-template-columns: 1fr;
+  }
+
+  .filtros-data {
+
+    /* OCUPA TODA A LARGURA */
+    width: 100%;
+  }
+}
+
+/* =========================
+   BOTÃO ATUALIZAR / EDITAR
+========================= */
+
+.btn-edit {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-right: 8px;
+}
+
+.btn-edit:hover {
+  background: #bfdbfe;
+}
+
+
+/* =========================
+   INPUTS DENTRO DA TABELA
+========================= */
+
+.table-card td input {
+  width: 100%;
+  max-width: 180px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.table-card td input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.mensagem-sucesso {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin: 16px 0;
+}
+
+.mensagem-erro {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin: 16px 0;
+}
+
+.table-card td select {
+  width: 100%;
+  max-width: 180px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.table-card td select:focus {
+  outline: none;
+  border-color: #2563eb;
+}

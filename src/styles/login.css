@@ -1,79 +1,198 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  background: #f4f7fb;
 }
 
-.tela-login {
+.login-left {
+  width: 50%;
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.7), rgba(37, 99, 235, 0.7)),
+    url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1200&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: white;
+}
+
+.login-overlay {
+  max-width: 480px;
+}
+
+.login-overlay h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.login-overlay p {
+  font-size: 20px;
+  line-height: 1.5;
+  color: #dbeafe;
+}
+
+.login-right {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-card {
   width: 100%;
-  height: 100vh;
-  background: linear-gradient(135deg, #0f766e, #134e4a);
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.login-card h2 {
+  font-size: 32px;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  color: #64748b;
+  margin-bottom: 30px;
+}
+
+.erro-login {
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+.login-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-card label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #334155;
+}
+
+.login-card input {
+  padding: 14px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
+}
+
+.input-erro {
+  border: 2px solid #dc2626 !important;
+  background: #fef2f2 !important;
+}
+
+.input-erro:focus {
+  outline: none;
+  border-color: #b91c1c !important;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15);
+}
+
+.login-button {
+  display: block;
+  text-align: center;
+  padding: 14px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 8px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background: #1d4ed8;
+}
+
+.login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.login-footer {
+  margin-top: 24px;
+  text-align: center;
+  color: #64748b;
+}
+
+.login-footer a {
+  color: #2563eb;
+  font-weight: bold;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: Arial, sans-serif;
+  gap: 16px;
+  z-index: 9999;
 }
 
-.tela-login h1 {
-  color: white;
-  font-size: 42px;
-  margin-bottom: 5px;
-}
-
-.tela-login p {
+.loading-overlay p {
   color: white;
   font-size: 18px;
-  margin-bottom: 30px;
-  letter-spacing: 4px;
+  font-weight: 600;
 }
 
-.caixa-login {
-  width: 350px;
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+.spinner {
+  width: 55px;
+  height: 55px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
 }
 
-.caixa-login h2 {
-  text-align: center;
-  margin-bottom: 25px;
-  color: #134e4a;
+@keyframes girar {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.caixa-login label {
-  font-weight: bold;
-  color: #333;
-}
+@media (max-width: 768px) {
+  .login-page {
+    flex-direction: column;
+  }
 
-.caixa-login input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0 18px 0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
+  .login-left,
+  .login-right {
+    width: 100%;
+  }
 
-.caixa-login button {
-  width: 100%;
-  padding: 12px;
-  background: #0f766e;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
+  .login-left {
+    min-height: 260px;
+  }
 
-.caixa-login button:hover {
-  background: #115e59;
-}
-
-.caixa-login a {
-  display: block;
-  text-align: center;
-  margin-top: 18px;
-  color: #0f766e;
-  text-decoration: none;
+  .login-overlay h1 {
+    font-size: 34px;
+  }
 }
