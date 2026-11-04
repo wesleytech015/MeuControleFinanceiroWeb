@@ -61,3 +61,7 @@ Pensando nisso, este sistema foi desenvolvido com o objetivo de centralizar e fa
 [ API REST - Node.js ]
           ↓
 [ Banco MySQL ]
+
+## Segurança e implantação do backend
+
+Consulte [as correções e os testes de segurança](docs/seguranca.md) e [a preparação para Render e Aiven](docs/implantacao-render.md). As configurações reais ficam no ambiente do servidor; o deploy não cria nem migra tabelas automaticamente.
