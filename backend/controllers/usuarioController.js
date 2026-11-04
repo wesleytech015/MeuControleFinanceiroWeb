@@ -30,7 +30,7 @@ const usuarioController = {
                 id: result.insertId
             });
         } catch (err) {
-            console.error('Erro ao cadastrar usuário:', err);
+            console.error('Erro ao cadastrar usuário:');
  
             // CORRIGIDO: trata e-mail duplicado (código MySQL 1062)
             // antes retornava erro 500 genérico para qualquer erro
@@ -43,14 +43,15 @@ const usuarioController = {
     },
  
     // ============================================
-    // LISTAR TODOS OS USUÁRIOS
+    // RETORNAR SOMENTE O PERFIL DO USUÁRIO AUTENTICADO
     // ============================================
     listar: async (req, res) => {
         try {
-            const usuarios = await Usuario.listarTodos();
+            const usuarios = await Usuario.listarDoUsuario(req.usuario.id);
+            // Preserve the array contract without exposing other accounts or password hashes.
             res.json(usuarios);
         } catch (err) {
-            console.error('Erro ao listar usuários:', err);
+            console.error('Erro ao listar usuários:');
             res.status(500).json({ erro: 'Erro ao listar usuários' });
         }
     }

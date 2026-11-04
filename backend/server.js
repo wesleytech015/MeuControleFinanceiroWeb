@@ -9,7 +9,8 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.disable('x-powered-by');
+app.use(express.json({ limit: '16kb', inflate: false }));
 
 // rotas
 const testeRoutes = require('./routes/testeroutes');
@@ -23,8 +24,16 @@ app.use('/api', loginRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/transacoes', transacoesRoutes);
 
+// Parser failures should be JSON errors, without Express development stack traces.
+app.use((error, req, res, next) => {
+  if (res.headersSent) return next(error);
+  const status = error.type === 'entity.too.large' ? 413
+    : error.type === 'encoding.unsupported' ? 415
+    : error.type === 'entity.parse.failed' ? 400 : 500;
+  res.status(status).json({ erro: status === 500 ? 'Erro interno.' : 'Corpo da requisição inválido ou não suportado.' });
+});
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });

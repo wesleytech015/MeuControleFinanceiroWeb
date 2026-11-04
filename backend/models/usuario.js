@@ -8,8 +8,8 @@ class Usuario {
         return result;
     }
 
-    static async listarTodos() {
-        const [rows] = await conexao.query('SELECT * FROM usuarios');
+    static async listarDoUsuario(usuarioId) {
+        const [rows] = await conexao.query('SELECT id, nome, email, criado_em FROM usuarios WHERE id = ?', [usuarioId]);
         return rows;
     }
 

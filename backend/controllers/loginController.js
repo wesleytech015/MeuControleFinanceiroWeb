@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/usuario');
+const { jwtSecret } = require('../config/security');
 
 const loginController = {
   login: async (req, res) => {
@@ -29,7 +30,7 @@ const loginController = {
         });
       }
 
-      const segredo = process.env.JWT_SECRET || 'aula-senai-seguranca-web';
+      const segredo = jwtSecret;
 
       const token = jwt.sign(
         {
@@ -39,7 +40,7 @@ const loginController = {
         },
         segredo,
         {
-          expiresIn: '24h'
+          expiresIn: '24h', algorithm: 'HS256'
         }
       );
 
@@ -53,7 +54,7 @@ const loginController = {
         }
       });
     } catch (err) {
-      console.error('Erro ao fazer login:', err);
+      console.error('Erro ao fazer login.');
       res.status(500).json({
         erro: 'Erro ao fazer login'
       });

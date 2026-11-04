@@ -6,6 +6,7 @@ se a descrição foi preenchida, e depois mandar o Model salvar no banco. Ele ta
 total (somando receitas e subtraindo despesas) antes de enviar para a tela de Dashboard.
 */
 const Transacao = require('../models/transacao');
+const { validateTransaction } = require('../validation/transacao');
  
 const transacaoController = {
  
@@ -44,7 +45,7 @@ const transacaoController = {
         transacoes: resultados
       });
     } catch (erro) {
-      console.error('Erro ao buscar dados:', erro);
+      console.error('Erro ao buscar dados:');
       res.status(500).json({ erro: 'Erro ao buscar dados' });
     }
   },
@@ -56,35 +57,17 @@ const transacaoController = {
     try {
       const usuario_id = req.usuario.id;
  
-      // CORRIGIDO: agora inclui categoria e forma_pagamento
-      const { descricao, valor, tipo, data, categoria, forma_pagamento } = req.body;
- 
-      // VALIDA CAMPOS OBRIGATÓRIOS
-      if (!descricao) {
-        return res.status(400).json({ erro: 'O campo descricao é obrigatorio' });
-      }
- 
-      if (valor == null || isNaN(Number(valor)) || Number(valor) <= 0) {
-        return res.status(400).json({ erro: 'O campo valor é obrigatorio e deve ser maior que zero' });
-      }
- 
-      if (!tipo) {
-        return res.status(400).json({ erro: 'O campo tipo é obrigatorio' });
-      }
- 
-      // VALIDA SE TIPO É RECEITA OU DESPESA (MINÚSCULO)
-      if (tipo !== 'receita' && tipo !== 'despesa') {
-        return res.status(400).json({
-          erro: 'Tipo deve ser receita ou despesa (letras minusculas)'
-        });
-      }
- 
+      let dados;
+      try { dados = validateTransaction(req.body); }
+      catch (error) { return res.status(400).json({ erro: error.message }); }
+      const { descricao, valor, tipo, data, categoria, forma_pagamento } = dados;
+
       const result = await Transacao.criar({
         usuario_id,
         descricao,
-        valor: Number(valor),
+        valor,
         tipo,
-        data: data || new Date().toISOString().split('T')[0],
+        data,
         // CORRIGIDO: passa categoria e forma_pagamento para o model
         categoria: categoria || null,
         forma_pagamento: forma_pagamento || null
@@ -95,7 +78,7 @@ const transacaoController = {
         id: result.insertId
       });
     } catch (err) {
-      console.error('Erro ao criar transação:', err);
+      console.error('Erro ao criar transação:');
       res.status(500).json({
         erro: 'Erro ao criar transação'
       });
@@ -112,33 +95,16 @@ const transacaoController = {
     try {
       const usuario_id = req.usuario.id;
       const { id } = req.params;
-      const { descricao, valor, tipo, data, categoria, forma_pagamento } = req.body;
- 
-      // VALIDA CAMPOS OBRIGATÓRIOS
-      if (!descricao) {
-        return res.status(400).json({ erro: 'O campo descricao é obrigatorio' });
-      }
- 
-      if (valor == null || isNaN(Number(valor)) || Number(valor) <= 0) {
-        return res.status(400).json({ erro: 'O campo valor é obrigatorio e deve ser maior que zero' });
-      }
- 
-      if (!tipo) {
-        return res.status(400).json({ erro: 'O campo tipo é obrigatorio' });
-      }
- 
-      // VALIDA SE TIPO É RECEITA OU DESPESA (MINÚSCULO)
-      if (tipo !== 'receita' && tipo !== 'despesa') {
-        return res.status(400).json({
-          erro: 'Tipo deve ser receita ou despesa (letras minusculas)'
-        });
-      }
- 
+      let dados;
+      try { dados = validateTransaction(req.body); }
+      catch (error) { return res.status(400).json({ erro: error.message }); }
+      const { descricao, valor, tipo, data, categoria, forma_pagamento } = dados;
+
       const result = await Transacao.atualizar(id, usuario_id, {
         descricao,
-        valor: Number(valor),
+        valor,
         tipo,
-        data: data || new Date().toISOString().split('T')[0],
+        data,
         categoria: categoria || null,
         forma_pagamento: forma_pagamento || null
       });
@@ -154,7 +120,7 @@ const transacaoController = {
         mensagem: 'Transação atualizada com sucesso'
       });
     } catch (erro) {
-      console.error('Erro ao atualizar transação:', erro);
+      console.error('Erro ao atualizar transação:');
       res.status(500).json({
         erro: 'Erro ao atualizar transação'
       });
@@ -181,7 +147,7 @@ const transacaoController = {
         mensagem: 'Transação deletada com sucesso'
       });
     } catch (erro) {
-      console.error('Erro ao deletar transação:', erro);
+      console.error('Erro ao deletar transação:');
       res.status(500).json({
         erro: 'Erro ao deletar transação'
       });
