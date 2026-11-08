@@ -1,5 +1,13 @@
 # Correções de segurança — 03/11/2026
 
+## Piloto WhatsApp/Vercel — 08/11/2026
+
+Consulte `whatsapp-academico.md`. Integração opt-in (`WHATSAPP_ENABLED=true`), vínculo por JWT real e código aleatório de uso único limitado ao número informado, assinatura dos bytes originais do webhook e confirmação com código antes de gravar. O vínculo não usa email enviado pelo chat nem cria JWT artificial. Estado, deduplicação e resposta pendente são persistidos em MySQL; gravação financeira e ID recebido compartilham a mesma transação. Não há garantias de entrega exatamente uma vez na rede. O diário contém dados pessoais e financeiros; não o colocar em logs e definir limpeza controlada.
+
+Vercel usa o app Express exportado sem listener no import. O CA pode vir em `DB_CA_PEM`, com verificação TLS preservada e pool reduzido por instância. Isso não corrige o limitador de autenticação em memória herdado: ele não é global entre instâncias; antes de uso público, rever armazenamento compartilhado e proxy. As alterações são locais desta branch, sem deploy ou migração aplicados no banco da equipe.
+
+24 testes de backend e 45 de mobile aprovados; TypeScript mobile aprovado. HTTP de webhook foi exercitado localmente, com envio Meta simulado. Integração MySQL não concluiu por permissões insuficientes para tabelas temporárias de teste; credenciais administrativas não foram usadas. Meta, Aiven remoto e Vercel não foram acessados funcionalmente.
+
 Correções de autorização, validação, autenticação e dependências do backend. Consulte `implantacao-render.md` para a configuração de hospedagem e conexão MySQL.
 
 ## Credenciais anteriormente versionadas

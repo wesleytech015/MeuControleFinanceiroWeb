@@ -16,10 +16,14 @@ function databaseOptions(env = process.env, readCertificate = fs.readFileSync) {
   return {
     host: env.DB_HOST, port, user: env.DB_USER, password: env.DB_PASSWORD, database: env.DB_NAME,
     ssl: withoutTls ? undefined : {
-      ca: readCertificate(env.DB_CA_PATH || path.join(__dirname, '../certs/ca.pem')),
+      ca: env.DB_CA_PEM?.trim()
+        ? Buffer.from(env.DB_CA_PEM.replace(/\\n/g, '\n'))
+        : readCertificate(env.DB_CA_PATH || path.join(__dirname, '../certs/ca.pem')),
       minVersion: 'TLSv1.2', rejectUnauthorized: true,
     },
-    connectTimeout: 20000, waitForConnections: true, connectionLimit: 10, queueLimit: 0,
+    // Vercel may create several instances; keep each pool small and dates in UTC.
+    timezone: 'Z', connectTimeout: 20000, waitForConnections: true,
+    connectionLimit: env.VERCEL ? 2 : 10, maxIdle: 2, idleTimeout: 10000, queueLimit: 20,
   };
 }
 
