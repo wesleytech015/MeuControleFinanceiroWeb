@@ -1,16 +1,33 @@
 require('dotenv').config();
-const connection = require('./database/conexao');
+const mysql = require('mysql2');
+const fs = require('fs');
 
-console.log("🔄 Testando conexão com Aiven...");
+const connection = mysql.createConnection({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  ssl: {
+    ca: fs.readFileSync('./certs/ca.pem'), // certificado baixado do Aiven
+  },
+});
 
-// Teste simples
-connection.query('SELECT NOW() as agora', (err, results) => {
+connection.connect((err) => {
   if (err) {
-    console.error('Erro na query:', err);
-  } else {
-    console.log('✅ Banco funcionando! Hora atual:', results[0].agora);
+    console.error('❌ Erro ao conectar:', err.code, '-', err.message);
+    process.exit(1);
   }
-  
-  // Fecha a conexão após o teste
-  connection.end();
+
+  console.log('✅ Conexão estabelecida com sucesso!');
+
+  // Teste simples: SELECT 1
+  connection.query('SELECT 1 AS resultado', (err, results) => {
+    if (err) {
+      console.error('❌ Erro ao executar query:', err.message);
+    } else {
+      console.log('📊 Resultado da query:', results);
+    }
+    connection.end();
+  });
 });
