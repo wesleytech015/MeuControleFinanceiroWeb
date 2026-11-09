@@ -52,7 +52,7 @@ const loginController = {
         }
       });
     } catch (err) {
-      console.error('Erro ao fazer login:', err);
+      console.error('Erro ao fazer login.');
       res.status(500).json({
         erro: 'Erro ao fazer login'
       });

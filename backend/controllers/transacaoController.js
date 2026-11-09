@@ -44,7 +44,7 @@ const transacaoController = {
         transacoes: resultados
       });
     } catch (erro) {
-      console.error('Erro ao buscar dados:', erro);
+      console.error('Erro ao buscar dados:');
       res.status(500).json({ erro: 'Erro ao buscar dados' });
     }
   },
@@ -92,10 +92,10 @@ const transacaoController = {
 
       res.status(201).json({
         mensagem: 'Transação salva no banco!',
-        id: result.insertId
+        id: result.rows[0].id
       });
     } catch (err) {
-      console.error('Erro ao criar transação:', err);
+      console.error('Erro ao criar transação:');
       res.status(500).json({
         erro: 'Erro ao criar transação'
       });
@@ -144,7 +144,7 @@ const transacaoController = {
       });
 
       // SE NENHUMA LINHA FOI AFETADA, A TRANSAÇÃO NÃO EXISTE OU NÃO PERTENCE AO USUÁRIO
-      if (result.affectedRows === 0) {
+      if (result.rowCount === 0) {
         return res.status(404).json({
           erro: 'Transação não encontrada ou sem permissão para editar'
         });
@@ -154,7 +154,7 @@ const transacaoController = {
         mensagem: 'Transação atualizada com sucesso'
       });
     } catch (erro) {
-      console.error('Erro ao atualizar transação:', erro);
+      console.error('Erro ao atualizar transação:');
       res.status(500).json({
         erro: 'Erro ao atualizar transação'
       });
@@ -171,7 +171,7 @@ const transacaoController = {
 
       const result = await Transacao.deletar(id, usuario_id);
 
-      if (result.affectedRows === 0) {
+      if (result.rowCount === 0) {
         return res.status(404).json({
           erro: 'Transação não encontrada'
         });
@@ -181,7 +181,7 @@ const transacaoController = {
         mensagem: 'Transação deletada com sucesso'
       });
     } catch (erro) {
-      console.error('Erro ao deletar transação:', erro);
+      console.error('Erro ao deletar transação:');
       res.status(500).json({
         erro: 'Erro ao deletar transação'
       });
