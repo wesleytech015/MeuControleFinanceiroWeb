@@ -2,7 +2,6 @@ import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint' //linha adiciona para o eslint reconhecer o backend (require)
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
@@ -11,14 +10,30 @@ export default defineConfig([
     files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,
+    ],
+  },
+  {
+    files: ['src/**/*.{js,jsx}'],
+    extends: [
       reactHooks.configs.flat.recommended,
-      tseslint.configs.recommended, //configs recomendadas para o eslint configurar
-
       reactRefresh.configs.vite,
     ],
     languageOptions: {
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+  },
+  {
+    files: ['backend/**/*.js'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: globals.node,
+    },
+  },
+  {
+    files: ['*.js'],
+    languageOptions: {
+      globals: globals.node,
     },
   },
 ])

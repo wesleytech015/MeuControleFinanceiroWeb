@@ -19,8 +19,8 @@ class Transacao {
     // Executa a consulta no banco buscando apenas
     // as movimentações do usuário logado.
     // CORRIGIDO: ORDER BY data DESC para trazer as mais recentes primeiro.
-    const [rows] = await conexao.query(
-      'SELECT * FROM movimentacoes WHERE usuario_id = ? ORDER BY data DESC',
+    const { rows } = await conexao.query(
+      'SELECT * FROM movimentacoes WHERE usuario_id = $1 ORDER BY data DESC',
       [usuario_id]
     );
 
@@ -59,11 +59,11 @@ class Transacao {
         categoria,
         forma_pagamento
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id
     `;
 
     // Executa a query enviando os valores.
-    const [result] = await conexao.query(sql, [
+    const result = await conexao.query(sql, [
       usuario_id,
       descricao,
       valor,
@@ -81,7 +81,7 @@ class Transacao {
   // ATUALIZAR MOVIMENTAÇÃO EXISTENTE
   // ============================================
   // Para que serve: executa um UPDATE na tabela movimentacoes.
-  // O AND usuario_id = ? impede que um usuário edite
+  // O AND usuario_id = $8 impede que um usuário edite
   // uma movimentação que pertence a outro usuário.
   static async atualizar(id, usuario_id, dados) {
 
@@ -100,18 +100,18 @@ class Transacao {
     const sql = `
       UPDATE movimentacoes
       SET
-        descricao = ?,
-        valor = ?,
-        tipo = ?,
-        data = ?,
-        categoria = ?,
-        forma_pagamento = ?
-      WHERE id = ?
-      AND usuario_id = ?
+        descricao = $1,
+        valor = $2,
+        tipo = $3,
+        data = $4,
+        categoria = $5,
+        forma_pagamento = $6
+      WHERE id = $7
+      AND usuario_id = $8
     `;
 
     // Executa a query enviando os valores novos e o id.
-    const [result] = await conexao.query(sql, [
+    const result = await conexao.query(sql, [
       descricao,
       valor,
       tipo,
@@ -133,11 +133,11 @@ class Transacao {
 
     // Remove a movimentação apenas se ela
     // pertencer ao usuário autenticado.
-    const [result] = await conexao.query(
+    const result = await conexao.query(
       `
       DELETE FROM movimentacoes
-      WHERE id = ?
-      AND usuario_id = ?
+      WHERE id = $1
+      AND usuario_id = $2
       `,
       [id, usuario_id]
     );

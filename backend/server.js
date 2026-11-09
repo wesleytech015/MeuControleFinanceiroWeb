@@ -1,6 +1,7 @@
 const path = require('path');
 require('dotenv').config({
-  path: path.resolve(__dirname, '../.env')
+  path: path.resolve(__dirname, '../.env'),
+  quiet: true
 });
 
 require('./config/jwt');
@@ -27,6 +28,10 @@ app.use('/api/transacoes', transacoesRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

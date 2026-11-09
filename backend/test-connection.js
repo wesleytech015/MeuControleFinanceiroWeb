@@ -1,33 +1,16 @@
-require('dotenv').config();
-const mysql = require('mysql2');
-const fs = require('fs');
-
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    ca: fs.readFileSync('./certs/ca.pem'), // certificado baixado do Aiven
-  },
-});
-
-connection.connect((err) => {
-  if (err) {
-    console.error('❌ Erro ao conectar:', err.code, '-', err.message);
-    process.exit(1);
+const path = require('node:path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env'), quiet: true });
+const pool = require('./database/conexao');
+async function main() {
+  try {
+    const { rows } = await pool.query('SELECT 1 AS resultado');
+    if (rows[0].resultado !== 1) throw new Error('Resposta inesperada');
+    console.log('Conexão PostgreSQL com TLS validado estabelecida.');
+  } catch {
+    console.error('Falha ao conectar ao PostgreSQL. Verifique configuração, CA e acesso de rede.');
+    process.exitCode = 1;
+  } finally {
+    await pool.end();
   }
-
-  console.log('✅ Conexão estabelecida com sucesso!');
-
-  // Teste simples: SELECT 1
-  connection.query('SELECT 1 AS resultado', (err, results) => {
-    if (err) {
-      console.error('❌ Erro ao executar query:', err.message);
-    } else {
-      console.log('📊 Resultado da query:', results);
-    }
-    connection.end();
-  });
-});
+}
+main();
