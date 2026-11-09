@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const segredo = require('../config/jwt');
 const Usuario = require('../models/usuario');
 
 const loginController = {
@@ -28,8 +29,6 @@ const loginController = {
           erro: 'E-mail ou senha incorretos'
         });
       }
-
-      const segredo = process.env.JWT_SECRET || 'aula-senai-seguranca-web';
 
       const token = jwt.sign(
         {

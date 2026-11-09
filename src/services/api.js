@@ -1,3 +1,5 @@
+import axios from "axios";
+
 // URL base do backend.
 // Todas as requisições do frontend serão enviadas para esse endereço.
 const API_URL = "http://localhost:3000/api";
@@ -10,6 +12,19 @@ const API_URL = "http://localhost:3000/api";
 function getToken() {
   return localStorage.getItem("token");
 }
+
+// Cliente usado pelos serviços que consomem a interface Axios.
+const api = axios.create({ baseURL: API_URL });
+
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export default api;
 
 // ============================================
 // LOGIN

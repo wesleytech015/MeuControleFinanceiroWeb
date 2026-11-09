@@ -2,9 +2,10 @@
 // * verificar se o token existe
 // * validar com jsonwebtoken
 // * colocar os dados do usuário em req.usuario
-// * chamar next() /*  
+// * chamar next() /*
 
 const jwt = require('jsonwebtoken');
+const segredo = require('../config/jwt');
 
 const autenticar = (req, res, next) => {
   try {
@@ -31,8 +32,6 @@ const autenticar = (req, res, next) => {
         erro: 'Tipo de token inválido'
       });
     }
-
-    const segredo = process.env.JWT_SECRET || 'aula-senai-seguranca-web';
 
     const payload = jwt.verify(token, segredo);
 

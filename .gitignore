@@ -15,6 +15,7 @@ lerna-debug.log*
 
 # ==================== ARQUIVOS SENSÍVEIS ====================
 .env
+.env.*
 .env.local
 .env*.local
 .env.production
@@ -39,3 +40,4 @@ lerna-debug.log*
 coverage
 *.env.backup
 *.env.bak
+*.env

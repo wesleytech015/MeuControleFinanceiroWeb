@@ -78,7 +78,7 @@ class Transacao {
   }
 
   //
-  // ATUALIZAR MOVIMENTAÇÃO EXISTENTE 
+  // ATUALIZAR MOVIMENTAÇÃO EXISTENTE
   // ============================================
   // Para que serve: executa um UPDATE na tabela movimentacoes.
   // O AND usuario_id = ? impede que um usuário edite
