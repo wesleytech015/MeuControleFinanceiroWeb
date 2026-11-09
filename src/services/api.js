@@ -1,8 +1,12 @@
 import axios from "axios";
+import { resolveApiUrl } from "./apiUrl.js";
 
 // URL base do backend.
 // Todas as requisições do frontend serão enviadas para esse endereço.
-const API_URL = "http://localhost:3000/api";
+const API_URL = resolveApiUrl(
+  import.meta.env.VITE_API_URL,
+  import.meta.env.PROD,
+);
 
 // ============================================
 // FUNÇÃO AUXILIAR: RETORNA O TOKEN SALVO

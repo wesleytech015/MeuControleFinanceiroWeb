@@ -83,3 +83,28 @@ O ESLint usa configuração nativa JavaScript/JSX e CommonJS para o backend; nã
 depende de `typescript-eslint` instalado na raiz. A configuração carrega, mas a
 revisão atual registra dez erros de código ainda pendentes, descritos no relatório
 PostgreSQL. A compilação e os testes locais passam.
+
+## Hospedagem do frontend na Vercel
+
+O frontend usa `VITE_API_URL` para localizar a API. Em desenvolvimento, se essa
+variável não estiver definida, a aplicação usa `http://localhost:3000/api`.
+Builds de produção exigem uma URL pública HTTPS, por exemplo
+`https://api.seudominio.com` ou `https://api.seudominio.com/api`. O sufixo `/api`
+é normalizado para aparecer uma única vez. Não inclua credenciais, `DB_PASSWORD`
+ou `JWT_SECRET` nessa variável: valores com prefixo `VITE_` são incorporados ao
+código entregue ao navegador.
+
+No painel da Vercel, configure `VITE_API_URL` nos ambientes que serão publicados
+(Production e, se necessário, Preview) com a URL HTTPS pública do backend. A URL
+pública ainda precisa ser confirmada antes de login, cadastro e demais chamadas
+à API funcionarem no site publicado.
+
+Configuração do projeto Vercel:
+
+- **Root Directory:** `.`
+- **Install Command:** `npm ci`
+- **Build Command:** `npm run build`
+- **Output Directory:** `dist`
+
+O arquivo `vercel.json` reescreve as rotas da aplicação React para `index.html`
+para permitir acesso direto e recarregamento. As rotas `/api` não são reescritas.
