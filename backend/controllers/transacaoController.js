@@ -75,7 +75,7 @@ const transacaoController = {
  
       res.status(201).json({
         mensagem: 'Transação salva no banco!',
-        id: result.insertId
+        id: result.rows[0].id
       });
     } catch (err) {
       console.error('Erro ao criar transação:');
@@ -110,7 +110,7 @@ const transacaoController = {
       });
  
       // SE NENHUMA LINHA FOI AFETADA, A TRANSAÇÃO NÃO EXISTE OU NÃO PERTENCE AO USUÁRIO
-      if (result.affectedRows === 0) {
+      if (result.rowCount === 0) {
         return res.status(404).json({
           erro: 'Transação não encontrada ou sem permissão para editar'
         });
@@ -136,8 +136,8 @@ const transacaoController = {
       const { id } = req.params;
  
       const result = await Transacao.deletar(id, usuario_id);
- 
-      if (result.affectedRows === 0) {
+
+      if (result.rowCount === 0) {
         return res.status(404).json({
           erro: 'Transação não encontrada'
         });

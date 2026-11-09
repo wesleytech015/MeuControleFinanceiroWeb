@@ -28,7 +28,7 @@ async function check(name,method,route,body,token,expected,validate) {
 }
 (async()=>{
  try {
-  const [rows]=await pool.query('SELECT 1 AS ok'); assert.equal(rows[0].ok,1);
+  const { rows }=await pool.query('SELECT 1 AS ok'); assert.equal(rows[0].ok,1);
   await check('health GET','GET','/teste',undefined,null,200);
   await check('health POST','POST','/teste',{},null,200);
   await check('missing login fields','POST','/login',{},null,400);
@@ -88,7 +88,7 @@ async function check(name,method,route,body,token,expected,validate) {
   for(const route of ['/dashboard','/receitas','/despesas']) await check('dedicated route availability','GET',route,undefined,a,404);
  }catch(e){results.push({name:'prerequisite',pass:false,failure:e.message});console.error(e.message);}
  finally {
-  try{await pool.query('DELETE FROM usuarios WHERE email IN (?,?)',emails);const [rows]=await pool.query('SELECT COUNT(*) AS remaining FROM usuarios WHERE email IN (?,?)',emails);assert.equal(rows[0].remaining,0);results.push({name:'temporary accounts and cascading transactions cleaned',pass:true});}catch(e){results.push({name:'cleanup',pass:false,failure:e.message});}
+  try{await pool.query('DELETE FROM usuarios WHERE email IN ($1,$2)',emails);const { rows }=await pool.query('SELECT COUNT(*) AS remaining FROM usuarios WHERE email IN ($1,$2)',emails);assert.equal(Number(rows[0].remaining),0);results.push({name:'temporary accounts and cascading transactions cleaned',pass:true});}catch(e){results.push({name:'cleanup',pass:false,failure:e.message});}
   await pool.end();
   const report={executedAt:new Date().toISOString(),base,results,passed:results.filter(r=>r.pass).length,failed:results.filter(r=>!r.pass).length};
   if (process.env.API_TEST_REPORT) fs.writeFileSync(process.env.API_TEST_REPORT,JSON.stringify(report,null,2));

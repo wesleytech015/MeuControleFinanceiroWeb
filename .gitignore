@@ -24,6 +24,15 @@ lerna-debug.log*
 !*.env.example
 !.env.example
 
+# Certificados locais e material criptográfico privado
+/backend/certs/
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+
 # ==================== EDITOR / IDE ====================
 .vscode/*
 !.vscode/extensions.json
@@ -39,3 +48,4 @@ lerna-debug.log*
 coverage
 *.env.backup
 *.env.bak
+*.env

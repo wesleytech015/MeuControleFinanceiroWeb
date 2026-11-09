@@ -1,3 +1,7 @@
+## Atualização — 09/11/2026
+
+O piloto desta feature agora usa PostgreSQL/Supabase. API/PostgreSQL locais: 69 verificações; WhatsApp/PostgreSQL/HTTP locais: 22 verificações, Meta simulada. O banco remoto não foi acessado. Os resultados de 08/11 abaixo são históricos. Veja `integracao-supabase.md`.
+
 # Protótipo acadêmico: WhatsApp e API na Vercel
 
 ## Entrega e limites
@@ -8,11 +12,11 @@ Não há deploy automático, conta Meta criada, mensagens enviadas ou promessa d
 
 ## Preparar o banco
 
-Em um banco de demonstração identificado, com o schema já existente, revisar e aplicar explicitamente `backend/database/migrations/20261108_whatsapp.sql`. A migração acrescenta três tabelas e não altera as tabelas financeiras. `usuarios` e `movimentacoes` precisam usar InnoDB para que gravação e deduplicação compartilhem a mesma transação.
+Em um banco de demonstração identificado, com o schema já existente, revisar e aplicar explicitamente `backend/database/migrations/20261109_whatsapp.postgresql.sql`. A migração acrescenta três tabelas e não altera as tabelas financeiras. Usar o schema PostgreSQL da equipe; gravação e deduplicação usam a mesma transação e o mesmo cliente pg.
 
 Não executar a migração em banco compartilhado sem coordenação. O deploy não cria tabelas, não recupera o Aiven e não publica as correções anteriores da API. Revisar as correções herdadas da branch `fix/security-local-api` antes de integrar este trabalho à equipe.
 
-Vínculos e propostas duram entre requisições porque ficam no MySQL. Códigos de vínculo são aleatórios, armazenados como hash e válidos por dez minutos. Propostas têm outro código de confirmação e expiram em dez minutos. Cada ID de mensagem recebido é registrado com a gravação financeira na mesma transação: uma reentrega não repete o lançamento.
+Vínculos e propostas duram entre requisições porque ficam no PostgreSQL. Códigos de vínculo são aleatórios, armazenados como hash e válidos por dez minutos. Propostas têm outro código de confirmação e expiram em dez minutos. Cada ID de mensagem recebido é registrado com a gravação financeira na mesma transação: uma reentrega não repete o lançamento.
 
 ## Configurar a Meta
 
@@ -22,7 +26,7 @@ Vínculos e propostas duram entre requisições porque ficam no MySQL. Códigos 
 4. Manter `WHATSAPP_TIMEZONE=America/Sao_Paulo`, ou escolher explicitamente outro fuso IANA. A data omitida vem desse fuso, não da hora UTC da função. Não há data abreviada com ano inferido.
 5. Cadastrar callback `https://SEU-PROJETO.vercel.app/api/whatsapp/webhook`, usando o mesmo verify token, e assinar eventos `messages` da conta WhatsApp. O GET valida o desafio; o POST valida HMAC SHA-256 dos bytes originais com o App Secret.
 
-Tokens temporários da Meta expiram: conferir validade antes da apresentação. Nunca colocar credenciais Meta/JWT/MySQL no mobile, em `EXPO_PUBLIC_*`, no Git, em capturas ou em links de WhatsApp. O token da Meta não substitui a sessão JWT de um usuário.
+Tokens temporários da Meta expiram: conferir validade antes da apresentação. Nunca colocar credenciais Meta/JWT/PostgreSQL no mobile, em `EXPO_PUBLIC_*`, no Git, em capturas ou em links de WhatsApp. O token da Meta não substitui a sessão JWT de um usuário.
 
 ## Vincular uma conta e demonstrar
 
@@ -53,7 +57,7 @@ Não usar separadores de milhar. Data explícita deve ter DD/MM/AAAA. Não há s
 
 Publicar o repositório backend por PR conforme o fluxo da equipe e importar a branch revisada na Vercel, com **Root Directory: backend**, Node.js 24 e framework Express. `backend/app.js` exporta a aplicação sem abrir porta; `npm start` continua funcionando localmente via `server.js`. `backend/vercel.json` declara Express. Preservar `backend/package-lock.json` e usar `npm ci` na instalação.
 
-Configurar as variáveis da `.env.example` no painel. `NODE_ENV=production`, MySQL externo acessível, `DB_SSL=true` e `JWT_SECRET` próprio são obrigatórios. Na Vercel, `DB_CA_PEM` aceita o conteúdo completo do certificado CA do Aiven, inclusive com `\n` literais. Isso evita depender de um Secret File específico do Render. TLS continua verificando o certificado. `DB_CA_PATH` permanece como alternativa para execução local/Render.
+Configurar PostgreSQL/Supabase, TLS validado e CA do projeto em `DB_SSL_CA_PATH` ou `DB_SSL_CA_PEM`. Não usar o antigo CA Aiven. Para Vercel, seguir `implantacao-vercel.md`; banco e API permanecem separados.
 
 O pool usa até duas conexões por instância quando `VERCEL` está definido. Não é um limite global: conferir conexões disponíveis no banco e concorrência do serviço. Nenhum estado da conversa depende da memória da função. O limitador de login herdado ainda usa memória e não garante um limite global entre funções; antes de um piloto público, revisar armazenamento compartilhado e topologia de proxy conforme `docs/seguranca.md`.
 
@@ -75,7 +79,7 @@ O diário contém telefone e texto da resposta (inclusive descrição e valor): 
 - Integração MySQL: **não concluída**. A conta local da aplicação não tem CREATE DATABASE nem CREATE TABLE. Não foram alterados privilégios ou usados arquivos administrativos.
 - Meta, Aiven remoto, deploy Vercel e aparelho físico: **não executados**.
 
-O teste opt-in `node tests/whatsapp-live.cjs` exige `WHATSAPP_TEST_ENV_FILE` apontando para ambiente local identificado (`DB_HOST=127.0.0.1`, `DB_NAME=dashboard_test_<hex>`). Usa somente essa conta; ela precisa de CREATE/DROP TABLE no banco de validação. Ele cria nomes aleatórios próprios, verifica que não existem e remove apenas essas tabelas ao terminar. Não concede privilégios, não usa conta administrativa e não acessa Aiven. O teste usa HTTP/MySQL reais e transporte Meta simulado. Não executar contra o banco da equipe.
+O teste opt-in atual `node tests/whatsapp-live.cjs` exige `WHATSAPP_TEST_ENV_FILE` apontando para ambiente local identificado (`DB_HOST=127.0.0.1`, `DB_NAME=dashboard_test_<hex>`). Usa somente essa conta; ela precisa de CREATE/DROP TABLE no banco de validação. Ele cria tabelas PostgreSQL com nomes aleatórios próprios, verifica que não existem e remove apenas essas tabelas ao terminar. Não concede privilégios, não usa conta administrativa e não acessa Aiven. O teste usa HTTP/PostgreSQL reais e transporte Meta simulado. Não executar contra o banco da equipe.
 
 ## Referências consultadas
 

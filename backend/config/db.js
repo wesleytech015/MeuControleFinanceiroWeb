@@ -1,1 +1,2 @@
-//Logica do banco de dados - Wesley
+// Compatibilidade: todas as consultas compartilham o mesmo pool.
+module.exports = require('../database/conexao');

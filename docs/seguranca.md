@@ -1,3 +1,7 @@
+## Atualização PostgreSQL/Supabase — 09/11/2026
+
+A feature usa pg, TLS verificado e pool compartilhado; preserva autorização por usuário e validações. O piloto WhatsApp usa transação PostgreSQL e RLS sem políticas públicas nas novas tabelas. Consulte `integracao-supabase.md` para as verificações atuais. Os registros MySQL abaixo são históricos.
+
 # Correções de segurança — 03/11/2026
 
 ## Piloto WhatsApp/Vercel — 08/11/2026
@@ -8,7 +12,7 @@ Vercel usa o app Express exportado sem listener no import. O CA pode vir em `DB_
 
 24 testes de backend e 45 de mobile aprovados; TypeScript mobile aprovado. HTTP de webhook foi exercitado localmente, com envio Meta simulado. Integração MySQL não concluiu por permissões insuficientes para tabelas temporárias de teste; credenciais administrativas não foram usadas. Meta, Aiven remoto e Vercel não foram acessados funcionalmente.
 
-Correções de autorização, validação, autenticação e dependências do backend. Consulte `implantacao-render.md` para a configuração de hospedagem e conexão MySQL.
+Correções de autorização, validação, autenticação e dependências do backend. Consulte `implantacao-vercel.md` e `integracao-supabase.md` para a configuração atual PostgreSQL/Supabase.
 
 ## Credenciais anteriormente versionadas
 

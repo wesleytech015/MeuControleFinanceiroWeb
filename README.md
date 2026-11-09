@@ -41,9 +41,8 @@ Pensando nisso, este sistema foi desenvolvido com o objetivo de centralizar e fa
 - Express
 
 ## Banco de Dados
-- MySQL
-
-- Aiven Cloud
+- PostgreSQL
+- Supabase (Session Pooler com TLS e CA oficial)
 
 ## Ferramentas e Metodologias
 - Git & GitHub
@@ -60,8 +59,35 @@ Pensando nisso, este sistema foi desenvolvido com o objetivo de centralizar e fa
           ↓
 [ API REST - Node.js ]
           ↓
-[ Banco MySQL ]
+[ PostgreSQL / Supabase ]
+```
 
-## Segurança e implantação do backend
+## Configuração e validação
 
-Consulte [as correções e os testes de segurança](docs/seguranca.md) e [a preparação para Render e Aiven](docs/implantacao-render.md). As configurações reais ficam no ambiente do servidor; o deploy não cria nem migra tabelas automaticamente.
+Instale as dependências da raiz com `npm ci` e as do backend com
+`npm ci --prefix backend`. Configure o `.env` local a partir de `.env.example`,
+incluindo a senha do banco, o segredo JWT e o caminho da CA oficial baixada do
+painel Supabase. Não versione o `.env` nem os certificados locais.
+
+Consulte [as instruções PostgreSQL](backend/database/README.postgresql.md) antes
+de iniciar o backend ou executar qualquer SQL. O esquema MySQL original permanece
+apenas como histórico. A aplicação não importa esquemas automaticamente.
+
+- Backend: `npm start --prefix backend`.
+- Frontend: `npm run dev`.
+- Testes locais, sem banco remoto: `npm test --prefix backend`.
+- Build Web: `npm run build`.
+- Lint: `npm run lint`.
+
+O ESLint usa configuração nativa JavaScript/JSX e CommonJS para o backend; não
+depende de `typescript-eslint` instalado na raiz. A configuração carrega, mas a
+revisão atual registra dez erros de código ainda pendentes, descritos no relatório
+PostgreSQL. A compilação e os testes locais passam.
+
+## Branch de integração WhatsApp / Vercel
+
+A feature/whatsapp-vercel-academico incorpora a migração PostgreSQL/Supabase de Wesley
+(commit 6b57639), preservando autorização por usuário, validações, limites de autenticação
+e o piloto WhatsApp desta branch. Nenhuma outra branch local é alterada.
+Consulte [integração Supabase](docs/integracao-supabase.md),
+[implantação na Vercel](docs/implantacao-vercel.md) e [WhatsApp](docs/whatsapp-academico.md).

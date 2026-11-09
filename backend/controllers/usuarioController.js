@@ -27,14 +27,14 @@ const usuarioController = {
  
             res.status(201).json({
                 mensagem: 'Usuário cadastrado com sucesso!',
-                id: result.insertId
+                id: result.rows[0].id
             });
         } catch (err) {
             console.error('Erro ao cadastrar usuário:');
- 
-            // CORRIGIDO: trata e-mail duplicado (código MySQL 1062)
+
+            // Trata e-mail duplicado (SQLSTATE PostgreSQL 23505).
             // antes retornava erro 500 genérico para qualquer erro
-            if (err.code === 'ER_DUP_ENTRY') {
+            if (err.code === '23505') {
                 return res.status(409).json({ erro: 'Este e-mail já está cadastrado' });
             }
  

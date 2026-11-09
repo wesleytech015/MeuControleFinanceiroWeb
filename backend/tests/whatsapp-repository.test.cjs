@@ -2,14 +2,14 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { createRepository } = require('../whatsapp/repository');
 
-function fixture(affectedRows) {
+function fixture(rowCount) {
   const events = [];
   const connection = {
-    beginTransaction: async () => events.push('begin'),
-    execute: async () => { events.push('claim'); return [{ affectedRows }]; },
-    commit: async () => events.push('commit'), rollback: async () => events.push('rollback'), release: () => events.push('release'),
+
+    query: async sql => { if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(sql)) { events.push(sql.toLowerCase()); return; } events.push('claim'); return { rowCount, rows: [] }; },
+     release: () => events.push('release'),
   };
-  return { events, repository: createRepository({ getConnection: async () => connection }) };
+  return { events, repository: createRepository({ connect: async () => connection }) };
 }
 test('persisted duplicate does not invoke the financial processor', async () => {
   const { events, repository } = fixture(0);
