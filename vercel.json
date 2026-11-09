@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    { "source": "/cadastro", "destination": "/index.html" },
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/receitas", "destination": "/index.html" },
+    { "source": "/despesas", "destination": "/index.html" },
+    { "source": "/movimentacoes", "destination": "/index.html" },
+    { "source": "/metas", "destination": "/index.html" },
+    { "source": "/relatorios", "destination": "/index.html" },
+    { "source": "/cartoes", "destination": "/index.html" }
+  ]
+}
