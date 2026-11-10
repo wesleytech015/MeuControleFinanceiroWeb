@@ -1,4 +1,7 @@
 {
+  "framework": "vite",
+  "buildCommand": "VITE_API_URL=https://meucontrolefinanceiroweb.onrender.com/api npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/cadastro", "destination": "/index.html" },
     { "source": "/dashboard", "destination": "/index.html" },

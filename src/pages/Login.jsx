@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 // Importa a função de login da API.
 import { login } from "../services/api";
 import { notifyAuthChange } from "../services/authSession.js";
+import { loginError } from "../services/loginError.js";
 
 // Importa o CSS da página.
 import "../styles/login.css";
@@ -44,10 +45,9 @@ function Login() {
 
       navigate("/dashboard");
     } catch (error) {
-      setErro("E-mail ou senha inválidos.");
-      setErroLogin(true);
-
-      console.error(error);
+      const feedback = loginError(error);
+      setErro(feedback.message);
+      setErroLogin(feedback.credentials);
     } finally {
       setCarregando(false);
     }

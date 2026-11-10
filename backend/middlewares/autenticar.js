@@ -33,7 +33,10 @@ const autenticar = (req, res, next) => {
       });
     }
 
-    const payload = jwt.verify(token, segredo);
+    const payload = jwt.verify(token, segredo, { algorithms: ['HS256'] });
+    if (!payload || !Number.isSafeInteger(payload.id) || payload.id <= 0) {
+      return res.status(401).json({ erro: 'Token inválido' });
+    }
 
     req.usuario = payload;
 

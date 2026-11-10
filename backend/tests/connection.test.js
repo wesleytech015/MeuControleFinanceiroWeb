@@ -33,7 +33,7 @@ test('configuração inválida e CA inexistente falham antes de abrir conexão',
 });
 
 test('JWT ausente ou vazio impede inicialização mesmo antes de carregar Express', () => {
-  for (const value of ['', '   ']) {
+  for (const value of ['', '   ', 'short-secret']) {
     const result = run(`
       const Module = require('node:module');
       const load = Module._load;

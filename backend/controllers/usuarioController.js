@@ -47,7 +47,7 @@ const usuarioController = {
     // ============================================
     listar: async (req, res) => {
         try {
-            const usuarios = await Usuario.listarTodos();
+            const usuarios = await Usuario.listarDoUsuario(req.usuario.id);
             res.json(usuarios);
         } catch {
             console.error('Erro ao listar usuários:');
