@@ -1,44 +1,173 @@
-import { Link } from "react-router-dom";
+// IMPORTA useState DO REACT
+import { useContext, useState } from "react";
 
+// IMPORTA O LAYOUT PADRÃO
+import Layout from "../components/Layout";
+
+// IMPORTA O CSS
+import "../styles/formulario.css";
+
+// IMPORTA O CONTEXTO FINANCEIRO
+import { FinanceContext } from "../context/financeContext.js";
+
+// COMPONENTE DA TELA DE RECEITAS
 function Receitas() {
-  function salvar(e) {
+
+  // FUNÇÃO DO CONTEXTO
+  const {
+    adicionarMovimentacao,
+    carregando,
+    erro: erroApi,
+  } = useContext(FinanceContext);
+
+  // ESTADO DA DESCRIÇÃO
+  const [descricao, setDescricao] = useState("");
+
+  // ESTADO DO VALOR
+  const [valor, setValor] = useState("");
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
+  const [salvando, setSalvando] = useState(false);
+
+  // FORMATA VALOR EM REAL
+  function formatarMoeda(valorDigitado) {
+
+    // REMOVE TUDO QUE NÃO FOR NÚMERO
+    const somenteNumeros =
+      valorDigitado.replace(/\D/g, "");
+
+    // CONVERTE PARA MOEDA BRASILEIRA
+    return (
+      Number(somenteNumeros) / 100
+    ).toLocaleString(
+      "pt-BR",
+      {
+        style: "currency",
+        currency: "BRL",
+      }
+    );
+  }
+
+  // SALVA RECEITA
+  async function salvarReceita(e) {
+
+    // EVITA RECARREGAR A PÁGINA
     e.preventDefault();
 
-    const descricao = e.target.descricao.value;
-    const valor = parseFloat(e.target.valor.value);
+    // VALIDA CAMPOS
+    if (descricao === "" || valor === "") {
 
-    const nova = {
-      tipo: "receita",
-      descricao,
-      valor,
-      data: new Date().toLocaleDateString()
+      setErro("Preencha todos os campos.");
+      setMensagem("");
+
+      return;
+    }
+
+    // CRIA NOVA RECEITA
+    const novaReceita = {
+
+      tipo: "Receita",
+
+      descricao: descricao,
+
+      // CONVERTE TEXTO FORMATADO PARA NÚMERO
+      valor: Number(
+        valor
+          .replace("R$", "")
+          .replace(/\./g, "")
+          .replace(",", ".")
+      ),
+
+      // DATA ATUAL
+      data: new Date().toLocaleDateString("pt-BR"),
     };
 
-    const lista = JSON.parse(localStorage.getItem("movimentacoes")) || [];
-    lista.push(nova);
-
-    localStorage.setItem("movimentacoes", JSON.stringify(lista));
-
-    alert("Receita salva!");
-    e.target.reset();
+    setSalvando(true);
+    setErro("");
+    setMensagem("");
+    try {
+      await adicionarMovimentacao(novaReceita);
+      setDescricao("");
+      setValor("");
+      setMensagem("Receita cadastrada com sucesso!");
+    } catch (error) {
+      setErro(error.message || "Não foi possível cadastrar a receita.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
-    <div className="tela">
-      <div className="card">
+
+    <Layout>
+
+      {/* CABEÇALHO */}
+      <div className="page-header">
+
         <h1>Receitas</h1>
 
-        <form onSubmit={salvar}>
-          <input name="descricao" placeholder="Descrição" required />
-          <input name="valor" type="number" placeholder="Valor" required />
+        <p>
+          Cadastre e acompanhe suas entradas financeiras.
+        </p>
 
-          <button type="submit">Salvar</button>
+      </div>
+
+      {/* CARD DO FORMULÁRIO */}
+      <div className="form-card">
+
+        <h2>Nova Receita</h2>
+        {mensagem && <p className="mensagem-sucesso">{mensagem}</p>}
+        {erro && <p className="mensagem-erro">{erro}</p>}
+        {erroApi && !erro && (
+          <p className="mensagem-erro">
+            A sincronização com a API falhou: {erroApi}
+          </p>
+        )}
+
+        {/* FORMULÁRIO */}
+        <form
+          className="form-grid"
+          onSubmit={salvarReceita}
+        >
+
+          {/* CAMPO DESCRIÇÃO */}
+          <input
+            type="text"
+            placeholder="Descrição"
+            value={descricao}
+            onChange={(e) =>
+              setDescricao(e.target.value)
+            }
+          />
+
+          {/* CAMPO VALOR */}
+          <input
+            type="text"
+            placeholder="Ex: R$ 10.000,00"
+            value={valor}
+
+            // FORMATA ENQUANTO DIGITA
+            onChange={(e) =>
+              setValor(
+                formatarMoeda(e.target.value)
+              )
+            }
+          />
+
+          {/* BOTÃO */}
+          <button type="submit" disabled={salvando || carregando}>
+
+            {salvando ? "Salvando..." : "Salvar Receita"}
+
+          </button>
+
         </form>
 
-        <Link to="/dashboard">Voltar</Link>
       </div>
-    </div>
+
+    </Layout>
   );
 }
 
+// EXPORTA COMPONENTE
 export default Receitas;
