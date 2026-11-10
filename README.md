@@ -1,5 +1,8 @@
 # Sistema de Controle Financeiro Pessoal
 
+Para hospedar a API compartilhada no Render com PostgreSQL/Supabase, consulte
+[o procedimento de implantação](docs/render-supabase.md) e o `render.yaml`.
+
 Aplicação Web desenvolvida para auxiliar no gerenciamento financeiro pessoal, permitindo o acompanhamento de receitas, despesas e indicadores financeiros de forma simples, organizada e segura.
 O projeto surgiu a partir da ideia de uma planilha de controle financeiro em Excel, evoluindo para uma plataforma digital moderna, com maior acessibilidade, confiabilidade e escalabilidade.
 

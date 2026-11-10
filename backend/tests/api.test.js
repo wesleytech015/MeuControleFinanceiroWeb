@@ -24,8 +24,8 @@ const pool = {
     if (query === 'SELECT * FROM usuarios WHERE email = $1') {
       return result(users.filter((user) => user.email === values[0]));
     }
-    if (query === 'SELECT id, nome, email, criado_em FROM usuarios') {
-      return result(users.map((user) => {
+    if (query === 'SELECT id, nome, email, criado_em FROM usuarios WHERE id = $1') {
+      return result(users.filter(user => user.id === values[0]).map((user) => {
         const publicUser = { ...user };
         delete publicUser.senha;
         return publicUser;
@@ -107,6 +107,7 @@ test('cadastro, bcrypt, login e contratos JWT; CRUD e isolamento entre dois usu�
   assert.equal((await request('/transacoes', 'GET', undefined, expired)).status, 401);
   const listing = await request('/usuarios', 'GET', undefined, tokenA);
   assert.ok(listing.body.every((user) => !Object.hasOwn(user, 'senha')));
+  assert.deepEqual(listing.body.map(user => user.id), [1]);
   assert.deepEqual((await request('/transacoes', 'GET', undefined, tokenA)).body,
     { saldo: 0, receitas: 0, despesas: 0, transacoes: [] });
   for (const tipo of ['receita', 'despesa']) {
@@ -127,6 +128,57 @@ test('cadastro, bcrypt, login e contratos JWT; CRUD e isolamento entre dois usu�
   }
   assert.equal((await request('/transacoes', 'POST', { descricao: 'x', tipo: 'receita', valor: -1 }, tokenA)).status, 400);
   assert.equal((await request('/transacoes', 'POST', { descricao: 'x', tipo: 'invalido', valor: 1 }, tokenA)).status, 400);
+});
+
+test('health público responde sem consultar o banco ou revelar configuração', async () => {
+  const query = pool.query;
+  pool.query = () => { throw new Error('Health não deve consultar o banco'); };
+  try {
+    const response = await fetch(base + '/health');
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { status: 'ok' });
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(response.headers.get('x-powered-by'), null);
+  } finally {
+    pool.query = query;
+  }
+});
+
+test('entradas inválidas, JWT alternativo e injeções são rejeitados antes de gravar', async () => {
+  const token = jwt.sign({ id: 1 }, process.env.JWT_SECRET);
+  const body = { descricao: 'Teste', valor: '10.25', tipo: 'receita', data: '2026-11-10' };
+  const size = transactions.length;
+  for (const valor of [true, false, {}, [], 'Infinity', '1e3', '10.251', '1 OR 1=1', 0, -1]) {
+    assert.equal((await request('/transacoes', 'POST', { ...body, valor }, token)).status, 400);
+  }
+  for (const data of ['2026-02-31', '2026-13-01', 'not-a-date', null]) {
+    assert.equal((await request('/transacoes', 'POST', { ...body, data }, token)).status, 400);
+  }
+  assert.equal(transactions.length, size);
+  assert.equal((await request('/transacoes/1%20OR%201=1', 'DELETE', undefined, token)).status, 400);
+  assert.equal((await request('/usuarios', 'POST', {nome:'Test',email:'test@example.invalid',senha:'x'})).status, 400);
+  assert.equal((await request('/usuarios', 'POST', {nome:'Test',email:'test@example.invalid',senha:'á'.repeat(37)})).status, 400);
+  const alternate = jwt.sign({id:1}, process.env.JWT_SECRET, {algorithm:'HS384'});
+  assert.equal((await request('/transacoes', 'GET', undefined, alternate)).status, 401);
+  const invalidId = jwt.sign({id:'1 OR 1=1'}, process.env.JWT_SECRET);
+  assert.equal((await request('/transacoes', 'GET', undefined, invalidId)).status, 401);
+  const malformed = await fetch(base + '/login', {method:'POST',headers:{'Content-Type':'application/json'},body:'{'});
+  assert.equal(malformed.status, 400);
+  assert.ok((await malformed.json()).erro);
+  const oversized = await fetch(base + '/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({senha:'x'.repeat(20000)})});
+  assert.equal(oversized.status, 413);
+  assert.ok((await oversized.json()).erro);
+});
+
+test('login limita tentativas e informa quando tentar novamente', async () => {
+  let blocked;
+  for (let i=0; i<17; i++) {
+    const response = await fetch(base+'/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'absent@example.invalid',senha:'invalid'})});
+    if (response.status === 429) { blocked = response; break; }
+  }
+  assert.ok(blocked);
+  assert.ok(Number(blocked.headers.get('retry-after')) > 0);
+  assert.ok((await blocked.json()).erro);
 });
 
 test('rotas incompletas de cartões e movimentação legada continuam desativadas', async () => {
