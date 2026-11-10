@@ -94,7 +94,9 @@ export async function login(email, senha) {
 
   // Se o backend retornar erro, interrompe o login.
   if (!resposta.ok) {
-    throw new Error("Erro ao fazer login");
+    const error = new Error("Erro ao fazer login");
+    error.status = resposta.status;
+    throw error;
   }
 
   // Retorna os dados enviados pelo backend.
