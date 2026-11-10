@@ -4,7 +4,7 @@ services:
     name: meu-controle-financeiro-api
     runtime: node
     plan: free
-    branch: develop
+    branch: main
     rootDir: backend
     buildCommand: npm ci --omit=dev
     startCommand: npm start
