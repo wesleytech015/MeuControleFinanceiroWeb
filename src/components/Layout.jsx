@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 // IMPORTA O COMPONENTE DA SIDEBAR
 // (MENU LATERAL DO SISTEMA)
 import Sidebar from "./Sidebar";
@@ -13,6 +14,17 @@ import "../styles/layout.css";
 // RECEBE O "children" PARA RENDERIZAR
 // O CONTEÚDO DAS PÁGINAS
 function Layout({ children }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        document.querySelector(".navbar-menu-toggle")?.focus();
+      }
+    };
+    if (menuOpen) document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [menuOpen]);
 
   return (
 
@@ -20,13 +32,13 @@ function Layout({ children }) {
     <div className="layout">
 
       {/* MENU LATERAL */}
-      <Sidebar />
+      <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       {/* ÁREA PRINCIPAL */}
       <main className="layout-main">
 
         {/* BARRA SUPERIOR */}
-        <Navbar />
+        <Navbar menuOpen={menuOpen} onMenuToggle={() => setMenuOpen(!menuOpen)} />
 
         {/* CONTEÚDO DAS PÁGINAS */}
         <section className="layout-content">
