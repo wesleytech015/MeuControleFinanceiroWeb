@@ -113,26 +113,38 @@ export async function login(email, senha) {
 // ============================================
 // Função responsável por cadastrar um novo usuário.
 export async function cadastrar(nome, email, senha) {
-  // Envia os dados do cadastro para a rota /api/usuarios do backend.
-  const resposta = await fetch(`${API_URL}/usuarios`, {
-    method: "POST", // Define que estamos criando um novo registro.
-    headers: {
-      "Content-Type": "application/json", // Informa que o corpo da requisição está em JSON.
-    },
-    body: JSON.stringify({
-      nome: nome,   // Nome digitado no formulário.
-      email: email, // E-mail digitado no formulário.
-      senha: senha, // Senha digitada no formulário.
-    }),
-  });
-
-  // Se o backend retornar erro, interrompe o cadastro.
-  if (!resposta.ok) {
-    throw new Error("Erro ao cadastrar usuário");
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+  try {
+    const resposta = await fetch(`${API_URL}/usuarios`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome, email, senha }),
+      signal: controller.signal,
+    });
+    let body;
+    try {
+      body = await resposta.json();
+    } catch {
+      if (resposta.ok) throw new Error("A API retornou uma resposta inválida.");
+    }
+    if (!resposta.ok) {
+      const error = new Error(typeof body?.erro === "string" ? body.erro : "Erro ao cadastrar usuário");
+      error.status = resposta.status;
+      error.code = typeof body?.codigo === "string" ? body.codigo : undefined;
+      throw error;
+    }
+    return body;
+  } catch (error) {
+    if (controller.signal.aborted) {
+      const timeoutError = new Error("Tempo limite do cadastro excedido.");
+      timeoutError.name = "TimeoutError";
+      throw timeoutError;
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  // Retorna a resposta do backend.
-  return await resposta.json();
 }
 
 // ============================================

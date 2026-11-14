@@ -35,7 +35,7 @@ const usuarioController = {
             // Trata e-mail duplicado (SQLSTATE PostgreSQL 23505).
             // antes retornava erro 500 genérico para qualquer erro
             if (err.code === '23505') {
-                return res.status(409).json({ erro: 'Este e-mail já está cadastrado' });
+                return res.status(409).json({ erro: 'Este e-mail já está cadastrado.', codigo: 'EMAIL_EXISTS' });
             }
 
             res.status(500).json({ erro: 'Erro ao cadastrar usuário' });

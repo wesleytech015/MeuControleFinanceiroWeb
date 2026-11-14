@@ -89,8 +89,14 @@ test('cadastro, bcrypt, login e contratos JWT; CRUD e isolamento entre dois usu�
   assert.deepEqual(Object.keys(signup.body).sort(), ['id', 'mensagem']);
   assert.notEqual(users[0].senha, alice.senha);
   assert.ok(await require('bcrypt').compare(alice.senha, users[0].senha));
-  assert.equal((await request('/usuarios', 'POST', alice)).status, 409);
+  const duplicate = await request('/usuarios', 'POST', alice);
+  assert.equal(duplicate.status, 409);
+  assert.deepEqual(duplicate.body, { erro: 'Este e-mail já está cadastrado.', codigo: 'EMAIL_EXISTS' });
   assert.equal((await request('/usuarios', 'POST', bob)).status, 201);
+  const shortPasswordUser = { nome: 'Carla', email: 'carla@example.invalid', senha: 'mF7!x2' };
+  assert.equal((await request('/usuarios', 'POST', shortPasswordUser)).status, 201);
+  assert.ok(await require('bcrypt').compare(shortPasswordUser.senha, users[2].senha));
+  assert.equal((await request('/login', 'POST', shortPasswordUser)).status, 200);
   assert.equal((await request('/login', 'POST', { email: alice.email, senha: 'incorreta' })).status, 401);
   assert.equal((await request('/login', 'POST', {})).status, 400);
   const login = await request('/login', 'POST', alice);

@@ -3,6 +3,7 @@
 ========================= */
 
 .cadastro-page {
+  padding: 24px 16px;
 
   /* ALTURA TOTAL DA TELA */
   min-height: 100vh;
@@ -31,6 +32,7 @@
 
   /* LARGURA */
   width: 400px;
+  max-width: 100%;
 
   /* ESPAÇAMENTO INTERNO */
   padding: 35px;
@@ -227,3 +229,17 @@
   /* REMOVE SUBLINHADO */
   text-decoration: none;
 }
+
+.cadastro-field { display: flex; flex-direction: column; }
+.cadastro-card .cadastro-hint { text-align: left; font-size: 12px; margin: 6px 0 0; }
+.cadastro-card .cadastro-field-error { text-align: left; font-size: 13px; color: #b91c1c; margin: 6px 0 0; }
+.cadastro-card .erro-cadastro { color: #b91c1c; background: #fef2f2; padding: 12px; border: 1px solid #fecaca; border-radius: 10px; }
+.cadastro-card input[aria-invalid="true"] { border-color: #dc2626; background: #fef2f2; }
+.cadastro-card button:disabled { opacity: .7; cursor: wait; }
+.cadastro-input-field input, .cadastro-password-field input { width: 100%; }
+.cadastro-password-field { position: relative; }
+.cadastro-password-field input { padding-right: 60px; }
+.cadastro-card .cadastro-password-toggle { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 44px; height: 36px; margin: 0; padding: 0; display: grid; place-items: center; color: #59616e; border-radius: 10px; background: transparent; }
+.cadastro-card .cadastro-password-toggle:hover { background: #f0f4fa; }
+.cadastro-password-toggle svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.cadastro-card .cadastro-password-toggle:focus-visible { outline: 3px solid #3b82f6; outline-offset: 2px; }
