@@ -1,0 +1,5 @@
+.recovery-card { width: 460px; max-width: 100%; }
+.recovery-settings { display: flex; justify-content: center; padding: 24px 0; }
+.recovery-card .recovery-success { color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 10px; }
+.login-card .login-recovery-link { display: block; text-align: center; color: #2563eb; margin-top: 16px; font-size: 14px; }
+.login-card .recovery-success { color: #166534; background: #f0fdf4; padding: 12px; border-radius: 10px; margin-bottom: 16px; }

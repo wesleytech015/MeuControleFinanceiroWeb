@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 
 // Importa o Link para navegação entre páginas.
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // Importa a função de login da API.
 import { login } from "../services/api";
@@ -12,9 +12,11 @@ import { validateLogin } from "../services/loginValidation.js";
 
 // Importa o CSS da página.
 import "../styles/login.css";
+import "../styles/recovery.css";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const loginPending = useRef(false);
 
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -86,6 +88,7 @@ function Login() {
           <h2 id="login-title">Bem-vindo de volta<span className="login-welcome-sparks" aria-hidden="true"><i /><i /><i /></span></h2>
           <p className="login-subtitle">Acesse sua conta e continue no controle das suas finanças.</p>
           {erro && <p className="erro-login" id="login-error" role="alert">{erro}</p>}
+          {location.state?.recoverySuccess && <p className="recovery-success" role="status">Senha redefinida. Entre com sua nova senha.</p>}
           <form noValidate onSubmit={handleLogin} aria-busy={carregando}>
             <label htmlFor="login-email"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 6 9 7 9-7" /></svg>E-mail</label>
             <input id="login-email" name="email" type="email" autoComplete="username" placeholder="Digite seu e-mail" value={email} className={erroLogin ? "input-erro" : ""} aria-invalid={erroLogin} aria-describedby={erro ? "login-error" : undefined} onChange={(e) => { setEmail(e.target.value); setErro(""); setErroLogin(false); }} />
@@ -96,6 +99,7 @@ function Login() {
             </div>
             <button type="submit" className="login-button" disabled={carregando}>{carregando ? <span className="login-spinner" aria-hidden="true" /> : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h5v18h-5M3 12h12m-5-5 5 5-5 5" /></svg>}{carregando ? "Entrando..." : "Entrar"}</button>
           </form>
+          {!import.meta.env.PROD && <Link to="/recuperar-senha" className="login-recovery-link">Esqueceu sua senha?</Link>}
           <div className="login-divider"><span>Ainda não tem conta?</span></div>
           <Link to="/cadastro" className="login-register"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="7" r="4" /><path d="M16 21H3v-3a7 7 0 0 1 11-5M19 13v8m-4-4h8" /></svg>Criar uma conta</Link>
         </div>

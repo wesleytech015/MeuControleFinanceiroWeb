@@ -6,12 +6,15 @@ process.env.JWT_SECRET = crypto.randomBytes(32).toString('hex');
 const calls = [];
 const pool = { async query(sql, values = []) {
   calls.push({ sql, values });
+  if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(sql) || sql.startsWith('SET LOCAL')) return { rows: [] };
+  if (sql.startsWith('SELECT COALESCE(v.versao')) return { rows: values[0] === 1 ? [{ auth_version: 0 }] : [] };
   if (sql.startsWith('SELECT id, nome, email, criado_em FROM usuarios WHERE id = $1')) {
     return { rows: [{id:1,email:'a@example.invalid'}, {id:2,email:'b@example.invalid'}].filter(user=>user.id===values[0]) };
   }
   if (sql.startsWith('SELECT')) return { rows: [], rowCount: 0 };
   return { rows: [{id:1}], rowCount: 1 };
 }};
+pool.connect = async () => ({ query: (...args) => pool.query(...args), release() {} });
 const db = require.resolve('../database/conexao');
 require.cache[db] = {id:db,loaded:true,exports:pool};
 const Usuario = require('../models/usuario');
@@ -53,7 +56,8 @@ async function main() {
     console.log(false?'FINDING MEDIUM: boolean financial amount accepted as 1.':'PASS: boolean amount rejected.');
     const before=calls.length;
     await request('/transacoes','POST',{...body,valor:1,data:'2026-02-31'});
-    assert.equal(calls.length,before);
+    assert.equal(calls.length,before + 1); // Apenas a consulta de autenticação, sem SQL financeiro.
+    assert.match(calls.at(-1).sql, /SELECT COALESCE\(v.versao/);
     console.log(false?'FINDING MEDIUM: impossible calendar date reaches database layer.':'PASS: invalid date rejected before SQL.');
     const weak=await request('/usuarios','POST',{nome:'Probe',email:'probe@example.invalid',senha:'x'},null);
     assert.equal(weak.status,400);

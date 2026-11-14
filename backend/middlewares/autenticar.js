@@ -6,8 +6,9 @@
 
 const jwt = require('jsonwebtoken');
 const segredo = require('../config/jwt');
+const { getAuthVersion } = require('../models/authVersion');
 
-const autenticar = (req, res, next) => {
+const autenticar = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -38,7 +39,14 @@ const autenticar = (req, res, next) => {
       return res.status(401).json({ erro: 'Token inválido' });
     }
 
-    req.usuario = payload;
+    const version = payload.sv ?? 0;
+    if (!Number.isSafeInteger(version) || version < 0) return res.status(401).json({ erro: 'Token inválido' });
+    let currentVersion;
+    try { currentVersion = await getAuthVersion(payload.id); } catch {
+      return res.status(503).json({ erro: 'Não foi possível validar a sessão agora. Tente novamente.' });
+    }
+    if (currentVersion === null || currentVersion !== version) return res.status(401).json({ erro: 'Sua sessão expirou. Entre novamente.' });
+    req.usuario = { ...payload, sv: version };
 
     next();
   } catch (error) {

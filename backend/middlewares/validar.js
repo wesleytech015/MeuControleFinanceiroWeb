@@ -3,15 +3,45 @@ const email = (value) => text(value, 100) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v
 const password = (value) => typeof value === 'string' && value.length > 0 && Buffer.byteLength(value, 'utf8') <= 72;
 const reject = (res) => res.status(400).json({ erro: 'Confira os campos informados.' });
 const object = (value) => value && typeof value === 'object' && !Array.isArray(value);
+const passwordPolicy = require('../config/cadastroPassword.json');
+const rejectCadastro = (res, codigo, erro) => res.status(400).json({ erro, codigo });
+const { validateSecret } = require('../services/recoverySecret');
 
 exports.login = (req, res, next) => {
   if (!object(req.body) || !email(req.body.email) || !password(req.body.senha)) return reject(res);
   next();
 };
 exports.cadastro = (req, res, next) => {
-  if (!object(req.body) || !text(req.body.nome, 100) || !email(req.body.email)
-    || !password(req.body.senha) || req.body.senha.length < 8) return reject(res);
+  if (!object(req.body)) return rejectCadastro(res, 'INVALID_BODY', 'Confira os campos informados.');
+  if (!text(req.body.nome, 100)) return rejectCadastro(res, 'NAME_INVALID', 'Informe um nome válido com até 100 caracteres.');
+  if (!email(req.body.email)) return rejectCadastro(res, 'EMAIL_INVALID', 'Informe um e-mail válido com até 100 caracteres.');
+  let codigo;
+  if (typeof req.body.senha !== 'string' || !req.body.senha) codigo = 'PASSWORD_REQUIRED';
+  else if (req.body.senha.length < passwordPolicy.minLength) codigo = 'PASSWORD_TOO_SHORT';
+  else if (Buffer.byteLength(req.body.senha, 'utf8') > passwordPolicy.maxBytes) codigo = 'PASSWORD_TOO_LONG';
+  else if (passwordPolicy.common.includes(req.body.senha.toLowerCase())) codigo = 'PASSWORD_COMMON';
+  if (codigo) {
+    return rejectCadastro(res, codigo, passwordPolicy.errors[codigo]);
+  }
+  // Campo opcional para clientes Mobile antigos; quando presente, é obrigatório e validado.
+  if (Object.hasOwn(req.body, 'palavraChave')) {
+    const erro = validateSecret(req.body.palavraChave, req.body);
+    if (erro) return rejectCadastro(res, 'RECOVERY_SECRET_INVALID', erro);
+  }
   next();
+};
+exports.configurarRecuperacao = (req, res, next) => {
+  if (!object(req.body) || !password(req.body.senhaAtual)) return rejectCadastro(res, 'CURRENT_PASSWORD_REQUIRED', 'Informe sua senha atual.');
+  const erro = validateSecret(req.body.palavraChave, { senha: req.body.senhaAtual, nome: req.usuario?.nome || '', email: req.usuario?.email || '' });
+  if (erro) return rejectCadastro(res, 'RECOVERY_SECRET_INVALID', erro);
+  next();
+};
+exports.redefinirSenha = (req, res, next) => {
+  if (!object(req.body) || !email(req.body.email) || typeof req.body.palavraChave !== 'string'
+    || !req.body.palavraChave || Array.from(req.body.palavraChave).length > 256) return reject(res);
+  if (req.body.novaSenha === req.body.palavraChave) return rejectCadastro(res, 'PASSWORD_EQUALS_RECOVERY', 'Escolha uma senha diferente da palavra-chave de recuperação.');
+  // Reutiliza a política de cadastro sem exigir a frase no novo corpo adaptado.
+  exports.cadastro({ body: { nome: 'Recuperação', email: req.body.email, senha: req.body.novaSenha } }, res, next);
 };
 exports.id = (req, res, next) => {
   if (!/^[1-9]\d*$/.test(req.params.id) || !Number.isSafeInteger(Number(req.params.id))) return reject(res);

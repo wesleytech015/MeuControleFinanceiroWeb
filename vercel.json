@@ -4,6 +4,8 @@
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/cadastro", "destination": "/index.html" },
+    { "source": "/recuperar-senha", "destination": "/index.html" },
+    { "source": "/seguranca", "destination": "/index.html" },
     { "source": "/dashboard", "destination": "/index.html" },
     { "source": "/receitas", "destination": "/index.html" },
     { "source": "/despesas", "destination": "/index.html" },
