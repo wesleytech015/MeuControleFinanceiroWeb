@@ -99,14 +99,14 @@ function Cadastro() {
                 </button>
               )}
               </div>
-              {field.name === "senha" && <p id="cadastro-senha-hint" className="cadastro-hint">Mínimo de 6 caracteres e máximo de 72 bytes UTF-8.</p>}
+              {field.name === "senha" && <p id="cadastro-senha-hint" className="cadastro-hint">Crie uma senha com pelo menos 6 caracteres para proteger sua conta.</p>}
               {field.name === "palavraChave" && <p id="cadastro-palavra-hint" className="cadastro-hint">Use uma frase única de 12 a 256 caracteres, diferente da senha. Guarde-a em local seguro: ela permite redefinir sua senha e não poderá ser consultada depois.</p>}
               {errors[field.name] && <p id={`cadastro-${field.name}-error`} className="cadastro-field-error" role="alert">{errors[field.name]}</p>}
             </div>
           ))}
           <button type="submit" disabled={carregando}>{carregando ? "Cadastrando..." : "Cadastrar"}</button>
         </form>
-        <p className="cadastro-footer">Já tem conta? <Link to="/">Entrar</Link></p>
+        <Link to="/" className="cadastro-back-link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7" /></svg>Voltar para o login</Link>
       </div>
     </div>
   );

@@ -243,3 +243,7 @@
 .cadastro-card .cadastro-password-toggle:hover { background: #f0f4fa; }
 .cadastro-password-toggle svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .cadastro-card .cadastro-password-toggle:focus-visible { outline: 3px solid #3b82f6; outline-offset: 2px; }
+.cadastro-card .cadastro-back-link { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; margin-top: 12px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; background: #f8fafc; color: #334155; font-size: 14px; line-height: 1.4; text-align: center; }
+.cadastro-card .cadastro-back-link svg { width: 20px; height: 20px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.cadastro-card .cadastro-back-link:hover { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+.cadastro-card .cadastro-back-link:focus-visible { outline: 3px solid #3b82f6; outline-offset: 3px; }
