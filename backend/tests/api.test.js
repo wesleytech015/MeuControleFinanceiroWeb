@@ -9,8 +9,12 @@ const users = [];
 const transactions = [];
 const result = (rows) => ({ rows, rowCount: rows.length });
 const pool = {
+  async connect() { return { query: (...args) => pool.query(...args), release() {} }; },
   async query(sql, values = []) {
     const query = sql.replace(/\s+/g, ' ').trim();
+    if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(query) || query.startsWith('SET LOCAL')) return result([]);
+    if (query.startsWith('SELECT COALESCE(v.versao')) return result(users.filter(user => user.id === values[0]).map(() => ({ auth_version: 0 })));
+    if (query === 'SELECT id, nome, email, senha FROM usuarios WHERE email = $1 FOR UPDATE') return result(users.filter(user => user.email === values[0]));
     assert.ok(!query.includes('?'));
     if (query.startsWith('INSERT INTO usuarios')) {
       assert.match(query, /RETURNING id$/);
@@ -25,7 +29,11 @@ const pool = {
       return result(users.filter((user) => user.email === values[0]));
     }
     if (query === 'SELECT id, nome, email, criado_em FROM usuarios WHERE id = $1') {
-      return result(users.filter(user => user.id === values[0]).map(({ id, nome, email }) => ({ id, nome, email })));
+      return result(users.filter(user => user.id === values[0]).map((user) => {
+        const publicUser = { ...user };
+        delete publicUser.senha;
+        return publicUser;
+      }));
     }
     if (query.startsWith('INSERT INTO movimentacoes')) {
       assert.match(query, /VALUES \(\$1, \$2, \$3, \$4, \$5, \$6, \$7\) RETURNING id$/);
@@ -85,8 +93,14 @@ test('cadastro, bcrypt, login e contratos JWT; CRUD e isolamento entre dois usu�
   assert.deepEqual(Object.keys(signup.body).sort(), ['id', 'mensagem']);
   assert.notEqual(users[0].senha, alice.senha);
   assert.ok(await require('bcrypt').compare(alice.senha, users[0].senha));
-  assert.equal((await request('/usuarios', 'POST', alice)).status, 409);
+  const duplicate = await request('/usuarios', 'POST', alice);
+  assert.equal(duplicate.status, 409);
+  assert.deepEqual(duplicate.body, { erro: 'Este e-mail já está cadastrado.', codigo: 'EMAIL_EXISTS' });
   assert.equal((await request('/usuarios', 'POST', bob)).status, 201);
+  const shortPasswordUser = { nome: 'Carla', email: 'carla@example.invalid', senha: 'mF7!x2' };
+  assert.equal((await request('/usuarios', 'POST', shortPasswordUser)).status, 201);
+  assert.ok(await require('bcrypt').compare(shortPasswordUser.senha, users[2].senha));
+  assert.equal((await request('/login', 'POST', shortPasswordUser)).status, 200);
   assert.equal((await request('/login', 'POST', { email: alice.email, senha: 'incorreta' })).status, 401);
   assert.equal((await request('/login', 'POST', {})).status, 400);
   const login = await request('/login', 'POST', alice);
@@ -124,6 +138,57 @@ test('cadastro, bcrypt, login e contratos JWT; CRUD e isolamento entre dois usu�
   }
   assert.equal((await request('/transacoes', 'POST', { descricao: 'x', tipo: 'receita', valor: -1 }, tokenA)).status, 400);
   assert.equal((await request('/transacoes', 'POST', { descricao: 'x', tipo: 'invalido', valor: 1 }, tokenA)).status, 400);
+});
+
+test('health público responde sem consultar o banco ou revelar configuração', async () => {
+  const query = pool.query;
+  pool.query = () => { throw new Error('Health não deve consultar o banco'); };
+  try {
+    const response = await fetch(base + '/health');
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { status: 'ok' });
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(response.headers.get('x-powered-by'), null);
+  } finally {
+    pool.query = query;
+  }
+});
+
+test('entradas inválidas, JWT alternativo e injeções são rejeitados antes de gravar', async () => {
+  const token = jwt.sign({ id: 1 }, process.env.JWT_SECRET);
+  const body = { descricao: 'Teste', valor: '10.25', tipo: 'receita', data: '2026-11-10' };
+  const size = transactions.length;
+  for (const valor of [true, false, {}, [], 'Infinity', '1e3', '10.251', '1 OR 1=1', 0, -1]) {
+    assert.equal((await request('/transacoes', 'POST', { ...body, valor }, token)).status, 400);
+  }
+  for (const data of ['2026-02-31', '2026-13-01', 'not-a-date', null]) {
+    assert.equal((await request('/transacoes', 'POST', { ...body, data }, token)).status, 400);
+  }
+  assert.equal(transactions.length, size);
+  assert.equal((await request('/transacoes/1%20OR%201=1', 'DELETE', undefined, token)).status, 400);
+  assert.equal((await request('/usuarios', 'POST', {nome:'Test',email:'test@example.invalid',senha:'x'})).status, 400);
+  assert.equal((await request('/usuarios', 'POST', {nome:'Test',email:'test@example.invalid',senha:'á'.repeat(37)})).status, 400);
+  const alternate = jwt.sign({id:1}, process.env.JWT_SECRET, {algorithm:'HS384'});
+  assert.equal((await request('/transacoes', 'GET', undefined, alternate)).status, 401);
+  const invalidId = jwt.sign({id:'1 OR 1=1'}, process.env.JWT_SECRET);
+  assert.equal((await request('/transacoes', 'GET', undefined, invalidId)).status, 401);
+  const malformed = await fetch(base + '/login', {method:'POST',headers:{'Content-Type':'application/json'},body:'{'});
+  assert.equal(malformed.status, 400);
+  assert.ok((await malformed.json()).erro);
+  const oversized = await fetch(base + '/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({senha:'x'.repeat(20000)})});
+  assert.equal(oversized.status, 413);
+  assert.ok((await oversized.json()).erro);
+});
+
+test('login limita tentativas e informa quando tentar novamente', async () => {
+  let blocked;
+  for (let i=0; i<17; i++) {
+    const response = await fetch(base+'/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'absent@example.invalid',senha:'invalid'})});
+    if (response.status === 429) { blocked = response; break; }
+  }
+  assert.ok(blocked);
+  assert.ok(Number(blocked.headers.get('retry-after')) > 0);
+  assert.ok((await blocked.json()).erro);
 });
 
 test('rotas incompletas de cartões e movimentação legada continuam desativadas', async () => {

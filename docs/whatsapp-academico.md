@@ -1,3 +1,14 @@
+## Estado atual — 14/11/2026
+
+Main Web/backend `8aa630c` incorporada localmente e piloto Gemini/RAG implementado,
+desabilitado por padrão. Mobile recebeu tema azul `51b1090` e interface de vínculo.
+RAG lexical com cinco trechos locais, consentimento e cota por usuário persistidos,
+confirmação obrigatória antes de salvar. Migração nova: 20261114_whatsapp_ia.postgresql.sql,
+após revisão das migrações WhatsApp e de autenticação da main. Não executada no Supabase.
+Leia [ambiente e validação](gemini-rag-whatsapp.md). Descrições abaixo de interpretador
+somente por regras e ausência de interface são históricas: regras continuam disponíveis
+sem IA, mas a branch agora também tem adaptador Gemini e interface Mobile.
+
 ## Atualização — 09/11/2026
 
 O piloto desta feature agora usa PostgreSQL/Supabase. API/PostgreSQL locais: 69 verificações; WhatsApp/PostgreSQL/HTTP locais: 22 verificações, Meta simulada. O banco remoto não foi acessado. Os resultados de 08/11 abaixo são históricos. Veja `integracao-supabase.md`.

@@ -1,5 +1,8 @@
 # Sistema de Controle Financeiro Pessoal
 
+Para hospedar a API compartilhada no Render com PostgreSQL/Supabase, consulte
+[o procedimento de implantação](docs/render-supabase.md) e o `render.yaml`.
+
 Aplicação Web desenvolvida para auxiliar no gerenciamento financeiro pessoal, permitindo o acompanhamento de receitas, despesas e indicadores financeiros de forma simples, organizada e segura.
 O projeto surgiu a partir da ideia de uma planilha de controle financeiro em Excel, evoluindo para uma plataforma digital moderna, com maior acessibilidade, confiabilidade e escalabilidade.
 
@@ -75,19 +78,68 @@ apenas como histórico. A aplicação não importa esquemas automaticamente.
 
 - Backend: `npm start --prefix backend`.
 - Frontend: `npm run dev`.
-- Testes locais, sem banco remoto: `npm test --prefix backend`.
+- Testes Web: `npm run test:web`.
+- Testes locais do backend, sem banco remoto: `npm test --prefix backend`.
 - Build Web: `npm run build`.
 - Lint: `npm run lint`.
 
 O ESLint usa configuração nativa JavaScript/JSX e CommonJS para o backend; não
-depende de `typescript-eslint` instalado na raiz. A configuração carrega, mas a
-revisão atual registra dez erros de código ainda pendentes, descritos no relatório
-PostgreSQL. A compilação e os testes locais passam.
+depende de `typescript-eslint` instalado na raiz. Os arquivos versionados da
+versão Web passam no lint, e os testes Web/backend usam dados locais ou mocks,
+sem acessar o Supabase.
 
-## Branch de integração WhatsApp / Vercel
+## Hospedagem do frontend na Vercel
 
-A feature/whatsapp-vercel-academico incorpora a migração PostgreSQL/Supabase de Wesley
-(commit 6b57639), preservando autorização por usuário, validações, limites de autenticação
-e o piloto WhatsApp desta branch. Nenhuma outra branch local é alterada.
-Consulte [integração Supabase](docs/integracao-supabase.md),
-[implantação na Vercel](docs/implantacao-vercel.md) e [WhatsApp](docs/whatsapp-academico.md).
+O frontend usa `VITE_API_URL` para localizar a API. Em desenvolvimento, se essa
+variável não estiver definida, a aplicação usa `http://localhost:3000/api`.
+Builds de produção exigem uma URL pública HTTPS, por exemplo
+`https://api.seudominio.com` ou `https://api.seudominio.com/api`. O sufixo `/api`
+é normalizado para aparecer uma única vez. Não inclua credenciais, `DB_PASSWORD`
+ou `JWT_SECRET` nessa variável: valores com prefixo `VITE_` são incorporados ao
+código entregue ao navegador.
+
+No painel da Vercel, configure `VITE_API_URL` nos ambientes que serão publicados
+(Production e, se necessário, Preview) com a URL HTTPS pública do backend. A URL
+pública ainda precisa ser confirmada antes de login, cadastro e demais chamadas
+à API funcionarem no site publicado.
+
+Configuração do projeto Vercel:
+
+- **Root Directory:** `.`
+- **Install Command:** `npm ci`
+- **Build Command:** `npm run build`
+- **Output Directory:** `dist`
+
+O arquivo `vercel.json` reescreve as rotas da aplicação React para `index.html`
+para permitir acesso direto e recarregamento. As rotas `/api` não são reescritas.
+
+Cartões está temporariamente desabilitado em builds de produção porque ainda não
+há integração completa com a API. Em `npm run dev`, a tela continua disponível
+para desenvolvimento local. Em produção, o item não aparece na navegação e o
+acesso direto a `/cartoes` redireciona para `/dashboard`; o rewrite SPA permanece
+para que a rota seja tratada pelo React. A opção de pagamento com cartão também
+fica indisponível, sem apagar os dados já existentes em `localStorage`.
+
+Metas ainda são armazenadas somente no `localStorage` do navegador. Elas não são
+sincronizadas com a API, com a conta do usuário ou entre dispositivos; portanto,
+devem ser consideradas dados locais até que a integração seja implementada.
+
+
+## Branch de integração WhatsApp
+
+A branch `feature/whatsapp-vercel-academico` recebe as atualizações da main
+preservando o piloto. Veja o [registro desta integração](docs/integracao-whatsapp-2026-11-14.md).
+O frontend agora usa o contexto financeiro integrado à API da equipe; registros
+históricos sobre persistência apenas local não descrevem esta versão.
+Metas e cartões mantêm os limites informados acima.
+Gemini e RAG ainda não estão implementados. O WhatsApp usa regras e confirmação
+antes de salvar. Segredos ficam exclusivamente no ambiente privado do servidor.
+
+
+## Preparar Gemini/RAG e WhatsApp sem expor chaves
+
+Consulte [ambiente e roteiro de validação](docs/gemini-rag-whatsapp.md).
+`npm run check:assistant --prefix backend` mostra pendências sem chamadas externas.
+`.env.assistant.local` é privado e usado somente em desenvolvimento. A chave nunca
+vai para VITE_* ou EXPO_PUBLIC_*. `test:gemini` é um teste real opt-in de uma chamada:
+executar somente após confirmar cota gratuita e configuração no AI Studio.

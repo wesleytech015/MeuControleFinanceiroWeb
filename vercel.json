@@ -1,0 +1,17 @@
+{
+  "framework": "vite",
+  "buildCommand": "VITE_API_URL=https://meucontrolefinanceiroweb.onrender.com/api npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/cadastro", "destination": "/index.html" },
+    { "source": "/recuperar-senha", "destination": "/index.html" },
+    { "source": "/seguranca", "destination": "/index.html" },
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/receitas", "destination": "/index.html" },
+    { "source": "/despesas", "destination": "/index.html" },
+    { "source": "/movimentacoes", "destination": "/index.html" },
+    { "source": "/metas", "destination": "/index.html" },
+    { "source": "/relatorios", "destination": "/index.html" },
+    { "source": "/cartoes", "destination": "/index.html" }
+  ]
+}

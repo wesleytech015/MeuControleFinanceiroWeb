@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import Layout from "../components/Layout";
+import { isCardsFeatureEnabled } from "../config/featureFlags.js";
 import "../styles/tabela.css";
-import { useFinanceiro } from "../context/useFinanceiro";
+import { FinanceContext } from "../context/financeContext.js";
 
 function Movimentacoes() {
   const {
@@ -10,14 +11,16 @@ function Movimentacoes() {
     excluirMovimentacao,
     atualizarMovimentacao,
     carregando = false,
-  } = useFinanceiro();
+    erro: erroApi = "",
+  } = useContext(FinanceContext);
+  const cardsEnabled = isCardsFeatureEnabled();
 
   const [busca, setBusca] = useState("");
   const [tipoFiltro, setTipoFiltro] = useState("Todos");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
 
-  const [editandoIndex, setEditandoIndex] = useState(null);
+  const [editandoId, setEditandoId] = useState(null);
   const [descricaoEditada, setDescricaoEditada] = useState("");
   const [valorEditado, setValorEditado] = useState("");
   const [dataEditada, setDataEditada] = useState("");
@@ -28,8 +31,11 @@ function Movimentacoes() {
 
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
+  const [salvando, setSalvando] = useState(false);
 
-  const cartoes = JSON.parse(localStorage.getItem("cartoes")) || [];
+  const cartoes = cardsEnabled
+    ? JSON.parse(localStorage.getItem("cartoes")) || []
+    : [];
 
   const categorias = [
     "Alimentação",
@@ -93,7 +99,7 @@ function Movimentacoes() {
   }
 
   function atualizarFaturaCartao(cartaoId, valorDiferenca) {
-    if (!cartaoId) return;
+    if (!cardsEnabled || !cartaoId) return;
 
     const cartoesSalvos = JSON.parse(localStorage.getItem("cartoes")) || [];
 
@@ -111,8 +117,8 @@ function Movimentacoes() {
     localStorage.setItem("cartoes", JSON.stringify(cartoesAtualizados));
   }
 
-  function iniciarEdicao(item, indiceOriginal) {
-    setEditandoIndex(indiceOriginal);
+  function iniciarEdicao(item) {
+    setEditandoId(item.id);
     setDescricaoEditada(item.descricao);
     setValorEditado(moeda(item.valor));
     setDataEditada(converterDataParaInput(item.data));
@@ -124,7 +130,7 @@ function Movimentacoes() {
     setErro("");
   }
 
-  function salvarEdicao(indiceOriginal) {
+  async function salvarEdicao(id) {
     if (!descricaoEditada || !valorEditado || !dataEditada) {
       setErro("Preencha descrição, valor e data antes de salvar.");
       setMensagem("");
@@ -132,6 +138,7 @@ function Movimentacoes() {
     }
 
     if (
+      cardsEnabled &&
       formaPagamentoEditada === "Cartão de Crédito" &&
       !cartaoIdEditado
     ) {
@@ -140,72 +147,83 @@ function Movimentacoes() {
       return;
     }
 
-    const movimentacaoAntiga = movimentacoes[indiceOriginal];
+    const movimentacaoAntiga = movimentacoes.find((item) => item.id === id);
+    if (!movimentacaoAntiga) {
+      setErro("A movimentação não está mais disponível para edição.");
+      return;
+    }
+
     const valorNovo = converterMoedaParaNumero(valorEditado);
     const valorAntigo = Number(movimentacaoAntiga.valor || 0);
 
-    if (movimentacaoAntiga.forma_pagamento === "Cartão de Crédito") {
-      atualizarFaturaCartao(movimentacaoAntiga.cartao_id, -valorAntigo);
-    }
-
-    if (formaPagamentoEditada === "Cartão de Crédito") {
-      atualizarFaturaCartao(Number(cartaoIdEditado), valorNovo);
-    }
-
-    atualizarMovimentacao(indiceOriginal, {
-      descricao: descricaoEditada,
-      valor: valorNovo,
-      data: converterDataParaBR(dataEditada),
-      categoria: categoriaEditada,
-      forma_pagamento: formaPagamentoEditada,
-      cartao_id:
-        formaPagamentoEditada === "Cartão de Crédito"
-          ? Number(cartaoIdEditado)
-          : null,
-      parcelas:
-        formaPagamentoEditada === "Cartão de Crédito"
-          ? Number(parcelasEditadas)
-          : 1,
-    });
-
-    setEditandoIndex(null);
-    setMensagem("Movimentação atualizada com sucesso!");
     setErro("");
+    setMensagem("");
+    setSalvando(true);
+    try {
+      await atualizarMovimentacao(id, {
+        tipo: movimentacaoAntiga.tipo,
+        descricao: descricaoEditada,
+        valor: valorNovo,
+        data: converterDataParaBR(dataEditada),
+        categoria: categoriaEditada,
+        forma_pagamento: formaPagamentoEditada,
+      });
+
+      if (movimentacaoAntiga.forma_pagamento === "Cartão de Crédito") {
+        atualizarFaturaCartao(movimentacaoAntiga.cartao_id, -valorAntigo);
+      }
+      if (formaPagamentoEditada === "Cartão de Crédito") {
+        atualizarFaturaCartao(Number(cartaoIdEditado), valorNovo);
+      }
+
+      setEditandoId(null);
+      setMensagem("Movimentação atualizada com sucesso!");
+    } catch (error) {
+      setErro(error.message || "Não foi possível atualizar a movimentação.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   function cancelarEdicao() {
-    setEditandoIndex(null);
+    setEditandoId(null);
     setMensagem("");
     setErro("");
   }
 
-  function excluirItem(indiceOriginal) {
+  async function excluirItem(id) {
     const confirmar = window.confirm(
       "Deseja realmente excluir esta movimentação?"
     );
 
     if (!confirmar) return;
 
-    const movimentacaoExcluida = movimentacoes[indiceOriginal];
-
-    if (movimentacaoExcluida.forma_pagamento === "Cartão de Crédito") {
-      atualizarFaturaCartao(
-        movimentacaoExcluida.cartao_id,
-        -Number(movimentacaoExcluida.valor || 0)
-      );
+    const movimentacaoExcluida = movimentacoes.find((item) => item.id === id);
+    if (!movimentacaoExcluida) {
+      setErro("A movimentação não está mais disponível para exclusão.");
+      return;
     }
 
-    excluirMovimentacao(indiceOriginal);
-
-    setMensagem("Movimentação excluída com sucesso.");
     setErro("");
+    setMensagem("");
+    setSalvando(true);
+    try {
+      await excluirMovimentacao(id);
+      if (movimentacaoExcluida.forma_pagamento === "Cartão de Crédito") {
+        atualizarFaturaCartao(
+          movimentacaoExcluida.cartao_id,
+          -Number(movimentacaoExcluida.valor || 0)
+        );
+      }
+      setMensagem("Movimentação excluída com sucesso.");
+    } catch (error) {
+      setErro(error.message || "Não foi possível excluir a movimentação.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   const movimentacoesFiltradas = movimentacoes
-    .map((item, index) => ({
-      ...item,
-      indiceOriginal: index,
-    }))
     .filter((item) => {
       const correspondeBusca = item.descricao
         ?.toLowerCase()
@@ -239,6 +257,9 @@ function Movimentacoes() {
 
       {mensagem && <p className="mensagem-sucesso">{mensagem}</p>}
       {erro && <p className="mensagem-erro">{erro}</p>}
+      {erroApi && !erro && (
+        <p className="mensagem-erro">Não foi possível carregar: {erroApi}</p>
+      )}
 
       <div className="filtros-card">
         <input
@@ -293,9 +314,18 @@ function Movimentacoes() {
               </tr>
             )}
 
+            {!carregando && erroApi && movimentacoes.length === 0 && (
+              <tr>
+                <td colSpan="7" className="mensagem-erro">
+                  Não foi possível carregar as movimentações.
+                </td>
+              </tr>
+            )}
+
             {!carregando &&
+              !erroApi &&
               movimentacoesFiltradas.map((item) => (
-                <tr key={item.indiceOriginal}>
+                <tr key={item.id}>
                   <td>
                     <span
                       className={
@@ -309,7 +339,7 @@ function Movimentacoes() {
                   </td>
 
                   <td>
-                    {editandoIndex === item.indiceOriginal ? (
+                    {editandoId === item.id ? (
                       <input
                         type="text"
                         value={descricaoEditada}
@@ -323,7 +353,7 @@ function Movimentacoes() {
                   </td>
 
                   <td>
-                    {editandoIndex === item.indiceOriginal ? (
+                    {editandoId === item.id ? (
                       <select
                         value={categoriaEditada}
                         onChange={(e) =>
@@ -343,7 +373,7 @@ function Movimentacoes() {
                   </td>
 
                   <td>
-                    {editandoIndex === item.indiceOriginal ? (
+                    {editandoId === item.id ? (
                       <>
                         <select
                           value={formaPagamentoEditada}
@@ -360,13 +390,22 @@ function Movimentacoes() {
                           <option value="Dinheiro">Dinheiro</option>
                           <option value="Pix">Pix</option>
                           <option value="Débito">Débito</option>
-                          <option value="Cartão de Crédito">
-                            Cartão de Crédito
-                          </option>
+                          {(cardsEnabled ||
+                            formaPagamentoEditada === "Cartão de Crédito") && (
+                            <option
+                              value="Cartão de Crédito"
+                              disabled={!cardsEnabled}
+                            >
+                              {cardsEnabled
+                                ? "Cartão de Crédito"
+                                : "Cartão de Crédito (registro existente)"}
+                            </option>
+                          )}
                           <option value="Boleto">Boleto</option>
                         </select>
 
-                        {formaPagamentoEditada === "Cartão de Crédito" && (
+                        {cardsEnabled &&
+                          formaPagamentoEditada === "Cartão de Crédito" && (
                           <>
                             <select
                               value={cartaoIdEditado}
@@ -405,7 +444,7 @@ function Movimentacoes() {
                   </td>
 
                   <td>
-                    {editandoIndex === item.indiceOriginal ? (
+                    {editandoId === item.id ? (
                       <input
                         type="text"
                         value={valorEditado}
@@ -419,7 +458,7 @@ function Movimentacoes() {
                   </td>
 
                   <td>
-                    {editandoIndex === item.indiceOriginal ? (
+                    {editandoId === item.id ? (
                       <input
                         type="date"
                         value={dataEditada}
@@ -431,11 +470,12 @@ function Movimentacoes() {
                   </td>
 
                   <td>
-                    {editandoIndex === item.indiceOriginal ? (
+                    {editandoId === item.id ? (
                       <>
                         <button
                           className="btn-edit"
-                          onClick={() => salvarEdicao(item.indiceOriginal)}
+                          onClick={() => salvarEdicao(item.id)}
+                          disabled={salvando}
                         >
                           Salvar
                         </button>
@@ -443,6 +483,7 @@ function Movimentacoes() {
                         <button
                           className="btn-delete"
                           onClick={cancelarEdicao}
+                          disabled={salvando}
                         >
                           Cancelar
                         </button>
@@ -451,16 +492,16 @@ function Movimentacoes() {
                       <>
                         <button
                           className="btn-edit"
-                          onClick={() =>
-                            iniciarEdicao(item, item.indiceOriginal)
-                          }
+                          onClick={() => iniciarEdicao(item)}
+                          disabled={salvando}
                         >
                           Atualizar
                         </button>
 
                         <button
                           className="btn-delete"
-                          onClick={() => excluirItem(item.indiceOriginal)}
+                          onClick={() => excluirItem(item.id)}
+                          disabled={salvando}
                         >
                           Excluir
                         </button>
@@ -470,11 +511,13 @@ function Movimentacoes() {
                 </tr>
               ))}
 
-            {!carregando && movimentacoesFiltradas.length === 0 && (
+            {!carregando &&
+              !erroApi &&
+              movimentacoesFiltradas.length === 0 && (
               <tr>
                 <td colSpan="7">Nenhuma movimentação encontrada.</td>
               </tr>
-            )}
+              )}
           </tbody>
         </table>
       </div>

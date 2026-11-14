@@ -7,8 +7,11 @@
     "start": "node server.js",
     "test": "node --test tests/*.test.cjs tests/*.test.js",
     "test:connection": "node test-connection.js",
+    "test:security": "node tests/security-review.cjs",
     "test:integration": "node tests/live-security.cjs",
-    "test:whatsapp": "node tests/whatsapp-live.cjs"
+    "test:whatsapp": "node tests/whatsapp-live.cjs",
+    "check:assistant": "node scripts/check-assistant.cjs",
+    "test:gemini": "node scripts/test-gemini.cjs"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -16,11 +19,8 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^4.18.2",
+    "express-rate-limit": "^8.7.4",
     "jsonwebtoken": "^9.0.3",
-    "pg": "^8.16.3",
-    "express-rate-limit": "^8.7.3"
-  },
-  "devDependencies": {
-    "typescript-eslint": "^8.59.1"
+    "pg": "^8.16.3"
   }
 }

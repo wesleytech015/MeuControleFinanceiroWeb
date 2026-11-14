@@ -1,5 +1,3 @@
-> Guia original da migração de Wesley (commit 6b57639). Para as diferenças desta feature (autorização restrita, WhatsApp, Vercel e testes PostgreSQL locais), consulte `../../docs/integracao-supabase.md`. Estados de publicação e resultados antigos abaixo descrevem a coleta original.
-
 # PostgreSQL / Supabase
 
 Esta migração recria a estrutura sem recuperar registros do MySQL removido.

@@ -53,6 +53,21 @@ function createRepository(pool) {
             const { rows } = await db.query('SELECT usuario_id FROM whatsapp_links WHERE phone=$1 FOR UPDATE', [number]);
             return rows[0];
           },
+          async setAiConsent(userId, enabled) {
+            await db.query('UPDATE whatsapp_links SET ai_consent_at=CASE WHEN $2 THEN CURRENT_TIMESTAMP ELSE NULL END WHERE usuario_id=$1', [userId, enabled]);
+          },
+          async aiConsent(userId) {
+            const { rows } = await db.query('SELECT ai_consent_at FROM whatsapp_links WHERE usuario_id=$1', [userId]);
+            return !!rows[0]?.ai_consent_at;
+          },
+          async consumeAiBudget(userId) {
+            const result = await db.query(`UPDATE whatsapp_links SET
+              ai_requests=CASE WHEN ai_window_started>CURRENT_TIMESTAMP - INTERVAL '1 hour' THEN ai_requests+1 ELSE 1 END,
+              ai_window_started=CASE WHEN ai_window_started>CURRENT_TIMESTAMP - INTERVAL '1 hour' THEN ai_window_started ELSE CURRENT_TIMESTAMP END
+              WHERE usuario_id=$1 AND ai_consent_at IS NOT NULL AND
+              (ai_window_started IS NULL OR ai_window_started<=CURRENT_TIMESTAMP - INTERVAL '1 hour' OR ai_requests<12) RETURNING usuario_id`, [userId]);
+            return result.rowCount === 1;
+          },
           async draft(userId) {
             const { rows } = await db.query('SELECT payload, confirmation_code, expires_at FROM whatsapp_drafts WHERE usuario_id=$1', [userId]);
             const row = rows[0];

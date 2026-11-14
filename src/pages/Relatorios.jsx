@@ -1,11 +1,15 @@
+import { useContext } from "react";
 import Layout from "../components/Layout";
-import { useFinanceiro } from "../context/useFinanceiro";
+import { isCardsFeatureEnabled } from "../config/featureFlags.js";
+import { FinanceContext } from "../context/financeContext.js";
 import "../styles/relatorios.css";
 
 function Relatorios() {
-  const { movimentacoes } = useFinanceiro();
-
-  const cartoes = JSON.parse(localStorage.getItem("cartoes")) || [];
+  const { movimentacoes, carregando, erro } = useContext(FinanceContext);
+  const cardsEnabled = isCardsFeatureEnabled();
+  const cartoes = cardsEnabled
+    ? JSON.parse(localStorage.getItem("cartoes")) || []
+    : [];
 
   function formatarReal(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", {
@@ -53,7 +57,7 @@ function Relatorios() {
     .sort((a, b) => b.valor - a.valor)
     .slice(0, 5);
 
-  const ultimasMovimentacoes = [...movimentacoes].slice(-5).reverse();
+  const ultimasMovimentacoes = movimentacoes.slice(0, 5);
 
   return (
     <Layout>
@@ -62,6 +66,11 @@ function Relatorios() {
           <div>
             <h1>Relatórios</h1>
             <p>Análise visual e detalhada das suas finanças.</p>
+            {erro && (
+              <p className="mensagem-erro">
+                Não foi possível sincronizar os dados: {erro}
+              </p>
+            )}
           </div>
         </div>
 
@@ -84,11 +93,13 @@ function Relatorios() {
             <p>{saldo >= 0 ? "Resultado positivo" : "Resultado negativo"}</p>
           </div>
 
-          <div className="relatorio-card cartao-card">
-            <span>Fatura Cartões</span>
-            <h2>{formatarReal(totalFaturaCartoes)}</h2>
-            <p>Limite total: {formatarReal(totalLimiteCartoes)}</p>
-          </div>
+          {cardsEnabled && (
+            <div className="relatorio-card cartao-card">
+              <span>Fatura Cartões</span>
+              <h2>{formatarReal(totalFaturaCartoes)}</h2>
+              <p>Limite total: {formatarReal(totalLimiteCartoes)}</p>
+            </div>
+          )}
         </section>
 
         <section className="relatorios-grid">
@@ -199,11 +210,17 @@ function Relatorios() {
             </div>
 
             <div className="movimentacoes-lista">
-              {ultimasMovimentacoes.length === 0 ? (
+              {carregando ? (
+                <p>Carregando movimentações...</p>
+              ) : erro ? (
+                <p className="mensagem-erro">
+                  Não foi possível carregar os dados: {erro}
+                </p>
+              ) : ultimasMovimentacoes.length === 0 ? (
                 <p className="empty-message">Nenhuma movimentação cadastrada.</p>
               ) : (
-                ultimasMovimentacoes.map((item, index) => (
-                  <div className="movimentacao-item" key={index}>
+                ultimasMovimentacoes.map((item) => (
+                  <div className="movimentacao-item" key={item.id}>
                     <div>
                       <strong>{item.descricao}</strong>
                       <span>{item.data}</span>

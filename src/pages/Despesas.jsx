@@ -1,11 +1,21 @@
-import { useState } from "react";
+import EntryPageHeader from "../components/EntryPageHeader";
+import EntryMovementList from "../components/EntryMovementList";
+import "../styles/entries.css";
+import { useContext, useState } from "react";
 
 import Layout from "../components/Layout";
+import { isCardsFeatureEnabled } from "../config/featureFlags.js";
 import "../styles/formulario.css";
-import { useFinanceiro } from "../context/useFinanceiro";
+import { FinanceContext } from "../context/financeContext.js";
 
 function Despesas() {
-  const { adicionarMovimentacao } = useFinanceiro();
+  const {
+    movimentacoes,
+    adicionarMovimentacao,
+    carregando,
+    erro: erroApi,
+  } = useContext(FinanceContext);
+  const cardsEnabled = isCardsFeatureEnabled();
 
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
@@ -17,8 +27,11 @@ function Despesas() {
 
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
+  const [salvando, setSalvando] = useState(false);
 
-  const cartoes = JSON.parse(localStorage.getItem("cartoes")) || [];
+  const cartoes = cardsEnabled
+    ? JSON.parse(localStorage.getItem("cartoes")) || []
+    : [];
 
   const categorias = [
     "Alimentação",
@@ -69,6 +82,8 @@ function Despesas() {
   }
 
   function atualizarFaturaCartao(valorDespesa) {
+    if (!cardsEnabled) return;
+
     const cartoesSalvos = JSON.parse(localStorage.getItem("cartoes")) || [];
 
     const cartoesAtualizados = cartoesSalvos.map((cartao) =>
@@ -83,7 +98,7 @@ function Despesas() {
     localStorage.setItem("cartoes", JSON.stringify(cartoesAtualizados));
   }
 
-  function salvarDespesa(e) {
+  async function salvarDespesa(e) {
     e.preventDefault();
 
     if (!descricao || !valor || !categoria || !formaPagamento || !data) {
@@ -94,6 +109,12 @@ function Despesas() {
 
     if (formaPagamento === "Cartão de Crédito" && !cartaoId) {
       setErro("Selecione o cartão de crédito.");
+      setMensagem("");
+      return;
+    }
+
+    if (!cardsEnabled && formaPagamento === "Cartão de Crédito") {
+      setErro("Pagamento com cartão está indisponível nesta versão.");
       setMensagem("");
       return;
     }
@@ -113,47 +134,55 @@ function Despesas() {
       data: converterDataParaBR(data),
     };
 
-    adicionarMovimentacao(novaDespesa);
-
-    if (formaPagamento === "Cartão de Crédito") {
-      atualizarFaturaCartao(valorNumerico);
-    }
-
-    limparFormulario();
-
-    setMensagem("Despesa cadastrada com sucesso!");
     setErro("");
+    setMensagem("");
+    setSalvando(true);
+    try {
+      await adicionarMovimentacao(novaDespesa);
+      if (formaPagamento === "Cartão de Crédito") {
+        atualizarFaturaCartao(valorNumerico);
+      }
+      limparFormulario();
+      setMensagem("Despesa cadastrada com sucesso!");
+    } catch (error) {
+      setErro(error.message || "Não foi possível cadastrar a despesa.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
     <Layout>
-      <div className="page-header">
-        <h1>Despesas</h1>
-        <p>Registre e controle seus gastos mensais.</p>
-      </div>
+      <div className="entries-page entries-expense">
+      <EntryPageHeader tipo="Despesa" movimentacoes={movimentacoes} carregando={carregando} erro={erroApi} />
 
-      <div className="form-card">
-        <h2>Nova Despesa</h2>
+      <section className="form-card" id="entry-form" aria-labelledby="entry-form-title">
+        <div className="entry-form-heading"><h2 id="entry-form-title">Nova Despesa</h2><p>Preencha os dados abaixo para registrar sua despesa.</p></div>
 
-        {mensagem && <p className="mensagem-sucesso">{mensagem}</p>}
-        {erro && <p className="mensagem-erro">{erro}</p>}
+        {mensagem && <p className="mensagem-sucesso" role="status">{mensagem}</p>}
+        {erro && <p className="mensagem-erro" role="alert">{erro}</p>}
+        {erroApi && !erro && (
+          <p className="mensagem-erro">
+            A sincronização com a API falhou: {erroApi}
+          </p>
+        )}
 
-        <form className="form-grid" onSubmit={salvarDespesa}>
-          <input
+        <form className="form-grid" aria-busy={salvando} onSubmit={salvarDespesa}>
+          <div className="entry-field"><label className="entry-field-label" htmlFor="entry-descricao">Descrição</label><input id="entry-descricao"
             type="text"
             placeholder="Descrição"
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
-          />
+          /></div>
 
-          <input
-            type="text"
+          <div className="entry-field"><label className="entry-field-label" htmlFor="entry-valor">Valor (R$)</label><input id="entry-valor"
+            type="text" inputMode="decimal"
             placeholder="Ex: R$ 300,00"
             value={valor}
             onChange={(e) => setValor(formatarMoeda(e.target.value))}
-          />
+          /></div>
 
-          <select
+          <div className="entry-field"><label className="entry-field-label" htmlFor="entry-categoria">Categoria</label><select id="entry-categoria"
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
           >
@@ -163,9 +192,9 @@ function Despesas() {
                 {item}
               </option>
             ))}
-          </select>
+          </select></div>
 
-          <select
+          <div className="entry-field"><label className="entry-field-label" htmlFor="entry-formaPagamento">Forma de pagamento</label><select id="entry-formaPagamento"
             value={formaPagamento}
             onChange={(e) => {
               setFormaPagamento(e.target.value);
@@ -180,19 +209,21 @@ function Despesas() {
             <option value="Dinheiro">Dinheiro</option>
             <option value="Pix">Pix</option>
             <option value="Débito">Débito</option>
-            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            {cardsEnabled && (
+              <option value="Cartão de Crédito">Cartão de Crédito</option>
+            )}
             <option value="Boleto">Boleto</option>
-          </select>
+          </select></div>
 
-          <input
+          <div className="entry-field"><label className="entry-field-label" htmlFor="entry-data">Data</label><input id="entry-data"
             type="date"
             value={data}
             onChange={(e) => setData(e.target.value)}
-          />
+          /></div>
 
-          {formaPagamento === "Cartão de Crédito" && (
+          {cardsEnabled && formaPagamento === "Cartão de Crédito" && (
             <>
-              <select
+              <div className="entry-field"><label className="entry-field-label" htmlFor="entry-cartaoId">Cartão de crédito</label><select id="entry-cartaoId"
                 value={cartaoId}
                 onChange={(e) => setCartaoId(e.target.value)}
               >
@@ -202,9 +233,9 @@ function Despesas() {
                     {cartao.nome} - •••• {cartao.final_cartao}
                   </option>
                 ))}
-              </select>
+              </select></div>
 
-              <select
+              <div className="entry-field"><label className="entry-field-label" htmlFor="entry-parcelas">Parcelas</label><select id="entry-parcelas"
                 value={parcelas}
                 onChange={(e) => setParcelas(e.target.value)}
               >
@@ -213,12 +244,16 @@ function Despesas() {
                     {numero}x
                   </option>
                 ))}
-              </select>
+              </select></div>
             </>
           )}
 
-          <button type="submit">Salvar Despesa</button>
+          <button type="submit" disabled={salvando || carregando}>
+            {salvando ? "Salvando..." : "Salvar Despesa"}
+          </button>
         </form>
+      </section>
+      <EntryMovementList tipo="Despesa" />
       </div>
     </Layout>
   );

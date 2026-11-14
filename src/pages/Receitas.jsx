@@ -1,5 +1,8 @@
+import EntryPageHeader from "../components/EntryPageHeader";
+import EntryMovementList from "../components/EntryMovementList";
+import "../styles/entries.css";
 // IMPORTA useState DO REACT
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 // IMPORTA O LAYOUT PADRÃO
 import Layout from "../components/Layout";
@@ -8,19 +11,27 @@ import Layout from "../components/Layout";
 import "../styles/formulario.css";
 
 // IMPORTA O CONTEXTO FINANCEIRO
-import { useFinanceiro } from "../context/useFinanceiro";
+import { FinanceContext } from "../context/financeContext.js";
 
 // COMPONENTE DA TELA DE RECEITAS
 function Receitas() {
 
   // FUNÇÃO DO CONTEXTO
-  const { adicionarMovimentacao } = useFinanceiro();
+  const {
+    movimentacoes,
+    adicionarMovimentacao,
+    carregando,
+    erro: erroApi,
+  } = useContext(FinanceContext);
 
   // ESTADO DA DESCRIÇÃO
   const [descricao, setDescricao] = useState("");
 
   // ESTADO DO VALOR
   const [valor, setValor] = useState("");
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
+  const [salvando, setSalvando] = useState(false);
 
   // FORMATA VALOR EM REAL
   function formatarMoeda(valorDigitado) {
@@ -42,7 +53,7 @@ function Receitas() {
   }
 
   // SALVA RECEITA
-  function salvarReceita(e) {
+  async function salvarReceita(e) {
 
     // EVITA RECARREGAR A PÁGINA
     e.preventDefault();
@@ -50,7 +61,8 @@ function Receitas() {
     // VALIDA CAMPOS
     if (descricao === "" || valor === "") {
 
-      alert("Preencha todos os campos.");
+      setErro("Preencha todos os campos.");
+      setMensagem("");
 
       return;
     }
@@ -74,56 +86,59 @@ function Receitas() {
       data: new Date().toLocaleDateString("pt-BR"),
     };
 
-    // ADICIONA MOVIMENTAÇÃO
-    adicionarMovimentacao(novaReceita);
-
-    // LIMPA CAMPOS
-    setDescricao("");
-    setValor("");
-
-    // ALERTA
-    alert("Receita cadastrada com sucesso!");
+    setSalvando(true);
+    setErro("");
+    setMensagem("");
+    try {
+      await adicionarMovimentacao(novaReceita);
+      setDescricao("");
+      setValor("");
+      setMensagem("Receita cadastrada com sucesso!");
+    } catch (error) {
+      setErro(error.message || "Não foi possível cadastrar a receita.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
 
     <Layout>
+      <div className="entries-page entries-income">
 
       {/* CABEÇALHO */}
-      <div className="page-header">
+      <EntryPageHeader tipo="Receita" movimentacoes={movimentacoes} carregando={carregando} erro={erroApi} />
 
-        <h1>Receitas</h1>
+      <section className="form-card" id="entry-form" aria-labelledby="entry-form-title">
 
-        <p>
-          Cadastre e acompanhe suas entradas financeiras.
-        </p>
-
-      </div>
-
-      {/* CARD DO FORMULÁRIO */}
-      <div className="form-card">
-
-        <h2>Nova Receita</h2>
+        <div className="entry-form-heading"><h2 id="entry-form-title">Nova Receita</h2><p>Preencha os dados abaixo para registrar sua receita.</p></div>
+        {mensagem && <p className="mensagem-sucesso" role="status">{mensagem}</p>}
+        {erro && <p className="mensagem-erro" role="alert">{erro}</p>}
+        {erroApi && !erro && (
+          <p className="mensagem-erro">
+            A sincronização com a API falhou: {erroApi}
+          </p>
+        )}
 
         {/* FORMULÁRIO */}
         <form
-          className="form-grid"
+          className="form-grid" aria-busy={salvando}
           onSubmit={salvarReceita}
         >
 
           {/* CAMPO DESCRIÇÃO */}
-          <input
+          <div className="entry-field"><label className="entry-field-label" htmlFor="entry-descricao">Descrição</label><input id="entry-descricao"
             type="text"
             placeholder="Descrição"
             value={descricao}
             onChange={(e) =>
               setDescricao(e.target.value)
             }
-          />
+          /></div>
 
           {/* CAMPO VALOR */}
-          <input
-            type="text"
+          <div className="entry-field"><label className="entry-field-label" htmlFor="entry-valor">Valor (R$)</label><input id="entry-valor"
+            type="text" inputMode="decimal"
             placeholder="Ex: R$ 10.000,00"
             value={valor}
 
@@ -133,17 +148,19 @@ function Receitas() {
                 formatarMoeda(e.target.value)
               )
             }
-          />
+          /></div>
 
           {/* BOTÃO */}
-          <button type="submit">
+          <button type="submit" disabled={salvando || carregando}>
 
-            Salvar Receita
+            {salvando ? "Salvando..." : "Salvar Receita"}
 
           </button>
 
         </form>
 
+      </section>
+      <EntryMovementList tipo="Receita" />
       </div>
 
     </Layout>

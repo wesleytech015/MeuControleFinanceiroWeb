@@ -1,220 +1,380 @@
-.dashboard-header {
-  margin-bottom: 28px;
+.dashboard-page {
+  max-width:1600px;
+  margin:auto;
+  color:#111d35;
 }
 
+.dashboard-page .dashboard-header {
+  margin-bottom:26px;
+}
 .dashboard-header h1 {
-  font-size: 34px;
-  color: #0f172a;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  font-size:34px;
+  letter-spacing:-1px;
 }
-
+.dashboard-heading-icon {
+  width:52px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  border-radius:15px;
+  color:white;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);
+  box-shadow:0 5px 12px #2563eb1a;
+}
+.dashboard-heading-icon svg {
+  width:30px;
+  height:30px;
+}
 .dashboard-header p {
-  color: #64748b;
-  margin-top: 6px;
+  margin:6px 0 0 68px;
+  font-size:16px;
+  color:#64748b;
+}
+.dashboard-page .mensagem-erro {
+  color:#b91c1c;
+  line-height:1.5;
 }
 
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
-  margin-bottom: 28px;
+.dashboard-page .cards-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:20px;
+  margin-bottom:26px;
 }
 
-.finance-card {
-  position: relative;
-  overflow: hidden;
-  padding: 28px;
-  border-radius: 24px;
-  color: white;
-  min-height: 180px;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+.dashboard-page .finance-card {
+  --card-color:#2563eb;
+  --card-tint:#e8f0ff;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:50px minmax(0,1fr);
+  column-gap:18px;
+  align-content:center;
+  padding:23px;
+  border:1px solid #e9eef6;
+  border-left:4px solid var(--card-color);
+  border-radius:18px;
+  background:#fff;
+  min-height:145px;
+  box-shadow:0 7px 22px #17376b0a;
 }
 
-.finance-card::after {
-  content: "";
-  position: absolute;
-  right: -40px;
-  bottom: -40px;
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
+.dashboard-page .finance-card::after {
+  content:"";
+  position:absolute;
+  z-index:-1;
+  right:-15px;
+  bottom:-25px;
+  width:45%;
+  height:90px;
+  border-radius:70% 50% 0 0;
+  background:var(--card-tint);
+  transform:rotate(-18deg);
+  opacity:.8;
+}
+.dashboard-page .finance-card.receita {
+  --card-color:#16a34a;
+  --card-tint:#e4f8ed;
+}
+.dashboard-page .finance-card.despesa {
+  --card-color:#ef4444;
+  --card-tint:#ffedf0;
+}
+.dashboard-page .card-icon {
+  grid-column:1;
+  grid-row:1/4;
+  display:grid;
+  place-items:center;
+  width:50px;
+  height:50px;
+  border-radius:14px;
+  background:var(--card-tint);
+  color:var(--card-color);
+  align-self:start;
+}
+.card-icon svg {
+  width:28px;
+  height:28px;
+}
+.dashboard-page .finance-card > span {
+  font-size:16px;
+  font-weight:700;
+}
+.dashboard-page .finance-card h2 {
+  grid-column:2;
+  font-size:clamp(23px,2.25vw,36px);
+  color:var(--card-color);
+  margin:12px 0;
+  letter-spacing:-.8px;
+  overflow-wrap:anywhere;
+}
+.dashboard-page .finance-card p {
+  grid-column:2;
+  font-size:14px;
+  color:#64748b;
+}
+.dashboard-page .negative-value {
+  color:#dc2626 !important;
 }
 
-.card-icon {
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.18);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  margin-bottom: 20px;
+.dashboard-page .dashboard-grid {
+  display:grid;
+  grid-template-columns:minmax(0,1.9fr) minmax(280px,1fr);
+  gap:24px;
+  margin-bottom:26px;
+  align-items:start;
+}
+.dashboard-page .dashboard-card {
+  min-width:0;
+  padding:24px;
+  border-radius:20px;
+  border:1px solid #e9eef6;
+  background:white;
+  box-shadow:0 7px 22px #17376b0a;
+}
+.dashboard-page .card-title {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:20px;
+}
+.dashboard-page .card-title h3 {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:20px;
+  letter-spacing:-.4px;
+}
+.dashboard-page .card-title h3 svg {
+  color:#2563eb;
+}
+.dashboard-page .card-title > span {
+  font-size:12px;
+  color:#536b94;
+  background:#f5f8ff;
+  border:1px solid #e0e9fc;
+  border-radius:10px;
+  padding:8px 10px;
+  white-space:nowrap;
+}
+.dashboard-chart {
+  height:285px;
+  min-width:0;
+}
+.dashboard-chart-details {
+  margin-top:12px;
+  font-size:13px;
+  color:#64748b;
+}
+.dashboard-chart-details summary {
+  cursor:pointer;
+  padding:8px 0;
+}
+.dashboard-empty {
+  min-height:285px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#64748b;
+  line-height:1.6;
+  padding:24px;
+  background:#f8faff;
+  border-radius:12px;
+}
+.dashboard-side {
+  display:grid;
+  gap:24px;
+  min-width:0;
+}
+.dashboard-period-note {
+  margin:-10px 0 12px;
+  color:#64748b;
+  font-size:12px;
+}
+.dashboard-summary-row {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid #edf1f7;
+  font-size:14px;
+}
+.dashboard-summary-row:last-child {
+  border:0;
+  padding-bottom:0;
+}
+.dashboard-summary-row strong {
+  margin-left:auto;
+  text-align:right;
+  overflow-wrap:anywhere;
+}
+.summary-icon {
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  flex-shrink:0;
+}
+.summary-icon svg {
+  width:20px;
+  height:20px;
+}
+.summary-icon.income {
+  color:#16a34a;
+  background:#e4f8ed;
+}
+.summary-icon.expense {
+  color:#ef4444;
+  background:#ffedf0;
+}
+.summary-icon.balance {
+  color:#2563eb;
+  background:#e8f0ff;
+}
+.dashboard-status > strong {
+  font-size:16px;
+  color:#2563eb;
+}
+.dashboard-status > p {
+  margin-top:10px;
+  font-size:13px;
+  color:#64748b;
+  line-height:1.6;
+}
+.dashboard-page .status-warning {
+  background:linear-gradient(135deg,#fff,#fff3f4);
+}
+.status-warning > strong {
+  color:#dc2626;
+}
+.dashboard-page .cartao-resumo-item {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid #edf1f7;
+  font-size:14px;
+}
+.dashboard-table-scroll {
+  overflow-x:auto;
+}
+.dashboard-page .dashboard-table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+.dashboard-table caption {
+  text-align:left;
+  padding:12px 0;
+}
+.dashboard-page .dashboard-table th,.dashboard-page .dashboard-table td {
+  padding:15px 12px;
+  text-align:left;
+  border-bottom:1px solid #edf1f7;
+  color:#334155;
+}
+.dashboard-page .dashboard-table th {
+  color:#64748b;
+  font-weight:600;
+  background:#fafbfe;
+}
+.dashboard-page .receita-text,.dashboard-page .despesa-text {
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:600;
+}
+.dashboard-page .receita-text {
+  color:#15803d;
+  background:#e4f8ed;
+}
+.dashboard-page .despesa-text {
+  color:#b91c1c;
+  background:#ffedf0;
 }
 
-.finance-card span {
-  font-size: 16px;
-  font-weight: 700;
+@media(max-width:1200px) {
+  .dashboard-page .cards-grid {
+  gap:14px;
+}
+.dashboard-page .finance-card {
+  padding:20px 16px;
+  column-gap:12px;
+  grid-template-columns:40px minmax(0,1fr);
+}
+.dashboard-page .card-icon {
+  width:40px;
+  height:40px;
+}
+.dashboard-page .finance-card h2 {
+  font-size:26px;
+}
+.dashboard-page .dashboard-grid {
+  grid-template-columns:minmax(0,1fr);
+}
+.dashboard-side {
+  grid-template-columns:repeat(2,minmax(0,1fr));
 }
 
-.finance-card h2 {
-  font-size: 34px;
-  margin: 10px 0;
 }
 
-.finance-card p {
-  opacity: 0.9;
+@media(max-width:600px) {
+  .dashboard-header h1 {
+  font-size:28px;
+  gap:12px;
+}
+.dashboard-heading-icon {
+  width:42px;
+  height:42px;
+  border-radius:12px;
+}
+.dashboard-header p {
+  margin-left:54px;
+  font-size:14px;
+}
+.dashboard-page .cards-grid {
+  grid-template-columns:1fr;
+  gap:12px;
+}
+.dashboard-page .finance-card {
+  min-height:120px;
+  padding:18px;
+  grid-template-columns:44px minmax(0,1fr);
+  column-gap:16px;
+}
+.dashboard-page .finance-card h2 {
+  font-size:29px;
+  margin:8px 0;
+}
+.dashboard-side {
+  grid-template-columns:1fr;
+}
+.dashboard-page .dashboard-card {
+  padding:20px 16px;
+  border-radius:16px;
+}
+.dashboard-page .card-title h3 {
+  font-size:18px;
+}
+.dashboard-page .card-title > span {
+  font-size:11px;
+  padding:6px;
+}
+.dashboard-chart {
+  height:260px;
+}
+.dashboard-page .dashboard-table th,.dashboard-page .dashboard-table td {
+  padding:12px 10px;
+  white-space:nowrap;
 }
 
-.receita {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
-}
-
-.despesa {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-}
-
-.saldo {
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 22px;
-  margin-bottom: 28px;
-}
-
-.dashboard-card {
-  background: white;
-  border-radius: 24px;
-  padding: 28px;
-  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
-}
-
-.card-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.card-title h3 {
-  color: #0f172a;
-  font-size: 20px;
-}
-
-.card-title span {
-  color: #64748b;
-  font-size: 14px;
-}
-
-.fake-chart {
-  position: relative;
-  height: 240px;
-  border-radius: 20px;
-  background:
-    linear-gradient(#eef2ff 1px, transparent 1px),
-    linear-gradient(90deg, #eef2ff 1px, transparent 1px);
-  background-size: 40px 40px;
-  overflow: hidden;
-}
-
-.chart-line {
-  position: absolute;
-  left: 40px;
-  right: 40px;
-  bottom: 60px;
-  height: 90px;
-  border-bottom: 5px solid #3b82f6;
-  border-radius: 50%;
-  transform: rotate(-5deg);
-  opacity: 0.7;
-}
-
-.chart-dot {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: #2563eb;
-  border-radius: 50%;
-}
-
-.dot-1 {
-  left: 20%;
-  bottom: 90px;
-}
-
-.dot-2 {
-  left: 42%;
-  bottom: 125px;
-}
-
-.dot-3 {
-  left: 65%;
-  bottom: 100px;
-}
-
-.dot-4 {
-  left: 82%;
-  bottom: 150px;
-}
-
-.cartao-resumo-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 16px 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.cartao-resumo-item:last-child {
-  border-bottom: none;
-}
-
-.cartao-resumo-item span {
-  color: #64748b;
-}
-
-.cartao-resumo-item strong {
-  color: #0f172a;
-}
-
-.dashboard-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.dashboard-table th,
-.dashboard-table td {
-  padding: 16px;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
-  color: #334155;
-}
-
-.dashboard-table th {
-  color: #64748b;
-}
-
-.receita-text {
-  background: #dcfce7;
-  color: #15803d;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-weight: bold;
-}
-
-.despesa-text {
-  background: #fee2e2;
-  color: #b91c1c;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-weight: bold;
-}
-
-@media (max-width: 1100px) {
-  .cards-grid,
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
 }

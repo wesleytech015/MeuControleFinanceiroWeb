@@ -4,7 +4,7 @@ const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 
 function run(script, overrides = {}) {
-  const env = { ...process.env, DB_HOST: 'localhost', DB_PORT: '5432', DB_USER: 'test', DB_PASSWORD: 'test-only', DB_NAME: 'test', DB_SSL_CA_PATH: '', DB_SSL_CA_PEM: '', DB_SSL: 'true', VERCEL: '', ...overrides };
+  const env = { ...process.env, DB_HOST: 'localhost', DB_PORT: '5432', DB_USER: 'test', DB_PASSWORD: 'test-only', DB_NAME: 'test', DB_SSL_CA_PATH: '', ...overrides };
   return spawnSync(process.execPath, ['-e', script], { cwd: path.resolve(__dirname, '..'), env, encoding: 'utf8' });
 }
 
@@ -33,7 +33,7 @@ test('configuração inválida e CA inexistente falham antes de abrir conexão',
 });
 
 test('JWT ausente ou vazio impede inicialização mesmo antes de carregar Express', () => {
-  for (const value of ['', '   ']) {
+  for (const value of ['', '   ', 'short-secret']) {
     const result = run(`
       const Module = require('node:module');
       const load = Module._load;

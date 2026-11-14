@@ -1,6 +1,8 @@
+import FinanceIcon from "./FinanceIcon";
 // COMPONENTE DA NAVBAR (BARRA SUPERIOR)
+import { clearAuthSession } from "../services/authSession.js";
 
-function Navbar() {
+function Navbar({ menuOpen, onMenuToggle }) {
 
   // RECUPERA DADOS DO USUÁRIO LOGADO
   const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
@@ -14,8 +16,8 @@ function Navbar() {
   // FUNÇÃO RESPONSÁVEL POR FAZER LOGOUT
   const sair = () => {
 
-    // LIMPA DADOS SALVOS NO NAVEGADOR
-    localStorage.clear();
+    // Encerra apenas a sessão, preservando dados locais não relacionados ao login.
+    clearAuthSession();
 
     // REDIRECIONA PARA A TELA DE LOGIN
     window.location.href = "/";
@@ -25,6 +27,7 @@ function Navbar() {
 
     // CABEÇALHO SUPERIOR
     <header className="navbar">
+      <button className="navbar-menu-toggle" onClick={onMenuToggle} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={menuOpen} aria-controls="main-navigation"><FinanceIcon name="menu" /></button>
 
       {/* ÁREA DO TÍTULO */}
       <div>
@@ -74,7 +77,7 @@ function Navbar() {
           className="btn-sair"
           onClick={sair}
         >
-          Sair
+          <FinanceIcon name="logout" /> Sair
         </button>
 
       </div>

@@ -1,3 +1,40 @@
+## Piloto Gemini/RAG + WhatsApp — 14/11/2026
+
+Base atualizada para main `8aa630c`, sem commit/push/deploy. Implementação opt-in:
+Gemini exclusivamente no servidor, chave no header x-goog-api-key e configuração
+privada ignorada. Produção não lê .env.assistant.local. Web/Mobile não recebem a chave.
+A versão atual da main acrescenta validações de cadastro (mínimo seis caracteres,
+com política de senhas comuns) e versão de sessão em autenticacao_versoes. Validar
+as migrações 001/002 antes de implantar: mesmo a recuperação desabilitada não remove
+a consulta da versão de sessão da autenticação. Regras antigas abaixo são históricas.
+
+Webhook HMAC, número vinculado e consentimento explícito antes da chamada. Até 12
+solicitações por usuário/hora em PostgreSQL; timeout oito segundos, 1024 tokens de saída,
+sem retry automático. Não é teto global de cobrança. Projeto gratuito e dados de
+demonstração precisam ser confirmados no painel do provedor. Não há embeddings pagos.
+
+RAG lexical em base local revisada/versionada; IDs de fonte validados, sem recuperação
+de dados de usuários. Texto/documentos não ganham ferramentas ou SQL. IA só propõe;
+validação financeira, código de confirmação e deduplicação permanecem no servidor.
+Os filtros de credenciais comuns e as citações não garantem ausência de vazamentos ou
+alucinação: não enviar dados sensíveis e revisar propostas. Diário WhatsApp já contém
+telefone e resposta; manter retenção controlada, sem logs de prompts ou payloads.
+
+Diagnóstico privado e teste real opt-in: [guia](gemini-rag-whatsapp.md). Um novo vínculo
+com IA ativa remove consentimento anterior; ia desativar revoga consentimento.
+Nenhuma migração foi aplicada ao banco compartilhado nesta etapa.
+
+## Integração com main — 14/11/2026
+
+Importação local de main `3a05ede`. Login/cadastro usam validadores e limitadores
+da main: 15 requisições de login e 20 de cadastro por IP a cada 15 minutos,
+em memória. Os parágrafos históricos abaixo descrevem o limitador anterior.
+A autenticação ativa usa config/jwt.js. Preservados HMAC dos bytes originais,
+confirmação antes de gravar, deduplicação, validação financeira com string decimal
+até PostgreSQL e TLS obrigatório em produção. Nenhuma migração foi aplicada ao
+banco compartilhado, nenhum deploy foi feito, Gemini/RAG não estão implementados.
+Ver [registro da integração](integracao-whatsapp-2026-11-14.md).
+
 ## Atualização PostgreSQL/Supabase — 09/11/2026
 
 A feature usa pg, TLS verificado e pool compartilhado; preserva autorização por usuário e validações. O piloto WhatsApp usa transação PostgreSQL e RLS sem políticas públicas nas novas tabelas. Consulte `integracao-supabase.md` para as verificações atuais. Os registros MySQL abaixo são históricos.
