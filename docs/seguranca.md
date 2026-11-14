@@ -1,3 +1,13 @@
+## Qwen — atualização de 14/11/2026
+
+O adaptador selecionado agora é Qwen, desabilitado por padrão. Chave exclusivamente
+no backend, endpoint HTTPS com workspace validado de Singapura, JSON Object com
+validação financeira e de fontes na aplicação, sem ferramentas executadas pelo modelo.
+Consentimento exige ai_provider=qwen: autorização antiga para Google não é aceita.
+Revisar a migração WhatsApp IA atualizada antes de habilitar. Cota gratuita e Free Quota
+Only precisam ser confirmados no painel. Nenhuma chamada real foi feita. Os relatos
+Gemini abaixo são históricos da etapa anterior. Ver docs/qwen-whatsapp.md.
+
 ## Piloto Gemini/RAG + WhatsApp — 14/11/2026
 
 Base atualizada para main `8aa630c`, sem commit/push/deploy. Implementação opt-in:

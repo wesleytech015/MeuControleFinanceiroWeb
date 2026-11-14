@@ -20,3 +20,25 @@ até teste real. Não foi possível consultar duplicatas ou criar card por conec
 
 Fontes: https://www.alibabacloud.com/help/en/model-studio/new-free-quota
 https://www.alibabacloud.com/help/en/model-studio/compatibility-of-openai-with-dashscope
+
+
+## Card Jira proposto
+
+Título: Integrar Qwen ao assistente WhatsApp
+Projeto: confirmar com a equipe se fica em MOB ou no projeto do backend compartilhado.
+Descrição: adaptar o provedor de IA para Qwen, reaproveitar RAG local e confirmação,
+proteger chave, exigir consentimento específico e validar cota gratuita.
+Aceite:
+- Adaptador Qwen com JSON validado, timeout e erros sem segredos.
+- RAG retorna fontes válidas e nenhuma gravação ocorre antes de confirmar.
+- Consentimento identifica Alibaba/Qwen e não reutiliza autorização Google.
+- Conta com Free Quota Only verificada e chamada real de demonstração aprovada.
+- Mensagem real Meta e persistência em banco de demonstração conferidas.
+Status sugerido: Em andamento; últimos dois itens ainda pendentes.
+Tentativa de acesso ao board pelo navegador falhou por timeout do serviço de controle;
+não foi possível verificar duplicatas nem cadastrar o card. Nenhum card foi criado.
+
+Validação desta etapa: 54 testes backend aprovados, um PG pulado; lint aprovado.
+Mobile: 45 testes e TypeScript aprovados. Provedores/banco simulados; não houve teste
+real Qwen, migração Supabase, publicação ou novo teste visual da mudança de texto.
+Commits da base e da troca ficaram separados, nas branches feature/whatsapp-vercel-academico.
