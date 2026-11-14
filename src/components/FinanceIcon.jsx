@@ -1,5 +1,9 @@
 export default function FinanceIcon({ name, ...props }) {
   const paths = {
+    plus: <path d="M12 4v16M4 12h16" />,
+    close: <path d="m5 5 14 14M5 19 19 5" />,
+    edit: <><path d="m14 4 6 6M4 20l5-1L21 7a2 2 0 0 0-5-5L4 14Z" /></>,
+    trash: <><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" /></>,
     home: <path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z" />,
     up: <path d="m3 17 7-7 4 4 7-10M15 4h6v6" />,
     down: <path d="m3 7 7 7 4-4 7 10M15 20h6v-6" />,

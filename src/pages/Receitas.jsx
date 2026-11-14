@@ -1,3 +1,6 @@
+import EntryPageHeader from "../components/EntryPageHeader";
+import EntryMovementList from "../components/EntryMovementList";
+import "../styles/entries.css";
 // IMPORTA useState DO REACT
 import { useContext, useState } from "react";
 
@@ -15,6 +18,7 @@ function Receitas() {
 
   // FUNÇÃO DO CONTEXTO
   const {
+    movimentacoes,
     adicionarMovimentacao,
     carregando,
     erro: erroApi,
@@ -100,24 +104,16 @@ function Receitas() {
   return (
 
     <Layout>
+      <div className="entries-page entries-income">
 
       {/* CABEÇALHO */}
-      <div className="page-header">
+      <EntryPageHeader tipo="Receita" movimentacoes={movimentacoes} carregando={carregando} erro={erroApi} />
 
-        <h1>Receitas</h1>
+      <section className="form-card" id="entry-form" aria-labelledby="entry-form-title">
 
-        <p>
-          Cadastre e acompanhe suas entradas financeiras.
-        </p>
-
-      </div>
-
-      {/* CARD DO FORMULÁRIO */}
-      <div className="form-card">
-
-        <h2>Nova Receita</h2>
-        {mensagem && <p className="mensagem-sucesso">{mensagem}</p>}
-        {erro && <p className="mensagem-erro">{erro}</p>}
+        <div className="entry-form-heading"><h2 id="entry-form-title">Nova Receita</h2><p>Preencha os dados abaixo para registrar sua receita.</p></div>
+        {mensagem && <p className="mensagem-sucesso" role="status">{mensagem}</p>}
+        {erro && <p className="mensagem-erro" role="alert">{erro}</p>}
         {erroApi && !erro && (
           <p className="mensagem-erro">
             A sincronização com a API falhou: {erroApi}
@@ -126,23 +122,23 @@ function Receitas() {
 
         {/* FORMULÁRIO */}
         <form
-          className="form-grid"
+          className="form-grid" aria-busy={salvando}
           onSubmit={salvarReceita}
         >
 
           {/* CAMPO DESCRIÇÃO */}
-          <input
+          <div className="entry-field"><label className="entry-field-label" htmlFor="entry-descricao">Descrição</label><input id="entry-descricao"
             type="text"
             placeholder="Descrição"
             value={descricao}
             onChange={(e) =>
               setDescricao(e.target.value)
             }
-          />
+          /></div>
 
           {/* CAMPO VALOR */}
-          <input
-            type="text"
+          <div className="entry-field"><label className="entry-field-label" htmlFor="entry-valor">Valor (R$)</label><input id="entry-valor"
+            type="text" inputMode="decimal"
             placeholder="Ex: R$ 10.000,00"
             value={valor}
 
@@ -152,7 +148,7 @@ function Receitas() {
                 formatarMoeda(e.target.value)
               )
             }
-          />
+          /></div>
 
           {/* BOTÃO */}
           <button type="submit" disabled={salvando || carregando}>
@@ -163,6 +159,8 @@ function Receitas() {
 
         </form>
 
+      </section>
+      <EntryMovementList tipo="Receita" />
       </div>
 
     </Layout>
