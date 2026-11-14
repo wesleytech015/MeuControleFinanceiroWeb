@@ -80,27 +80,32 @@ export default api;
 // ============================================
 // Função responsável por fazer login do usuário.
 export async function login(email, senha) {
-  // Envia os dados de login para a rota /api/login do backend.
-  const resposta = await fetch(`${API_URL}/login`, {
-    method: "POST", // Define que estamos enviando dados.
-    headers: {
-      "Content-Type": "application/json", // Informa que os dados estão em JSON.
-    },
-    body: JSON.stringify({
-      email: email, // E-mail digitado pelo usuário.
-      senha: senha, // Senha digitada pelo usuário.
-    }),
-  });
-
-  // Se o backend retornar erro, interrompe o login.
-  if (!resposta.ok) {
-    const error = new Error("Erro ao fazer login");
-    error.status = resposta.status;
+  // Controlador exclusivo desta tentativa, sem afetar outras operações.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+  try {
+    const resposta = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, senha }),
+      signal: controller.signal,
+    });
+    if (!resposta.ok) {
+      const error = new Error("Erro ao fazer login");
+      error.status = resposta.status;
+      throw error;
+    }
+    return await resposta.json();
+  } catch (error) {
+    if (controller.signal.aborted) {
+      const timeoutError = new Error("Tempo limite do login excedido.");
+      timeoutError.name = "TimeoutError";
+      throw timeoutError;
+    }
     throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  // Retorna os dados enviados pelo backend.
-  return await resposta.json();
 }
 
 // ============================================
