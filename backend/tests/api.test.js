@@ -9,8 +9,12 @@ const users = [];
 const transactions = [];
 const result = (rows) => ({ rows, rowCount: rows.length });
 const pool = {
+  async connect() { return { query: (...args) => pool.query(...args), release() {} }; },
   async query(sql, values = []) {
     const query = sql.replace(/\s+/g, ' ').trim();
+    if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(query) || query.startsWith('SET LOCAL')) return result([]);
+    if (query.startsWith('SELECT COALESCE(v.versao')) return result(users.filter(user => user.id === values[0]).map(() => ({ auth_version: 0 })));
+    if (query === 'SELECT id, nome, email, senha FROM usuarios WHERE email = $1 FOR UPDATE') return result(users.filter(user => user.email === values[0]));
     assert.ok(!query.includes('?'));
     if (query.startsWith('INSERT INTO usuarios')) {
       assert.match(query, /RETURNING id$/);

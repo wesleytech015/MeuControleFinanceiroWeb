@@ -1,5 +1,7 @@
 const Usuario = require('../models/usuario');
 const bcrypt = require('bcrypt');
+const { transaction, saveSecret } = require('../models/recuperacao');
+const { hashSecret } = require('../services/recoverySecret');
 
 
 const usuarioController = {
@@ -19,11 +21,18 @@ const usuarioController = {
             // CRIPTOGRAFA A SENHA ANTES DE SALVAR NO BANCO
             const senhaCriptografada = await bcrypt.hash(senha, 10);
 
-            const result = await Usuario.criar({
+            const dados = {
                 nome,
                 email,
                 senha: senhaCriptografada
-            });
+            };
+            const result = req.body.palavraChave === undefined ? await Usuario.criar(dados)
+                : await transaction(async client => {
+                    const hash = await hashSecret(req.body.palavraChave);
+                    const inserted = await client.query('INSERT INTO usuarios (nome, email, senha) VALUES ($1, $2, $3) RETURNING id', [nome, email, senhaCriptografada]);
+                    await saveSecret(client, inserted.rows[0].id, hash);
+                    return inserted;
+                });
 
             res.status(201).json({
                 mensagem: 'Usuário cadastrado com sucesso!',

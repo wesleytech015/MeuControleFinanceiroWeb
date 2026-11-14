@@ -112,14 +112,14 @@ export async function login(email, senha) {
 // CADASTRO
 // ============================================
 // Função responsável por cadastrar um novo usuário.
-export async function cadastrar(nome, email, senha) {
+export async function cadastrar(nome, email, senha, palavraChave) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15_000);
   try {
     const resposta = await fetch(`${API_URL}/usuarios`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome, email, senha }),
+      body: JSON.stringify({ nome, email, senha, ...(palavraChave === undefined ? {} : { palavraChave }) }),
       signal: controller.signal,
     });
     let body;

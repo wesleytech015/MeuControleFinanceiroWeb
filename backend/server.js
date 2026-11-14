@@ -10,6 +10,7 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
+app.set('trust proxy', require('./config/proxy').trustedProxies(process.env.TRUSTED_PROXY_CIDRS));
 
 app.disable('x-powered-by');
 // Liveness only: no database access or deployment secrets in this response.
@@ -30,6 +31,7 @@ const transacoesRoutes = require('./routes/transacoesRoutes');
 app.use('/api', testeRoutes);
 app.use('/api', loginRoutes);
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api', require('./routes/recuperacaoRoutes'));
 app.use('/api/transacoes', transacoesRoutes);
 
 app.use((error, req, res, next) => {
