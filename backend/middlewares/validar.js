@@ -3,14 +3,25 @@ const email = (value) => text(value, 100) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v
 const password = (value) => typeof value === 'string' && value.length > 0 && Buffer.byteLength(value, 'utf8') <= 72;
 const reject = (res) => res.status(400).json({ erro: 'Confira os campos informados.' });
 const object = (value) => value && typeof value === 'object' && !Array.isArray(value);
+const passwordPolicy = require('../config/cadastroPassword.json');
+const rejectCadastro = (res, codigo, erro) => res.status(400).json({ erro, codigo });
 
 exports.login = (req, res, next) => {
   if (!object(req.body) || !email(req.body.email) || !password(req.body.senha)) return reject(res);
   next();
 };
 exports.cadastro = (req, res, next) => {
-  if (!object(req.body) || !text(req.body.nome, 100) || !email(req.body.email)
-    || !password(req.body.senha) || req.body.senha.length < 8) return reject(res);
+  if (!object(req.body)) return rejectCadastro(res, 'INVALID_BODY', 'Confira os campos informados.');
+  if (!text(req.body.nome, 100)) return rejectCadastro(res, 'NAME_INVALID', 'Informe um nome válido com até 100 caracteres.');
+  if (!email(req.body.email)) return rejectCadastro(res, 'EMAIL_INVALID', 'Informe um e-mail válido com até 100 caracteres.');
+  let codigo;
+  if (typeof req.body.senha !== 'string' || !req.body.senha) codigo = 'PASSWORD_REQUIRED';
+  else if (req.body.senha.length < passwordPolicy.minLength) codigo = 'PASSWORD_TOO_SHORT';
+  else if (Buffer.byteLength(req.body.senha, 'utf8') > passwordPolicy.maxBytes) codigo = 'PASSWORD_TOO_LONG';
+  else if (passwordPolicy.common.includes(req.body.senha.toLowerCase())) codigo = 'PASSWORD_COMMON';
+  if (codigo) {
+    return rejectCadastro(res, codigo, passwordPolicy.errors[codigo]);
+  }
   next();
 };
 exports.id = (req, res, next) => {
