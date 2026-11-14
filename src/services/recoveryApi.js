@@ -1,5 +1,26 @@
 import { resolveApiUrl } from './apiUrl.js';
 const API_URL = resolveApiUrl(import.meta.env?.VITE_API_URL, import.meta.env?.PROD);
+const invalidRecovery = 'Não foi possível redefinir a senha. Confira os dados ou tente novamente mais tarde.';
+const safeCodes = new Set(['RECOVERY_INVALID', 'RECOVERY_DISABLED', 'CURRENT_PASSWORD_INVALID', 'CURRENT_PASSWORD_REQUIRED',
+  'RECOVERY_SECRET_INVALID', 'PASSWORD_EQUALS_RECOVERY', 'PASSWORD_REQUIRED', 'PASSWORD_TOO_SHORT', 'PASSWORD_TOO_LONG', 'PASSWORD_COMMON']);
+
+class RecoveryApiError extends Error {
+  constructor(message, status, code) {
+    super(message);
+    this.status = status;
+    this.code = safeCodes.has(code) ? code : undefined;
+  }
+}
+
+function responseMessage(status, code, settings) {
+  if (status === 403) return 'A recuperação de senha está indisponível neste ambiente.';
+  if (status === 429) return 'Muitas tentativas. Aguarde antes de tentar novamente.';
+  if (settings && status === 401) return 'Sua sessão expirou. Entre novamente.';
+  if (settings && status === 400) return code === 'CURRENT_PASSWORD_INVALID'
+    ? 'A senha atual está incorreta.' : 'Confira os campos informados para configurar a recuperação.';
+  if ([400, 401, 404].includes(status)) return invalidRecovery;
+  return 'Não foi possível concluir a operação agora. Tente novamente mais tarde.';
+}
 
 async function request(path, body, token) {
   const controller = new AbortController();
@@ -13,17 +34,16 @@ async function request(path, body, token) {
     let data;
     try { data = await response.json(); } catch { /* Mantém o status de respostas sem JSON. */ }
     if (!response.ok) {
-      const error = new Error(data?.erro || 'Não foi possível concluir a operação agora.');
-      error.status = response.status;
-      error.code = data?.codigo;
-      throw error;
+      // Mensagens do servidor podem conter dados da conta ou ecoar credenciais.
+      // Exibe somente mensagens locais, sem registrar ou anexar o corpo à exceção.
+      throw new RecoveryApiError(responseMessage(response.status, data?.codigo, Boolean(token)), response.status, data?.codigo);
     }
-    if (!data) throw new Error('O servidor retornou uma resposta inválida.');
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new RecoveryApiError('O servidor retornou uma resposta inválida.');
     return data;
   } catch (error) {
-    if (controller.signal.aborted) throw new Error('O servidor demorou para responder. Confira o resultado antes de tentar novamente.', { cause: error });
-    if (error instanceof TypeError) throw new Error('Não foi possível conectar ao servidor. Confira sua conexão.', { cause: error });
-    throw error;
+    if (controller.signal.aborted) throw new RecoveryApiError('O servidor demorou para responder. Confira o resultado antes de tentar novamente.');
+    if (error instanceof RecoveryApiError) throw error;
+    throw new RecoveryApiError('Não foi possível conectar ao servidor. Confira sua conexão.');
   } finally { clearTimeout(timeout); }
 }
 
