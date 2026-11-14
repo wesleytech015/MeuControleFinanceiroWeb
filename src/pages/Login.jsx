@@ -23,6 +23,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+  const [mostrarAvisoRecuperacao, setMostrarAvisoRecuperacao] = useState(false);
 
   // CONTROLA SE A TELA ESTÁ CARREGANDO
   const [carregando, setCarregando] = useState(false);
@@ -97,9 +98,12 @@ function Login() {
               <input id="login-password" name="password" type={mostrarSenha ? "text" : "password"} autoComplete="current-password" placeholder="Digite sua senha" value={senha} className={erroLogin ? "input-erro" : ""} aria-invalid={erroLogin} aria-describedby={erro ? "login-error" : undefined} onChange={(e) => { setSenha(e.target.value); setErro(""); setErroLogin(false); }} />
               <button type="button" className="login-password-toggle" aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"} aria-pressed={mostrarSenha} onClick={() => setMostrarSenha(!mostrarSenha)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="3" />{mostrarSenha && <path d="m3 3 18 18" />}</svg></button>
             </div>
+            <button type="button" className="login-recovery-notice-trigger" onClick={() => setMostrarAvisoRecuperacao(true)}>Esqueceu sua senha? <span>Recuperar acesso</span></button>
+            <div role="status" aria-live="polite" aria-atomic="true">
+              {mostrarAvisoRecuperacao && <p className="login-info">A recuperação de senha ainda não está disponível. Estamos trabalhando para disponibilizar essa funcionalidade em breve.</p>}
+            </div>
             <button type="submit" className="login-button" disabled={carregando}>{carregando ? <span className="login-spinner" aria-hidden="true" /> : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h5v18h-5M3 12h12m-5-5 5 5-5 5" /></svg>}{carregando ? "Entrando..." : "Entrar"}</button>
           </form>
-          {!import.meta.env.PROD && <Link to="/recuperar-senha" className="login-recovery-link">Esqueceu sua senha?</Link>}
           <div className="login-divider"><span>Ainda não tem conta?</span></div>
           <Link to="/cadastro" className="login-register"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="7" r="4" /><path d="M16 21H3v-3a7 7 0 0 1 11-5M19 13v8m-4-4h8" /></svg>Criar uma conta</Link>
         </div>
