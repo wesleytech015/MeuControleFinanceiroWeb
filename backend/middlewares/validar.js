@@ -5,6 +5,7 @@ const reject = (res) => res.status(400).json({ erro: 'Confira os campos informad
 const object = (value) => value && typeof value === 'object' && !Array.isArray(value);
 const passwordPolicy = require('../config/cadastroPassword.json');
 const rejectCadastro = (res, codigo, erro) => res.status(400).json({ erro, codigo });
+const { validateSecret } = require('../services/recoverySecret');
 
 exports.login = (req, res, next) => {
   if (!object(req.body) || !email(req.body.email) || !password(req.body.senha)) return reject(res);
@@ -22,7 +23,25 @@ exports.cadastro = (req, res, next) => {
   if (codigo) {
     return rejectCadastro(res, codigo, passwordPolicy.errors[codigo]);
   }
+  // Campo opcional para clientes Mobile antigos; quando presente, é obrigatório e validado.
+  if (Object.hasOwn(req.body, 'palavraChave')) {
+    const erro = validateSecret(req.body.palavraChave, req.body);
+    if (erro) return rejectCadastro(res, 'RECOVERY_SECRET_INVALID', erro);
+  }
   next();
+};
+exports.configurarRecuperacao = (req, res, next) => {
+  if (!object(req.body) || !password(req.body.senhaAtual)) return rejectCadastro(res, 'CURRENT_PASSWORD_REQUIRED', 'Informe sua senha atual.');
+  const erro = validateSecret(req.body.palavraChave, { senha: req.body.senhaAtual, nome: req.usuario?.nome || '', email: req.usuario?.email || '' });
+  if (erro) return rejectCadastro(res, 'RECOVERY_SECRET_INVALID', erro);
+  next();
+};
+exports.redefinirSenha = (req, res, next) => {
+  if (!object(req.body) || !email(req.body.email) || typeof req.body.palavraChave !== 'string'
+    || !req.body.palavraChave || Array.from(req.body.palavraChave).length > 256) return reject(res);
+  if (req.body.novaSenha === req.body.palavraChave) return rejectCadastro(res, 'PASSWORD_EQUALS_RECOVERY', 'Escolha uma senha diferente da palavra-chave de recuperação.');
+  // Reutiliza a política de cadastro sem exigir a frase no novo corpo adaptado.
+  exports.cadastro({ body: { nome: 'Recuperação', email: req.body.email, senha: req.body.novaSenha } }, res, next);
 };
 exports.id = (req, res, next) => {
   if (!/^[1-9]\d*$/.test(req.params.id) || !Number.isSafeInteger(Number(req.params.id))) return reject(res);

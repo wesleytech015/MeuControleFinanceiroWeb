@@ -8,7 +8,7 @@ function Cadastro() {
   const navigate = useNavigate();
   const pending = useRef(false);
   const formRef = useRef(null);
-  const [values, setValues] = useState({ nome: "", email: "", senha: "", confirmacao: "" });
+  const [values, setValues] = useState({ nome: "", email: "", senha: "", confirmacao: "", palavraChave: "", confirmacaoPalavra: "" });
   const [errors, setErrors] = useState({});
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
@@ -16,7 +16,7 @@ function Cadastro() {
 
   function change(field, value) {
     setValues(previous => ({ ...previous, [field]: value }));
-    setErrors(previous => ({ ...previous, [field]: undefined, ...(field === "senha" ? { confirmacao: undefined } : {}) }));
+    setErrors(previous => ({ ...previous, [field]: undefined, ...(field === "senha" ? { confirmacao: undefined } : {}), ...(field === "palavraChave" ? { confirmacaoPalavra: undefined } : {}) }));
     setErro("");
   }
 
@@ -36,7 +36,7 @@ function Cadastro() {
     setCarregando(true);
     try {
       // A confirmação é local; o contrato compartilhado com o Mobile é preservado.
-      await cadastrar(values.nome.trim(), values.email.trim(), values.senha);
+      await cadastrar(values.nome.trim(), values.email.trim(), values.senha, values.palavraChave);
       alert("Conta criada com sucesso!");
       navigate("/");
     } catch (error) {
@@ -54,6 +54,8 @@ function Cadastro() {
     { name: "email", label: "E-mail", type: "email", placeholder: "seu@email.com", autoComplete: "email" },
     { name: "senha", label: "Senha", type: "password", placeholder: "Digite sua senha", autoComplete: "new-password" },
     { name: "confirmacao", label: "Confirmar senha", type: "password", placeholder: "Digite sua senha novamente", autoComplete: "new-password" },
+    { name: "palavraChave", label: "Palavra-chave de recuperação", type: "password", placeholder: "Crie uma frase secreta", autoComplete: "off" },
+    { name: "confirmacaoPalavra", label: "Confirmar palavra-chave", type: "password", placeholder: "Repita a frase secreta", autoComplete: "off" },
   ];
 
   return (
@@ -79,6 +81,7 @@ function Cadastro() {
                 aria-invalid={Boolean(errors[field.name])}
                 aria-describedby={[
                   field.name === "senha" ? "cadastro-senha-hint" : "",
+                  field.name === "palavraChave" ? "cadastro-palavra-hint" : "",
                   errors[field.name] ? `cadastro-${field.name}-error` : "",
                 ].filter(Boolean).join(" ") || undefined}
                 onChange={event => change(field.name, event.target.value)}
@@ -87,8 +90,8 @@ function Cadastro() {
                 <button
                   type="button"
                   className="cadastro-password-toggle"
-                  aria-label={`${visible[field.name] ? "Ocultar" : "Mostrar"} ${field.name === "senha" ? "senha" : "confirmação de senha"}`}
-                  aria-pressed={visible[field.name]}
+                  aria-label={`${visible[field.name] ? "Ocultar" : "Mostrar"} ${{ senha: "senha", confirmacao: "confirmação de senha", palavraChave: "palavra-chave de recuperação", confirmacaoPalavra: "confirmação da palavra-chave" }[field.name]}`}
+                  aria-pressed={Boolean(visible[field.name])}
                   aria-controls={`cadastro-${field.name}`}
                   onClick={() => setVisible(previous => ({ ...previous, [field.name]: !previous[field.name] }))}
                 >
@@ -97,6 +100,7 @@ function Cadastro() {
               )}
               </div>
               {field.name === "senha" && <p id="cadastro-senha-hint" className="cadastro-hint">Mínimo de 6 caracteres e máximo de 72 bytes UTF-8.</p>}
+              {field.name === "palavraChave" && <p id="cadastro-palavra-hint" className="cadastro-hint">Use uma frase única de 12 a 256 caracteres, diferente da senha. Guarde-a em local seguro: ela permite redefinir sua senha e não poderá ser consultada depois.</p>}
               {errors[field.name] && <p id={`cadastro-${field.name}-error`} className="cadastro-field-error" role="alert">{errors[field.name]}</p>}
             </div>
           ))}

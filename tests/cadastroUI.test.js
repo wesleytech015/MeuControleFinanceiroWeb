@@ -14,7 +14,7 @@ test('password toggles are independent, accessible, and never submit the signup 
     previous[key] = Object.getOwnPropertyDescriptor(globalThis, key);
     Object.defineProperty(globalThis, key, { configurable: true, writable: true, value });
   }
-  const server = await createServer({ server: { middlewareMode: true, watch: null }, appType: 'custom' });
+  const server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false, watch: null }, appType: 'custom' });
   const { createRoot } = await import('react-dom/client');
   const root = createRoot(document.getElementById('root'));
   t.after(async () => {
@@ -67,7 +67,7 @@ test('password toggles are independent, accessible, and never submit the signup 
   t.mock.method(globalThis, 'fetch', async (url, options) => {
     requests++;
     assert.ok(url.endsWith('/usuarios'));
-    assert.deepEqual(JSON.parse(options.body), { nome: 'Maria', email: 'maria@example.com', senha: 'mF7!x2' });
+    assert.deepEqual(JSON.parse(options.body), { nome: 'Maria', email: 'maria@example.com', senha: 'mF7!x2', palavraChave: 'Meu caderno azul guarda planetas' });
     return { ok: responseStatus === 201, status: responseStatus,
       json: async () => responseStatus === 201 ? { id: 42, mensagem: 'Sucesso' } : { erro: 'Este e-mail já está cadastrado.', codigo: 'EMAIL_EXISTS' } };
   });
@@ -91,6 +91,21 @@ test('password toggles are independent, accessible, and never submit the signup 
   assert.equal(document.getElementById('cadastro-senha-error').textContent, 'Escolha uma senha mais segura. Evite sequências como 123456.');
   await fill('senha', 'mF7!x2');
   await fill('confirmacao', 'mF7!x2');
+  await submit();
+  assert.equal(requests, 0);
+  assert.ok(document.getElementById('cadastro-palavraChave-error'));
+  const secret = document.getElementById('cadastro-palavraChave');
+  const secretConfirmation = document.getElementById('cadastro-confirmacaoPalavra');
+  assert.equal(secret.type, 'password');
+  assert.equal(secretConfirmation.type, 'password');
+  await act(async () => document.querySelector('[aria-controls="cadastro-palavraChave"]').click());
+  assert.equal(secret.type, 'text');
+  assert.equal(secretConfirmation.type, 'password');
+  assert.equal(password.type, 'password');
+  await act(async () => document.querySelector('[aria-controls="cadastro-confirmacaoPalavra"]').click());
+  assert.equal(secretConfirmation.type, 'text');
+  await fill('palavraChave', 'Meu caderno azul guarda planetas');
+  await fill('confirmacaoPalavra', 'Meu caderno azul guarda planetas');
   await submit();
   assert.equal(requests, 1);
   assert.equal(document.getElementById('cadastro-email-error').textContent, 'Este e-mail já está cadastrado.');

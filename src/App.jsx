@@ -3,6 +3,8 @@ import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import { isCardsFeatureEnabled } from "./config/featureFlags.js";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
+import RecuperarSenha from "./pages/RecuperarSenha";
+import Seguranca from "./pages/Seguranca";
 import Dashboard from "./pages/Dashboard";
 import Receitas from "./pages/Receitas";
 import Despesas from "./pages/Despesas";
@@ -19,6 +21,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
+        <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+        <Route path="/seguranca" element={<Seguranca />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/receitas" element={<Receitas />} />
         <Route path="/despesas" element={<Despesas />} />

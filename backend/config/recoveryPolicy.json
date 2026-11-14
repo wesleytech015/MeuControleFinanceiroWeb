@@ -1,0 +1,10 @@
+{
+  "minLength": 12,
+  "maxLength": 256,
+  "common": ["palavra chave", "palavra-chave", "minha palavra chave", "minha palavra-chave", "frase secreta", "minha frase secreta", "senha de recuperacao", "palavra de recuperacao", "eu amo minha familia", "123456789012", "abcdefghijkl", "qwertyuiopas"],
+  "required": "Informe sua palavra-chave de recuperação.",
+  "short": "Use uma frase secreta com pelo menos 12 caracteres.",
+  "long": "A frase secreta deve ter no máximo 256 caracteres.",
+  "weak": "Escolha uma frase secreta menos óbvia. Evite sequências, repetições e informações pessoais.",
+  "confirmation": "As palavras-chave não coincidem."
+}

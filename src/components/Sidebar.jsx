@@ -4,6 +4,7 @@ import FinanceIcon from "./FinanceIcon";
 export default function Sidebar({ open, onClose }) {
   const links = [["/dashboard", "home", "Dashboard"], ["/receitas", "up", "Receitas"], ["/despesas", "down", "Despesas"], ["/movimentacoes", "list", "Movimentações"], ["/metas", "target", "Metas"], ["/relatorios", "chart", "Relatórios"]];
   if (isCardsFeatureEnabled()) links.push(["/cartoes", "card", "Cartões"]);
+  links.push(["/seguranca", "target", "Segurança da conta"]);
   return <>
     {open && <button className="sidebar-backdrop" onClick={onClose} aria-label="Fechar menu" />}
     <aside id="main-navigation" className={`sidebar${open ? " sidebar-open" : ""}`}>
