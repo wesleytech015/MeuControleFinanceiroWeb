@@ -1,7 +1,8 @@
+import FinanceIcon from "./FinanceIcon";
 // COMPONENTE DA NAVBAR (BARRA SUPERIOR)
 import { clearAuthSession } from "../services/authSession.js";
 
-function Navbar() {
+function Navbar({ menuOpen, onMenuToggle }) {
 
   // RECUPERA DADOS DO USUÁRIO LOGADO
   const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
@@ -26,6 +27,7 @@ function Navbar() {
 
     // CABEÇALHO SUPERIOR
     <header className="navbar">
+      <button className="navbar-menu-toggle" onClick={onMenuToggle} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={menuOpen} aria-controls="main-navigation"><FinanceIcon name="menu" /></button>
 
       {/* ÁREA DO TÍTULO */}
       <div>
@@ -75,7 +77,7 @@ function Navbar() {
           className="btn-sair"
           onClick={sair}
         >
-          Sair
+          <FinanceIcon name="logout" /> Sair
         </button>
 
       </div>
