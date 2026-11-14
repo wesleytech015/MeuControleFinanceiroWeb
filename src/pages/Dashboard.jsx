@@ -1,6 +1,6 @@
 import Layout from "../components/Layout";
 import "../styles/dashboard.css";
-import { useFinanceiro } from "../context/FinanceContext";
+import { useFinanceiro } from "../context/useFinanceiro";
 
 function Dashboard() {
   const { movimentacoes } = useFinanceiro();

@@ -8,7 +8,7 @@ import Layout from "../components/Layout";
 import "../styles/formulario.css";
 
 // IMPORTA O CONTEXTO FINANCEIRO
-import { useFinanceiro } from "../context/FinanceContext";
+import { useFinanceiro } from "../context/useFinanceiro";
 
 // COMPONENTE DA TELA DE RECEITAS
 function Receitas() {

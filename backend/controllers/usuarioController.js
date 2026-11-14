@@ -50,7 +50,7 @@ const usuarioController = {
             const usuarios = await Usuario.listarDoUsuario(req.usuario.id);
             // Preserve the array contract without exposing other accounts or password hashes.
             res.json(usuarios);
-        } catch (err) {
+        } catch {
             console.error('Erro ao listar usuários:');
             res.status(500).json({ erro: 'Erro ao listar usuários' });
         }

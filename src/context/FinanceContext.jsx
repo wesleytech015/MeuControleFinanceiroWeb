@@ -1,11 +1,9 @@
 import {
-  createContext,
-  useContext,
   useEffect,
   useState,
 } from "react";
 
-const FinanceContext = createContext();
+import { FinanceContext } from "./financeContext.js";
 
 export function FinanceProvider({ children }) {
   const [movimentacoes, setMovimentacoes] = useState(() => {
@@ -61,8 +59,4 @@ export function FinanceProvider({ children }) {
       {children}
     </FinanceContext.Provider>
   );
-}
-
-export function useFinanceiro() {
-  return useContext(FinanceContext);
 }

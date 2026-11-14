@@ -1,5 +1,5 @@
 import Layout from "../components/Layout";
-import { useFinanceiro } from "../context/FinanceContext";
+import { useFinanceiro } from "../context/useFinanceiro";
 import "../styles/relatorios.css";
 
 function Relatorios() {

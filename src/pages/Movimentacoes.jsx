@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import Layout from "../components/Layout";
 import "../styles/tabela.css";
-import { useFinanceiro } from "../context/FinanceContext";
+import { useFinanceiro } from "../context/useFinanceiro";
 
 function Movimentacoes() {
   const {

@@ -53,7 +53,7 @@ const loginController = {
           email: usuario.email
         }
       });
-    } catch (err) {
+    } catch {
       console.error('Erro ao fazer login.');
       res.status(500).json({
         erro: 'Erro ao fazer login'

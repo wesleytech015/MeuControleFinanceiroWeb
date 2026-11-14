@@ -44,7 +44,7 @@ const transacaoController = {
         despesas,
         transacoes: resultados
       });
-    } catch (erro) {
+    } catch {
       console.error('Erro ao buscar dados:');
       res.status(500).json({ erro: 'Erro ao buscar dados' });
     }
@@ -77,7 +77,7 @@ const transacaoController = {
         mensagem: 'Transação salva no banco!',
         id: result.rows[0].id
       });
-    } catch (err) {
+    } catch {
       console.error('Erro ao criar transação:');
       res.status(500).json({
         erro: 'Erro ao criar transação'
@@ -119,7 +119,7 @@ const transacaoController = {
       res.json({
         mensagem: 'Transação atualizada com sucesso'
       });
-    } catch (erro) {
+    } catch {
       console.error('Erro ao atualizar transação:');
       res.status(500).json({
         erro: 'Erro ao atualizar transação'
@@ -146,7 +146,7 @@ const transacaoController = {
       res.json({
         mensagem: 'Transação deletada com sucesso'
       });
-    } catch (erro) {
+    } catch {
       console.error('Erro ao deletar transação:');
       res.status(500).json({
         erro: 'Erro ao deletar transação'
