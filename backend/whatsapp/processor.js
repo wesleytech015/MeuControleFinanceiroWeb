@@ -32,9 +32,9 @@ async function processMessage(store, message, { now = new Date(), timeZone = 'Am
     if (!assistant && command.kind !== 'ia desativar') return 'A IA não está habilitada neste ambiente. Os comandos de receita e despesa continuam disponíveis.';
     const enabled = command.kind === 'ia ativar';
     await store.setAiConsent(account.usuario_id, enabled);
-    return enabled ? 'IA ativada. Mensagens livres serão enviadas ao Google Gemini. Não envie dados sensíveis. Use ia desativar para interromper. Toda gravação ainda exige confirmação.' : 'IA desativada. Mensagens livres não serão enviadas ao Gemini.';
+    return enabled ? 'IA ativada. Mensagens livres serão enviadas ao Alibaba Cloud Qwen. Não envie dados sensíveis. Use ia desativar para interromper. Toda gravação ainda exige confirmação.' : 'IA desativada. Mensagens livres não serão enviadas ao Qwen.';
   }
-  if (command.kind === 'ajuda') return HELP + ' IA opcional: ia ativar autoriza enviar mensagens livres ao Google Gemini; ia desativar interrompe.';
+  if (command.kind === 'ajuda') return HELP + ' IA opcional: ia ativar autoriza enviar mensagens livres ao Alibaba Cloud Qwen; ia desativar interrompe.';
   if (command.kind === 'cancelar') {
     await store.clearDraft(account.usuario_id);
     return 'Lançamento pendente cancelado. Nenhuma movimentação foi cadastrada por este comando.';
@@ -52,7 +52,7 @@ async function processMessage(store, message, { now = new Date(), timeZone = 'Am
   }
   if (pending && new Date(pending.expires_at) > now) return 'Já existe um lançamento aguardando confirmação. Confirme com o código recebido ou envie cancelar antes de criar outro.';
   if (command.kind === 'free') {
-    if (!await store.aiConsent(account.usuario_id)) return 'A IA é opcional. ia ativar autoriza enviar mensagens livres ao Google Gemini. Não envie dados sensíveis. Comandos estruturados continuam disponíveis.';
+    if (!await store.aiConsent(account.usuario_id)) return 'A IA é opcional. ia ativar autoriza enviar mensagens livres ao Alibaba Cloud Qwen. Não envie dados sensíveis. Comandos estruturados continuam disponíveis.';
     if (!await store.consumeAiBudget(account.usuario_id)) return 'Limite da IA atingido nesta hora. Use receita, despesa ou resumo; tente a IA mais tarde.';
     try {
       const result = await assistant(message.text, { now, timeZone });

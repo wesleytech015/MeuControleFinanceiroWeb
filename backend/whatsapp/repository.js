@@ -54,17 +54,17 @@ function createRepository(pool) {
             return rows[0];
           },
           async setAiConsent(userId, enabled) {
-            await db.query('UPDATE whatsapp_links SET ai_consent_at=CASE WHEN $2 THEN CURRENT_TIMESTAMP ELSE NULL END WHERE usuario_id=$1', [userId, enabled]);
+            await db.query(`UPDATE whatsapp_links SET ai_consent_at=CASE WHEN $2 THEN CURRENT_TIMESTAMP ELSE NULL END, ai_provider=CASE WHEN $2 THEN 'qwen' ELSE NULL END WHERE usuario_id=$1`, [userId, enabled]);
           },
           async aiConsent(userId) {
-            const { rows } = await db.query('SELECT ai_consent_at FROM whatsapp_links WHERE usuario_id=$1', [userId]);
+            const { rows } = await db.query(`SELECT ai_consent_at FROM whatsapp_links WHERE usuario_id=$1 AND ai_provider='qwen'`, [userId]);
             return !!rows[0]?.ai_consent_at;
           },
           async consumeAiBudget(userId) {
             const result = await db.query(`UPDATE whatsapp_links SET
               ai_requests=CASE WHEN ai_window_started>CURRENT_TIMESTAMP - INTERVAL '1 hour' THEN ai_requests+1 ELSE 1 END,
               ai_window_started=CASE WHEN ai_window_started>CURRENT_TIMESTAMP - INTERVAL '1 hour' THEN ai_window_started ELSE CURRENT_TIMESTAMP END
-              WHERE usuario_id=$1 AND ai_consent_at IS NOT NULL AND
+              WHERE usuario_id=$1 AND ai_consent_at IS NOT NULL AND ai_provider='qwen' AND
               (ai_window_started IS NULL OR ai_window_started<=CURRENT_TIMESTAMP - INTERVAL '1 hour' OR ai_requests<12) RETURNING usuario_id`, [userId]);
             return result.rowCount === 1;
           },

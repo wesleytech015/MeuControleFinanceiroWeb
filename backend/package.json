@@ -11,7 +11,8 @@
     "test:integration": "node tests/live-security.cjs",
     "test:whatsapp": "node tests/whatsapp-live.cjs",
     "check:assistant": "node scripts/check-assistant.cjs",
-    "test:gemini": "node scripts/test-gemini.cjs"
+    "test:gemini": "node scripts/test-gemini.cjs",
+    "test:qwen": "node scripts/test-qwen.cjs"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

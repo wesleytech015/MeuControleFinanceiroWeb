@@ -35,7 +35,7 @@ const { createWhatsAppRouter } = require('./whatsapp/routes');
 const whatsappConfig = configuration();
 app.use('/api/whatsapp', createWhatsAppRouter({
   config: whatsappConfig,
-  assistant: require('./assistant/service').createAssistant(require('./assistant/gemini').createGemini(require('./assistant/gemini').configuration())),
+  assistant: require('./assistant/service').createAssistant(require('./assistant/qwen').createQwen(require('./assistant/qwen').configuration())),
   repository: whatsappConfig ? createRepository(require('./database/conexao')) : null,
   authenticate: require('./middlewares/autenticar'),
 }));
