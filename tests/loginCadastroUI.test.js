@@ -14,7 +14,7 @@ test('login recovery only announces availability; signup navigation and password
     previous[key] = Object.getOwnPropertyDescriptor(globalThis, key);
     Object.defineProperty(globalThis, key, { configurable: true, writable: true, value });
   }
-  const server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false, watch: null }, appType: 'custom' });
+  const server = await createServer({ define: { 'import.meta.env.VITE_RECOVERY_ENABLED': '"false"' }, server: { middlewareMode: true, hmr: false, ws: false, watch: null }, appType: 'custom' });
   const { createRoot } = await import('react-dom/client');
   const root = createRoot(document.getElementById('root'));
   t.after(async () => {

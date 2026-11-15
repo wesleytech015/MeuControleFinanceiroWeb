@@ -9,6 +9,7 @@ import { login } from "../services/api";
 import { notifyAuthChange } from "../services/authSession.js";
 import { loginError } from "../services/loginError.js";
 import { validateLogin } from "../services/loginValidation.js";
+import { isRecoveryFeatureEnabled } from "../config/recoveryFeature.js";
 
 // Importa o CSS da página.
 import "../styles/login.css";
@@ -98,7 +99,10 @@ function Login() {
               <input id="login-password" name="password" type={mostrarSenha ? "text" : "password"} autoComplete="current-password" placeholder="Digite sua senha" value={senha} className={erroLogin ? "input-erro" : ""} aria-invalid={erroLogin} aria-describedby={erro ? "login-error" : undefined} onChange={(e) => { setSenha(e.target.value); setErro(""); setErroLogin(false); }} />
               <button type="button" className="login-password-toggle" aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"} aria-pressed={mostrarSenha} onClick={() => setMostrarSenha(!mostrarSenha)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="3" />{mostrarSenha && <path d="m3 3 18 18" />}</svg></button>
             </div>
-            <button type="button" className="login-recovery-notice-trigger" onClick={() => setMostrarAvisoRecuperacao(true)}>Esqueceu sua senha? <span>Recuperar acesso</span></button>
+            <button type="button" className="login-recovery-notice-trigger" onClick={() => {
+              if (isRecoveryFeatureEnabled()) navigate("/recuperar-senha");
+              else setMostrarAvisoRecuperacao(true);
+            }}>Esqueceu sua senha? <span>Recuperar acesso</span></button>
             <div role="status" aria-live="polite" aria-atomic="true">
               {mostrarAvisoRecuperacao && <p className="login-info">A recuperação de senha ainda não está disponível. Estamos trabalhando para disponibilizar essa funcionalidade em breve.</p>}
             </div>

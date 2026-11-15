@@ -95,17 +95,20 @@ em tabelas financeiras pela recuperação.
 | Variável | Uso |
 |---|---|
 | `JWT_SECRET` | Obrigatório; assinatura JWT e HMAC dos limites |
-| `RECOVERY_ENABLED` | Somente o valor literal `true` permite recuperação fora de produção; padrão desabilitado |
-| `NODE_ENV` | `production` sempre bloqueia a recuperação, mesmo com `RECOVERY_ENABLED=true` |
+| `RECOVERY_ENABLED` | Somente o valor literal `true` permite recuperação, inclusive em produção; padrão desabilitado |
+| `NODE_ENV` | Manter `production` no Render; não é necessário alterá-lo para habilitar a recuperação |
 | `TRUSTED_PROXY_CIDRS` | IPs/CIDRs explícitos separados por vírgula; vazio mantém `trust proxy=false` |
 | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_SSL_CA_PATH` | Configuração existente do PostgreSQL/TLS; não usada pela suíte isolada |
 | `VITE_API_URL` | URL pública HTTPS da API para build Web em produção |
+| `VITE_RECOVERY_ENABLED` | Somente o texto literal `true` permite a interface, inclusive no build de produção; padrão desabilitado |
 | `PG_TEST_BIN` | Opcional, diretório de `initdb` e `pg_ctl` para testes locais |
 
-O backend bloqueia **a rota pública de redefinição** em produção. O build Web de
-produção oculta o link e mostra indisponibilidade na página de recuperação.
-Cadastro com frase e configuração autenticada continuam disponíveis; o bloqueio
-não remove suas dependências de schema.
+O backend bloqueia **a rota pública de redefinição** enquanto `RECOVERY_ENABLED`
+não for `true`, em qualquer ambiente. A interface mostra aviso no Login e
+indisponibilidade na página enquanto `VITE_RECOVERY_ENABLED` não for `true`.
+As duas flags são independentes; um frontend habilitado continua sujeito ao 403
+do backend desabilitado. Cadastro com frase e configuração autenticada continuam
+disponíveis e não dependem da flag pública. Nenhuma variável de serviço foi alterada.
 
 `render.yaml` permanece com `NODE_ENV=production`, sem ativar recuperação e sem
 allowlist de proxy. `server.js` só confia nos IPs/CIDRs explicitamente configurados;
@@ -117,11 +120,13 @@ Com a confiança desabilitada, clientes atrás do mesmo proxy podem compartilhar
 limite do peer. Os testes verificam que headers encaminhados falsificados não
 mudam o IP quando não existe confiança e que a allowlist do Express é específica.
 
-## Migrações preparadas, não executadas
+## Migrações existentes e conferência do schema
 
-Ordem obrigatória: **001 e depois 002, antes de iniciar o backend atualizado**.
+Em banco novo, a ordem é **001 e depois 002, antes de iniciar o backend atualizado**.
 Não existe inicialização automática de schema no servidor. Mesmo com recuperação
 desabilitada, login e rotas autenticadas consultam `autenticacao_versoes`.
+No Supabase configurado, a auditoria somente de leitura de 15/11/2026 confirmou
+as estruturas esperadas de ambas. **Não reaplicar essas migrações nesse banco.**
 
 1. `001_recuperacao_palavra_chave.sql`: cria `recuperacao_seguranca`, chave
    estrangeira para `public.usuarios(id)`, hash, tentativas e bloqueio. Habilita RLS
@@ -133,7 +138,8 @@ desabilitada, login e rotas autenticadas consultam `autenticacao_versoes`.
 Revisão antes de qualquer aplicação futura:
 
 - Confirmar `public.usuarios(id INTEGER)`, unicidade de e-mail, nomes, tipos, FKs,
-  constraints e permissões existentes. O banco remoto não foi inspecionado nesta etapa.
+  constraints e permissões existentes. A auditoria atual não encontrou divergência
+  de tipos nas tabelas da recuperação; a constraint de janela continua `NOT VALID`.
 - A 001 usa `IF NOT EXISTS` para a tabela; isso **não valida** uma tabela preexistente.
   Reaplicá-la também reaplica RLS/revogação. Conferir o catálogo antes de decidir.
 - A 002 é de aplicação única, transacional. Reaplicação encontra objetos existentes
@@ -148,9 +154,12 @@ Revisão antes de qualquer aplicação futura:
   para impedir acesso de roles privilegiadas. Não liberar acesso para roles públicas.
 
 Os arquivos SQL foram revisados estaticamente. **Nenhum arquivo de migração foi
-executado**, nem mesmo na instância descartável dos testes; esta cria fixtures
-independentes. A aplicação real, a compatibilidade do schema remoto e suas
-permissões continuam pendentes de homologação autorizada.
+executado nesta entrega**, nem mesmo na instância descartável dos testes; esta cria
+fixtures independentes. A consulta remota usou `BEGIN READ ONLY`, terminou com
+rollback e retornou apenas metadados e contagens. RLS está habilitada, as roles
+públicas não têm grants nas três tabelas e a role do backend possui `BYPASSRLS`.
+O isolamento depende das consultas parametrizadas e da autorização no backend,
+não exclusivamente de RLS. Homologação completa ainda é necessária.
 
 ## Testes locais
 
@@ -184,15 +193,17 @@ A suíte antiga preserva contratos de cadastro/login e isolamento financeiro.
 
 ## Implantação futura — exige nova autorização
 
-1. Revisar e aprovar SQL, backup, schema real, permissões, registros legados e
-   procedimento de rollback operacional. Não publicar backend antes do schema.
-2. Aplicar 001/002 em homologação somente após autorização específica, testar com
-   role equivalente à real e executar os testes de aceitação Web/Mobile.
+1. Revisar schema, permissões, constraint pendente e procedimento de rollback
+   operacional. O schema remoto já existe; não reaplicar 001/002.
+2. Em homologação com banco isolado e estruturas equivalentes, testar com role
+   equivalente à real e executar os testes de aceitação Web/Mobile.
 3. Verificar proxy do Render e configurar apenas a allowlist comprovada, se necessária.
 4. Após aprovações de migração/publicação, preparar backend e frontend na ordem
-   correta, confirmar branches, API alvo e rewrites. Manter recuperação pública
-   desabilitada em produção; esta entrega não autoriza ativá-la.
+   correta, confirmar branches, API alvo e rewrites. Só depois da homologação e
+   aprovação, configurar `RECOVERY_ENABLED=true` e rebuildar o frontend com
+   `VITE_RECOVERY_ENABLED=true`, mantendo `NODE_ENV=production`.
 5. Avaliar limpeza dos limites e acompanhar erros, bloqueios e sessões sem registrar
    frases, senhas ou tokens. Revalidar rotas autenticadas e dados financeiros.
 
-Nenhum commit, push, merge, deploy ou acesso ao banco de produção faz parte desta etapa.
+Nesta etapa houve apenas auditoria remota somente de leitura. Nenhuma escrita,
+migração, commit, push, merge, deploy ou alteração de variável de serviço foi feita.
