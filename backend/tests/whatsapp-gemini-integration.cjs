@@ -40,6 +40,10 @@ async function main(){
  await webhook('proposal','paguei vinte e cinco reais e noventa no almoço');check('proposta sem gravação antes de confirmar',(await pool.query('SELECT count(*) FROM movimentacoes')).rows[0].count==='0');
  check('uma chamada pelo adaptador Gemini simulado',providerCalls===1);
  const code=/confirmar ([a-f0-9]{12})/.exec(replies.at(-1))[1];
+ await webhook('weekly-before-confirm','quanto eu gastei essa semana?');
+ check('consulta semanal não inclui proposta pendente nem chama Gemini',replies.at(-1).includes('R$ 0,00')&&providerCalls===1);
+ check('consulta semanal preserva o código pendente',(await pool.query('SELECT confirmation_code FROM whatsapp_drafts')).rows[0].confirmation_code===code);
+
  await webhook('proposal','paguei vinte e cinco reais e noventa no almoço');check('reentrega não repete IA',providerCalls===1);
  await webhook('wrong','confirmar 000000000000');check('código errado não grava',(await pool.query('SELECT count(*) FROM movimentacoes')).rows[0].count==='0');
  await webhook('confirm','confirmar '+code);await webhook('confirm','confirmar '+code);
@@ -51,6 +55,17 @@ async function main(){
  check('serviço real do Dashboard Mobile lê o lançamento persistido',dashboard.despesas===25.9);
  const web=await import(require('node:url').pathToFileURL(path.join(root,'src/services/financeData.js')));
  const normalized=web.normalizeTransacoesResponse(result.body);check('normalizador real do Web aceita os mesmos dados',Array.isArray(normalized)&&normalized.length===1);
+ const {currentWeek}=require('../whatsapp/commands');const period=currentWeek();
+ const previous=new Date(period.start+'T00:00:00Z');previous.setUTCDate(previous.getUTCDate()-1);
+ const seedIds=[];
+ for(const [userId,amount,type,date] of [[a.usuario.id,'10.10','despesa',period.start],[a.usuario.id,'90.00','despesa',previous.toISOString().slice(0,10)],[a.usuario.id,'80.00','despesa',period.endExclusive],[a.usuario.id,'100.00','receita',period.through],[b.usuario.id,'999.99','despesa',period.through]]){
+  const seeded=await pool.query('INSERT INTO movimentacoes(usuario_id,descricao,valor,tipo,data) VALUES($1,$2,$3,$4,$5) RETURNING id',[userId,'Teste limite semanal',amount,type,date]);seedIds.push(seeded.rows[0].id);
+ }
+ const beforeWeeklyCalls=providerCalls;
+ await webhook('weekly-boundaries','quanto eu gastei essa semana?');
+ check('SQL real soma somente despesas da conta de segunda até hoje',replies.at(-1).includes('R$ 36,00'));
+ check('consulta real semanal não consome chamada do Gemini',providerCalls===beforeWeeklyCalls);
+ await pool.query('DELETE FROM movimentacoes WHERE id=ANY($1::integer[])',[seedIds]);
  await webhook('rag','O saldo representa dinheiro disponível no banco?');check('RAG recupera fonte e produz resposta pelo adaptador Gemini',replies.at(-1).includes('Fontes: saldo-periodo'));
  await pool.query("UPDATE whatsapp_links SET ai_requests=12, ai_window_started=CURRENT_TIMESTAMP");const atLimit=providerCalls;await webhook('limit','paguei almoço novamente');check('cota persistida no PostgreSQL bloqueia chamada adicional',providerCalls===atLimit&&replies.at(-1).includes('Limite'));
  await webhook('off','ia desativar');const before=providerCalls;await webhook('after-off','paguei mais almoço');check('revogação impede chamada posterior',providerCalls===before);

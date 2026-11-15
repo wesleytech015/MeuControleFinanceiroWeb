@@ -83,6 +83,12 @@ function createRepository(pool, aiProvider = 'gemini') {
             const result = await db.query('INSERT INTO movimentacoes (usuario_id, descricao, valor, tipo, data, categoria, forma_pagamento) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id', [userId, value.descricao, value.valor, value.tipo, value.data, value.categoria, value.forma_pagamento]);
             return result.rows[0].id;
           },
+          async weeklyExpenses(userId, period) {
+            const { rows } = await db.query(`SELECT CAST(COALESCE(SUM(valor),0) AS DECIMAL(30,2)) total
+              FROM movimentacoes WHERE usuario_id=$1 AND tipo='despesa' AND data >= $2::date AND data < $3::date`,
+            [userId, period.start, period.endExclusive]);
+            return rows[0].total;
+          },
           async totals(userId) {
             const { rows } = await db.query(`SELECT CAST(COALESCE(SUM(CASE WHEN tipo='receita' THEN valor ELSE 0 END),0) AS DECIMAL(30,2)) receitas,
               CAST(COALESCE(SUM(CASE WHEN tipo='despesa' THEN valor ELSE 0 END),0) AS DECIMAL(30,2)) despesas,

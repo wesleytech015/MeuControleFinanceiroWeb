@@ -44,6 +44,11 @@ async function processMessage(store, message, { now = new Date(), timeZone = 'Am
     const totals = await store.totals(account.usuario_id);
     return `Todo o período: receitas ${money(totals.receitas)}; despesas ${money(totals.despesas)}; saldo das movimentações ${money(totals.saldo)}. Não representa saldo bancário.`;
   }
+  if (command.kind === 'weekly_expenses') {
+    const total = await store.weeklyExpenses(account.usuario_id, command.period);
+    const displayDate = date => date.split('-').reverse().join('/');
+    return `Você gastou ${money(total)} em despesas cadastradas nesta semana, de ${displayDate(command.period.start)} a ${displayDate(command.period.through)} (segunda-feira até hoje, fuso ${timeZone}). Somente lançamentos confirmados; receitas e datas futuras não entram no total.`;
+  }
   const pending = await store.draft(account.usuario_id);
   if (command.kind === 'confirm') {
     if (!pending || pending.code !== command.code || new Date(pending.expires_at) <= now) return 'Confirmação inválida ou expirada. Envie o lançamento novamente.';
