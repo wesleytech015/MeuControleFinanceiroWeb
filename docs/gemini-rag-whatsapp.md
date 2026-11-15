@@ -1,3 +1,5 @@
+Atualização de 15/11/2026: o provedor ativo voltou a ser Google Gemini. Consulte [a implementação atual](gemini-implementacao-2026-11-15.md). Os registros abaixo descrevem etapas históricas.
+
 # WhatsApp: ambiente de desenvolvimento preparado
 
 ## Onde estamos trabalhando

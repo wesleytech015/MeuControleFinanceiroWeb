@@ -3,7 +3,8 @@ const { HELP, parseCommand, money, draftReply } = require('./commands');
 
 // The repository executes this handler inside the same transaction as the inbox journal.
 // No login token or conversation state is kept in the function instance.
-async function processMessage(store, message, { now = new Date(), timeZone = 'America/Sao_Paulo', assistant = null, confirmationCode = () => randomBytes(6).toString('hex') } = {}) {
+async function processMessage(store, message, { now = new Date(), timeZone = 'America/Sao_Paulo', assistant = null, aiProvider = 'gemini', confirmationCode = () => randomBytes(6).toString('hex') } = {}) {
+  const providerName = aiProvider === 'qwen' ? 'Alibaba Cloud Qwen' : 'Google Gemini';
   const timestamp = Number(message.timestamp) * 1000;
   if (!Number.isFinite(timestamp) || timestamp > now.getTime() + 60000 || timestamp < now.getTime() - 15 * 60000) {
     return 'Esta mensagem é antiga. Envie o comando novamente.';
@@ -32,9 +33,9 @@ async function processMessage(store, message, { now = new Date(), timeZone = 'Am
     if (!assistant && command.kind !== 'ia desativar') return 'A IA não está habilitada neste ambiente. Os comandos de receita e despesa continuam disponíveis.';
     const enabled = command.kind === 'ia ativar';
     await store.setAiConsent(account.usuario_id, enabled);
-    return enabled ? 'IA ativada. Mensagens livres serão enviadas ao Alibaba Cloud Qwen. Não envie dados sensíveis. Use ia desativar para interromper. Toda gravação ainda exige confirmação.' : 'IA desativada. Mensagens livres não serão enviadas ao Qwen.';
+    return enabled ? `IA ativada. Mensagens livres serão enviadas ao ${providerName}. Não envie dados sensíveis. Use ia desativar para interromper. Toda gravação ainda exige confirmação.` : `IA desativada. Mensagens livres não serão enviadas ao ${providerName}.`;
   }
-  if (command.kind === 'ajuda') return HELP + ' IA opcional: ia ativar autoriza enviar mensagens livres ao Alibaba Cloud Qwen; ia desativar interrompe.';
+  if (command.kind === 'ajuda') return HELP + ` IA opcional: ia ativar autoriza enviar mensagens livres ao ${providerName}; ia desativar interrompe.`;
   if (command.kind === 'cancelar') {
     await store.clearDraft(account.usuario_id);
     return 'Lançamento pendente cancelado. Nenhuma movimentação foi cadastrada por este comando.';
@@ -52,7 +53,7 @@ async function processMessage(store, message, { now = new Date(), timeZone = 'Am
   }
   if (pending && new Date(pending.expires_at) > now) return 'Já existe um lançamento aguardando confirmação. Confirme com o código recebido ou envie cancelar antes de criar outro.';
   if (command.kind === 'free') {
-    if (!await store.aiConsent(account.usuario_id)) return 'A IA é opcional. ia ativar autoriza enviar mensagens livres ao Alibaba Cloud Qwen. Não envie dados sensíveis. Comandos estruturados continuam disponíveis.';
+    if (!await store.aiConsent(account.usuario_id)) return `A IA é opcional. ia ativar autoriza enviar mensagens livres ao ${providerName}. Não envie dados sensíveis. Comandos estruturados continuam disponíveis.`;
     if (!await store.consumeAiBudget(account.usuario_id)) return 'Limite da IA atingido nesta hora. Use receita, despesa ou resumo; tente a IA mais tarde.';
     try {
       const result = await assistant(message.text, { now, timeZone });

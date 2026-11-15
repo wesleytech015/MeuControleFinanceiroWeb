@@ -12,6 +12,7 @@
     "test:whatsapp": "node tests/whatsapp-live.cjs",
     "check:assistant": "node scripts/check-assistant.cjs",
     "test:gemini": "node scripts/test-gemini.cjs",
+    "test:gemini:integration": "node tests/whatsapp-gemini-integration.cjs",
     "test:qwen": "node scripts/test-qwen.cjs"
   },
   "dependencies": {

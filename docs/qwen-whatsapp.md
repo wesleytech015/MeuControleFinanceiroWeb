@@ -1,3 +1,5 @@
+Atualização de 15/11/2026: o provedor ativo voltou a ser Google Gemini. Consulte [a implementação atual](gemini-implementacao-2026-11-15.md). Os registros abaixo descrevem etapas históricas.
+
 # Qwen no piloto WhatsApp
 
 Qwen agora é o provedor ativo do adaptador, mas QWEN_ENABLED=false por padrão.

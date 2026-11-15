@@ -171,6 +171,6 @@ test('readiness command never prints configured provider secrets or makes a prov
   });
   assert.equal(result.status, 0);
   assert.doesNotMatch(result.stdout + result.stderr, new RegExp(secret));
-  assert.match(result.stdout, /QWEN_API_KEY=/);
+  assert.match(result.stdout, /GEMINI_API_KEY=/);
   assert.match(result.stdout, /Não houve chamada externa/);
 });
