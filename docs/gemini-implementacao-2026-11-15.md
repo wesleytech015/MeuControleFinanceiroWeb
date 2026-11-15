@@ -37,3 +37,16 @@ Fontes oficiais consultadas em 15/11/2026:
 https://ai.google.dev/gemini-api/docs/billing
 https://aistudio.google.com/docs/get-started
 https://ai.google.dev/gemini-api/docs/structured-output
+## Configuração e chamadas reais — 15/11/2026
+
+Após autorização explícita, criada a chave MeuControleFinanceiro - desenvolvimento no Default Gemini Project. O painel confirmou Nível gratuito. Nenhum cartão foi cadastrado, faturamento não foi habilitado e nenhum serviço pago foi contratado.
+
+Chave salva exclusivamente em .env.assistant.local, ignorado pelo Git; arquivo temporário removido. Gemini habilitado somente no desenvolvimento local, modelo gemini-3.5-flash-lite; Qwen desabilitado. Não houve alteração no Render nem publicação da branch.
+
+O teste inicial com gemini-2.5-flash-lite retornou 404: a API informou que esse modelo não está disponível para novos usuários e indicou gemini-3.5-flash-lite. O painel confirmou cota gratuita do modelo selecionado (15 RPM, 250 mil TPM, 500 RPD no momento da consulta; valores podem mudar).
+
+Testes reais aprovados:
+- npm run test:gemini --prefix backend: pergunta sobre saldo respondida pelo Google Gemini com fonte RAG validada. Sem telefone, dados de usuário ou banco.
+- Proposta financeira com Gemini real: mensagem fictícia de almoço de R$ 25,90 interpretada como despesa; nenhuma escrita antes do código de confirmação. Persistência e conta simuladas; sem banco e sem mensagem Meta.
+
+Limites: a integração WhatsApp real ainda depende da configuração Meta, webhook HTTPS e banco de demonstração. Os testes Google reais não comprovam esses serviços nem funcionamento no aparelho. A chave não foi enviada ao Render, ao aplicativo ou ao repositório.
