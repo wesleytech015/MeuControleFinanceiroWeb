@@ -22,7 +22,7 @@ function available() {
   return spawnSync(binary('initdb'), ['--version'], { windowsHide: true }).status === 0;
 }
 function run(name, args) {
-  const result = spawnSync(binary(name), args, { encoding: 'utf8', windowsHide: true, timeout: 30000 });
+  const result = spawnSync(binary(name), args, { encoding: 'utf8', windowsHide: true, timeout: name === 'initdb' ? 60000 : 30000 });
   if (result.status !== 0) throw new Error(`${name}: ${result.error?.message || result.stderr || result.stdout}`);
 }
 async function start() {
@@ -45,7 +45,8 @@ async function start() {
     }
   };
   try {
-    run('initdb', ['-D', data, '-U', 'recovery_test', '--pwfile', passwordFile, '--auth=scram-sha-256', '--encoding=UTF8', '--no-locale']);
+    // Cluster descartável: evita fsync da inicialização, sem alterar o PostgreSQL real.
+    run('initdb', ['-D', data, '-U', 'recovery_test', '--pwfile', passwordFile, '--auth=scram-sha-256', '--encoding=UTF8', '--no-locale', '--no-sync']);
     fs.appendFileSync(path.join(data, 'postgresql.conf'), `\nlisten_addresses = '127.0.0.1'\nport = ${port}\n`);
     run('pg_ctl', ['-D', data, '-l', path.join(directory, 'server.log'), '-w', 'start']);
     started = true;

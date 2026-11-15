@@ -33,6 +33,10 @@
 .login-password-field { position:relative; }.login-password-field input { margin:0; padding-right:60px; }
 .login-password-toggle { position:absolute; right:10px; top:3px; width:44px; height:44px; display:grid; place-items:center; color:#59616e; border-radius:10px; background:transparent; }
 .login-password-toggle:hover { background:#f0f4fa; }
+.login-card .login-recovery-notice-trigger { display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:4px; align-self:flex-end; max-width:100%; min-height:44px; padding:6px 0 6px 12px; background:transparent; color:#63718a; font:inherit; font-size:14px; text-align:right; }
+.login-recovery-notice-trigger span { color:#2563eb; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+.login-card .login-recovery-notice-trigger:hover span { color:#1d4ed8; }
+.login-card .login-info { margin:8px 0 0; padding:12px; border:1px solid #bfdbfe; border-radius:10px; background:#eff6ff; color:#1e40af; font-size:14px; line-height:1.5; }
 .login-button,.login-register { display:flex; align-items:center; justify-content:center; gap:16px; min-height:52px; border-radius:12px; font-size:17px; font-weight:700; text-decoration:none; }
 .login-button { background:#2563eb; color:#fff; margin-top:26px; transition:background .2s; }.login-button:hover { background:#1d4ed8; }.login-button:disabled { opacity:.7; cursor:wait; }
 .login-button svg,.login-register svg { width:28px; height:28px; }
