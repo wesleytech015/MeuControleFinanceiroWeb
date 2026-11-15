@@ -3,6 +3,8 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { fork } = require('node:child_process');
+const path = require('node:path');
 const { available, start } = require('./helpers/isolatedPostgres.cjs');
 const { validateSecret, hashSecret, compareSecret } = require('../services/recoverySecret');
 const { recoveryWindow, failedAttempt, WINDOW_MS } = require('../services/recoveryWindow');
@@ -243,12 +245,77 @@ test('PostgreSQL isolated recovery integration', { skip: available() ? false : '
     assert.equal(denied.status, 429); assert.ok(Number(denied.retry) > 0);
     assert.equal((await row()).palavra_hash, secretHash);
   });
-  await t.test('production is always disabled and test recovery requires explicit opt-in', async () => {
+  await t.test('separate backend processes share persistent IP quota in the same isolated PostgreSQL', async () => {
+    await reset();
+    const config = pool.options;
+    const systemEnv = Object.fromEntries(['PATH', 'SystemRoot', 'TEMP', 'TMP', 'ComSpec'].filter(key => process.env[key] !== undefined).map(key => [key, process.env[key]]));
+    const child = fork(path.join(__dirname, 'helpers/recoveryServer.cjs'), [], {
+      env: { ...systemEnv, NODE_ENV: 'production', RECOVERY_ENABLED: 'true', TRUSTED_PROXY_CIDRS: '', JWT_SECRET: process.env.JWT_SECRET,
+        MCF_TEST_PG: JSON.stringify({ host: config.host, port: config.port, user: config.user, password: config.password, database: config.database, ssl: false, max: 6 }) },
+      stdio: ['ignore', 'ignore', 'ignore', 'ipc'], windowsHide: true,
+    });
+    try {
+      const port = await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Isolated backend startup timeout')), 15000);
+        child.once('message', message => { clearTimeout(timer); resolve(message.port); });
+        child.once('error', () => { clearTimeout(timer); reject(new Error('Isolated backend startup failed')); });
+        child.once('exit', () => { clearTimeout(timer); reject(new Error('Isolated backend exited before readiness')); });
+      });
+      const urls = [base + '/recuperacao-senha', `http://127.0.0.1:${port}/api/recuperacao-senha`];
+      const statuses = await Promise.all(Array.from({ length: 12 }, async (_, i) => {
+        const result = await fetch(urls[i % 2], { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: `absent${i}@example.invalid`, palavraChave: 'wrong', novaSenha: newPassword }) });
+        await result.arrayBuffer();
+        return result.status;
+      }));
+      assert.equal(statuses.filter(status => status === 400).length, 10);
+      assert.equal(statuses.filter(status => status === 429).length, 2);
+      const limits = (await pool.query("SELECT tentativas FROM seguranca_limites WHERE escopo='recuperacao-ip'")).rows;
+      assert.equal(limits.length, 1); assert.equal(limits[0].tentativas, 12);
+    } finally {
+      if (child.exitCode === null && child.connected) {
+        await new Promise(resolve => {
+          const timer = setTimeout(() => { child.kill(); }, 5000);
+          child.once('exit', () => { clearTimeout(timer); resolve(); });
+          child.send('stop');
+        });
+      } else if (child.exitCode === null) child.kill();
+    }
+  });
+  await t.test('production defaults to disabled without reading or changing account security state', async () => {
     await reset(); process.env.NODE_ENV = 'production';
-    try { assert.equal((await recover()).status, 403); await checkOldPassword(); }
-    finally { process.env.NODE_ENV = 'test'; }
-    process.env.RECOVERY_ENABLED = 'false';
-    try { assert.equal((await recover()).status, 403); }
-    finally { process.env.RECOVERY_ENABLED = 'true'; }
+    try {
+      const before = await row();
+      for (const flag of [undefined, '', 'false', 'TRUE', '1', ' true ']) {
+        if (flag === undefined) delete process.env.RECOVERY_ENABLED; else process.env.RECOVERY_ENABLED = flag;
+        const denied = await recover();
+        assert.equal(denied.status, 403);
+        assert.equal(denied.body.codigo, 'RECOVERY_DISABLED');
+      }
+      await checkOldPassword();
+      assert.deepEqual(await row(), before);
+      assert.equal((await pool.query('SELECT * FROM seguranca_limites')).rowCount, 0);
+      assert.equal((await pool.query('SELECT * FROM autenticacao_versoes')).rowCount, 0);
+    } finally { process.env.NODE_ENV = 'test'; process.env.RECOVERY_ENABLED = 'true'; }
+  });
+  await t.test('production explicit opt-in preserves validation, generic responses, locking and session revocation', async () => {
+    await reset(); process.env.NODE_ENV = 'production'; process.env.RECOVERY_ENABLED = 'true';
+    try {
+      assert.equal((await request('/recuperacao-senha', { email: 'alice@example.invalid' })).status, 400);
+      const absent = await recover('wrong', 'absent@example.invalid');
+      const wrong = await recover('wrong');
+      assert.equal(wrong.status, 400); assert.deepEqual(wrong, absent);
+      assert.equal((await row()).tentativas, 1);
+      assert.equal((await recover()).status, 200);
+      assert.equal((await session(oldToken)).status, 401);
+      assert.equal((await session(bobToken)).status, 200);
+      const login = await request('/login', { email: 'alice@example.invalid', senha: newPassword });
+      assert.equal(login.status, 200);
+      assert.equal(jwt.verify(login.body.token, process.env.JWT_SECRET).sv, 1);
+      assert.equal((await pool.query("SELECT tentativas FROM seguranca_limites WHERE escopo='recuperacao-ip'")).rows[0].tentativas, 4);
+      // A flag é reavaliada em cada requisição, sem rota alternativa de bypass.
+      process.env.RECOVERY_ENABLED = 'false';
+      assert.equal((await recover()).status, 403);
+    } finally { process.env.NODE_ENV = 'test'; process.env.RECOVERY_ENABLED = 'true'; }
   });
 });

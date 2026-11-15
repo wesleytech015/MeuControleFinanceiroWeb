@@ -64,10 +64,9 @@ test('recovery timeout is isolated and completes after fifteen seconds', async t
   t.mock.timers.tick(1); await pending;
 });
 
-test('recovery requires explicit opt-in and production cannot be enabled by the flag', () => {
-  for (const flag of [undefined, '', false, true, 'false', 'TRUE', '1']) assert.equal(isRecoveryFeatureEnabled(flag, false), false);
-  assert.equal(isRecoveryFeatureEnabled('true', false), true);
-  for (const flag of [undefined, 'false', 'true']) assert.equal(isRecoveryFeatureEnabled(flag, true), false);
+test('recovery requires the literal true opt-in, including in production builds', () => {
+  for (const flag of [undefined, '', false, true, 'false', 'TRUE', '1', ' true ']) assert.equal(isRecoveryFeatureEnabled(flag), false);
+  assert.equal(isRecoveryFeatureEnabled('true'), true);
 });
 
 test('reset validation requires confirmation and retains byte limits without normalizing the secret', () => {

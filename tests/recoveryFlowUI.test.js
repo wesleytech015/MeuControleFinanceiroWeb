@@ -27,7 +27,7 @@ test('recovery frontend integration with simulated API', async t => {
   });
   async function modules(enabled, production) {
     const server = await createServer({
-      define: { 'import.meta.env.VITE_RECOVERY_ENABLED': JSON.stringify(enabled), 'import.meta.env.PROD': JSON.stringify(production),
+      define: { 'import.meta.env.VITE_RECOVERY_ENABLED': JSON.stringify(enabled) ?? 'undefined', 'import.meta.env.PROD': JSON.stringify(production),
         'import.meta.env.VITE_API_URL': JSON.stringify('https://api.example.invalid/api') },
       server: { middlewareMode: true, hmr: false, ws: false, watch: null }, appType: 'custom',
     });
@@ -179,7 +179,31 @@ test('recovery frontend integration with simulated API', async t => {
     await act(async () => document.querySelector('a[href="/"]').click());
     assert.equal(calls.length, 1);
   });
-  for (const [label, flag, production] of [['opt-out', 'false', false], ['production despite opt-in', 'true', true]]) {
+  await t.test('production opt-in allows navigation and reset while backend opt-out still blocks the form', async () => {
+    reset();
+    const production = await modules('true', true);
+    await render('/', production);
+    const trigger = document.querySelector('.login-recovery-notice-trigger');
+    assert.ok(trigger.closest('form'));
+    await act(async () => trigger.click());
+    assert.equal(document.getElementById('route').textContent, '/recuperar-senha');
+    assert.equal(calls.length, 0);
+    await fill(valid);
+    respond = async () => response(200, { mensagem: 'Senha redefinida.' });
+    await submit();
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, 'https://api.example.invalid/api/recuperacao-senha');
+    assert.deepEqual(JSON.parse(calls[0].options.body), { email: valid.email, palavraChave: phrase, novaSenha: valid.novaSenha });
+    assert.equal(document.getElementById('route').textContent, '/');
+    await render('/recuperar-senha', production); await fill(valid);
+    respond = async () => response(403, { codigo: 'RECOVERY_DISABLED', erro: phrase });
+    await submit();
+    assert.equal(calls.length, 2);
+    assert.equal(document.querySelector('form'), null);
+    assert.ok(document.body.textContent.includes('Recuperação indisponível'));
+    assert.equal(document.body.textContent.includes(phrase), false);
+  });
+  for (const [label, flag, production] of [['opt-out', 'false', false], ['production without flag', undefined, true], ['production opt-out', 'false', true]]) {
     await t.test(`${label} blocks direct page, standalone form and Login navigation`, async () => {
       reset();
       const disabled = await modules(flag, production);

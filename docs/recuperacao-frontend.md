@@ -1,14 +1,15 @@
 # Frontend de recuperação por palavra-chave
 
 O Login, `/recuperar-senha` e `RecoveryForm` usam o mesmo controle:
-`VITE_RECOVERY_ENABLED` deve ser o texto `true` e `import.meta.env.PROD` deve ser
-falso. Sem habilitação explícita, o Login mostra somente um aviso e o acesso
-direto à página não monta o formulário. Um build de produção continua bloqueado
-mesmo que a variável receba `true`. Nenhuma variável real foi alterada nesta entrega.
+`VITE_RECOVERY_ENABLED` deve ser o texto literal `true`, inclusive em produção.
+Sem habilitação explícita, o Login mostra somente um aviso e o acesso direto à
+página não monta o formulário. A flag é pública e incorporada no build, exige
+rebuild para mudar e não constitui autorização de acesso ao backend.
+Nenhuma variável real de serviço foi alterada nesta entrega.
 
-Para validação futura em desenvolvimento/homologação isolada, configure a variável
-Vite apenas nesse ambiente e reinicie o servidor Vite. O backend também precisa
-de `RECOVERY_ENABLED=true`, com `NODE_ENV` diferente de `production`. A variável
+Para validar em desenvolvimento/homologação isolada, configure a variável Vite
+nesse ambiente e reinicie o servidor Vite. O backend também precisa
+de `RECOVERY_ENABLED=true`; mantenha `NODE_ENV=production` ao testar o modo de produção. A variável
 Vite não informa o estado do backend; se ele responder 403, a tela limpa as
 credenciais e passa a mostrar indisponibilidade, sem permitir novo envio.
 Não alterar `NODE_ENV` de um serviço de produção para contornar a proteção.
@@ -39,16 +40,19 @@ autenticada não é habilitada/desabilitada pela flag da recuperação pública.
 
 `npm test` testa contrato do corpo, confirmação, política de senha, segredo
 incorreto, conta inexistente, erros de rede/servidor, timeout, duplicação de envio,
-limpeza de sessão, navegação e bloqueio da página/formulário em produção ou com
-flag ausente. As APIs são simuladas; nenhum pedido atinge o Render ou Supabase.
+limpeza de sessão, navegação, bloqueio com flag ausente/falsa e habilitação
+explícita em produção. As APIs são simuladas; nenhum pedido atinge o Render ou Supabase.
 
 O build pode usar `VITE_API_URL=https://meucontrolefinanceiroweb.onrender.com/api`.
-Mesmo com `VITE_RECOVERY_ENABLED=true`, o build de produção deve permanecer bloqueado.
+O build de produção permanece bloqueado por padrão e permite a interface somente
+com `VITE_RECOVERY_ENABLED=true`. Essa flag não deve conter segredos. A liberação
+real de Render/Vercel continua pendente de aprovação; ver `recuperacao-producao.md`.
 
 ## Dependências da validação do backend
 
-- Confirmar schema e aplicação de 001/002, permissões/RLS e estados legados, somente
-  com autorização. Nenhuma migração foi executada nem o banco remoto consultado.
+- A auditoria somente de leitura de 15/11/2026 confirmou schema, permissões e
+  ausência de registros de recuperação no Supabase configurado. A constraint de
+  janela permanece `NOT VALID`. Não reaplicar 001/002; nenhuma migração foi executada.
 - Validar em homologação isolada os bloqueios persistentes, limite por IP/conta,
   configuração correta do proxy, respostas genéricas, concorrência e rollback.
 - Confirmar que a senha antiga e JWTs anteriores são rejeitados, nova senha funciona
@@ -56,5 +60,6 @@ Mesmo com `VITE_RECOVERY_ENABLED=true`, o build de produção deve permanecer bl
   previamente cadastrada para usar esse fluxo.
 - Verificar a compatibilidade Web/Mobile com a versão publicada e o comportamento
   diante de 403, 429 e 503. Os testes frontend não demonstram implantação correta.
-- Habilitação em produção exige aprovação e mudança futura das barreiras de
-  frontend e backend; esta entrega não libera o recurso nem publica alterações.
+- As barreiras agora aceitam opt-in em produção. A liberação operacional exige
+  aprovação e configuração explícita das duas flags; esta entrega não altera
+  serviços nem publica alterações.
