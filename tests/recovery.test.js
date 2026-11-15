@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { validateRecoverySecret, validateRecoveryFields } from '../src/services/recoveryValidation.js';
 import { configurarPalavraChave, redefinirPorPalavraChave } from '../src/services/recoveryApi.js';
+import { isRecoveryFeatureEnabled } from '../src/config/recoveryFeature.js';
+import { validateRecoveryReset } from '../src/services/recoveryResetValidation.js';
 const require = createRequire(import.meta.url);
 const { validateSecret } = require('../backend/services/recoverySecret.js');
 
@@ -60,4 +62,38 @@ test('recovery timeout is isolated and completes after fifteen seconds', async t
   const pending = assert.rejects(redefinirPorPalavraChave('a@b.com', 'phrase', 'nF8!k3'), /demorou/);
   t.mock.timers.tick(14_999); assert.equal(signal.aborted, false);
   t.mock.timers.tick(1); await pending;
+});
+
+test('recovery requires the literal true opt-in, including in production builds', () => {
+  for (const flag of [undefined, '', false, true, 'false', 'TRUE', '1', ' true ']) assert.equal(isRecoveryFeatureEnabled(flag), false);
+  assert.equal(isRecoveryFeatureEnabled('true'), true);
+});
+
+test('reset validation requires confirmation and retains byte limits without normalizing the secret', () => {
+  const values = { email: 'user@example.invalid', palavraChave: '  Meu caderno azul guarda planetas  ', novaSenha: 'mF7!x2', confirmacao: 'mF7!x2' };
+  assert.deepEqual(validateRecoveryReset(values), {});
+  assert.ok(validateRecoveryReset({ ...values, confirmacao: '' }).confirmacao);
+  assert.ok(validateRecoveryReset({ ...values, confirmacao: 'other' }).confirmacao);
+  assert.ok(validateRecoveryReset({ ...values, novaSenha: 'á'.repeat(37) }).novaSenha);
+  assert.ok(validateRecoveryReset({ ...values, palavraChave: '🌌'.repeat(257) }).palavraChave);
+  assert.ok(validateRecoveryReset({ ...values, novaSenha: values.palavraChave }).novaSenha);
+});
+
+test('API errors never echo account existence, credentials or unexpected exception messages', async t => {
+  const secret = 'SECRET_CANARY_NOT_FOR_DISPLAY';
+  const messages = [];
+  for (const [status, code] of [[400, 'RECOVERY_INVALID'], [404, 'EMAIL_NOT_FOUND'], [401, 'SECRET_WRONG']]) {
+    t.mock.method(globalThis, 'fetch', async () => ({ ok: false, status, json: async () => ({ erro: `Conta inexistente: ${secret}`, codigo: code }) }));
+    await assert.rejects(redefinirPorPalavraChave('a@b.com', secret, 'nF8!k3'), error => {
+      messages.push(error.message);
+      assert.equal(error.message.includes(secret), false);
+      assert.equal(error.cause, undefined);
+      assert.equal(JSON.stringify(error).includes(secret), false);
+      if (code !== 'RECOVERY_INVALID') assert.equal(error.code, undefined);
+      return true;
+    });
+  }
+  assert.equal(new Set(messages).size, 1);
+  t.mock.method(globalThis, 'fetch', async () => { throw new Error(secret); });
+  await assert.rejects(redefinirPorPalavraChave('a@b.com', secret, 'nF8!k3'), error => !error.message.includes(secret) && error.cause === undefined);
 });
