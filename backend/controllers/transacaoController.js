@@ -6,37 +6,38 @@ se a descrição foi preenchida, e depois mandar o Model salvar no banco. Ele ta
 total (somando receitas e subtraindo despesas) antes de enviar para a tela de Dashboard.
 */
 const Transacao = require('../models/transacao');
-
+const { validateTransaction } = require('../validation/transacao');
+ 
 const transacaoController = {
-
+ 
   // ============================================
   // LISTAR TODAS AS TRANSAÇÕES DO USUÁRIO
   // ============================================
   listar: async (req, res) => {
     try {
       const usuario_id = req.usuario.id;
-
+ 
       const resultados = await Transacao.listarTodas(usuario_id);
-
+ 
       // CALCULA SALDO TOTAL
       const saldo = resultados.reduce((acumulador, transacao) => {
         const valor = Number(transacao.valor);
-
+ 
         return transacao.tipo === 'receita'
           ? acumulador + valor
           : acumulador - valor;
       }, 0);
-
+ 
       // SOMA APENAS RECEITAS
       const receitas = resultados
         .filter((transacao) => transacao.tipo === 'receita')
         .reduce((total, transacao) => total + Number(transacao.valor), 0);
-
+ 
       // SOMA APENAS DESPESAS
       const despesas = resultados
         .filter((transacao) => transacao.tipo === 'despesa')
         .reduce((total, transacao) => total + Number(transacao.valor), 0);
-
+ 
       res.json({
         saldo,
         receitas,
@@ -48,48 +49,30 @@ const transacaoController = {
       res.status(500).json({ erro: 'Erro ao buscar dados' });
     }
   },
-
+ 
   // ============================================
   // CRIAR NOVA TRANSAÇÃO
   // ============================================
   criar: async (req, res) => {
     try {
       const usuario_id = req.usuario.id;
-
-      // CORRIGIDO: agora inclui categoria e forma_pagamento
-      const { descricao, valor, tipo, data, categoria, forma_pagamento } = req.body;
-
-      // VALIDA CAMPOS OBRIGATÓRIOS
-      if (!descricao) {
-        return res.status(400).json({ erro: 'O campo descricao é obrigatorio' });
-      }
-
-      if (valor == null || isNaN(Number(valor)) || Number(valor) <= 0) {
-        return res.status(400).json({ erro: 'O campo valor é obrigatorio e deve ser maior que zero' });
-      }
-
-      if (!tipo) {
-        return res.status(400).json({ erro: 'O campo tipo é obrigatorio' });
-      }
-
-      // VALIDA SE TIPO É RECEITA OU DESPESA (MINÚSCULO)
-      if (tipo !== 'receita' && tipo !== 'despesa') {
-        return res.status(400).json({
-          erro: 'Tipo deve ser receita ou despesa (letras minusculas)'
-        });
-      }
+ 
+      let dados;
+      try { dados = validateTransaction(req.body); }
+      catch (error) { return res.status(400).json({ erro: error.message }); }
+      const { descricao, valor, tipo, data, categoria, forma_pagamento } = dados;
 
       const result = await Transacao.criar({
         usuario_id,
         descricao,
-        valor: Number(valor),
+        valor,
         tipo,
-        data: data || new Date().toISOString().split('T')[0],
+        data,
         // CORRIGIDO: passa categoria e forma_pagamento para o model
         categoria: categoria || null,
         forma_pagamento: forma_pagamento || null
       });
-
+ 
       res.status(201).json({
         mensagem: 'Transação salva no banco!',
         id: result.rows[0].id
@@ -101,7 +84,7 @@ const transacaoController = {
       });
     }
   },
-
+ 
   // ============================================
   // ATUALIZAR TRANSAÇÃO EXISTENTE (NOVO)
   // ============================================
@@ -112,44 +95,27 @@ const transacaoController = {
     try {
       const usuario_id = req.usuario.id;
       const { id } = req.params;
-      const { descricao, valor, tipo, data, categoria, forma_pagamento } = req.body;
-
-      // VALIDA CAMPOS OBRIGATÓRIOS
-      if (!descricao) {
-        return res.status(400).json({ erro: 'O campo descricao é obrigatorio' });
-      }
-
-      if (valor == null || isNaN(Number(valor)) || Number(valor) <= 0) {
-        return res.status(400).json({ erro: 'O campo valor é obrigatorio e deve ser maior que zero' });
-      }
-
-      if (!tipo) {
-        return res.status(400).json({ erro: 'O campo tipo é obrigatorio' });
-      }
-
-      // VALIDA SE TIPO É RECEITA OU DESPESA (MINÚSCULO)
-      if (tipo !== 'receita' && tipo !== 'despesa') {
-        return res.status(400).json({
-          erro: 'Tipo deve ser receita ou despesa (letras minusculas)'
-        });
-      }
+      let dados;
+      try { dados = validateTransaction(req.body); }
+      catch (error) { return res.status(400).json({ erro: error.message }); }
+      const { descricao, valor, tipo, data, categoria, forma_pagamento } = dados;
 
       const result = await Transacao.atualizar(id, usuario_id, {
         descricao,
-        valor: Number(valor),
+        valor,
         tipo,
-        data: data || new Date().toISOString().split('T')[0],
+        data,
         categoria: categoria || null,
         forma_pagamento: forma_pagamento || null
       });
-
+ 
       // SE NENHUMA LINHA FOI AFETADA, A TRANSAÇÃO NÃO EXISTE OU NÃO PERTENCE AO USUÁRIO
       if (result.rowCount === 0) {
         return res.status(404).json({
           erro: 'Transação não encontrada ou sem permissão para editar'
         });
       }
-
+ 
       res.json({
         mensagem: 'Transação atualizada com sucesso'
       });
@@ -160,7 +126,7 @@ const transacaoController = {
       });
     }
   },
-
+ 
   // ============================================
   // DELETAR TRANSAÇÃO
   // ============================================
@@ -168,7 +134,7 @@ const transacaoController = {
     try {
       const usuario_id = req.usuario.id;
       const { id } = req.params;
-
+ 
       const result = await Transacao.deletar(id, usuario_id);
 
       if (result.rowCount === 0) {
@@ -176,7 +142,7 @@ const transacaoController = {
           erro: 'Transação não encontrada'
         });
       }
-
+ 
       res.json({
         mensagem: 'Transação deletada com sucesso'
       });
@@ -188,5 +154,5 @@ const transacaoController = {
     }
   }
 };
-
+ 
 module.exports = transacaoController;
