@@ -4,10 +4,13 @@ const { configuration } = require('../whatsapp/transport');
 const { configuration: geminiConfiguration } = require('../assistant/gemini');
 const required = {
   usuarios: ['id'], movimentacoes: ['id', 'usuario_id', 'descricao', 'valor', 'tipo', 'data', 'categoria', 'forma_pagamento'],
+  autenticacao_versoes: ['usuario_id', 'versao'],
+  seguranca_limites: ['escopo', 'chave_hash', 'tentativas', 'expira_em'],
   whatsapp_links: ['usuario_id', 'phone', 'pending_phone', 'code_hash', 'code_expires', 'ai_consent_at', 'ai_window_started', 'ai_requests', 'ai_provider', 'conversation', 'conversation_updated_at'],
   whatsapp_drafts: ['usuario_id', 'payload', 'confirmation_code', 'expires_at'],
   whatsapp_inbox: ['message_id', 'phone', 'reply', 'received_at', 'sent_at', 'sending_until'],
 };
+if (process.env.RECOVERY_ENABLED === 'true') required.recuperacao_seguranca = ['usuario_id', 'palavra_hash', 'tentativas', 'bloqueado_ate', 'inicio_janela', 'atualizado_em'];
 async function main() {
   const args = process.argv.slice(2);
   if (args.some(arg => !['--database'].includes(arg))) throw Error('Use check:whatsapp ou check:whatsapp -- --database.');
