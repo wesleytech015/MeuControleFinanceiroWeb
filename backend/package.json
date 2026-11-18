@@ -11,6 +11,7 @@
     "test:integration": "node tests/live-security.cjs",
     "test:whatsapp": "node tests/whatsapp-live.cjs",
     "check:assistant": "node scripts/check-assistant.cjs",
+    "check:whatsapp": "node scripts/check-whatsapp.cjs",
     "test:gemini": "node scripts/test-gemini.cjs",
     "test:gemini:integration": "node tests/whatsapp-gemini-integration.cjs",
     "test:qwen": "node scripts/test-qwen.cjs"

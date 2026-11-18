@@ -13,7 +13,7 @@ async function main(){
  Object.assign(process.env,{NODE_ENV:'development',JWT_SECRET:randomBytes(32).toString('hex'),DB_HOST:'127.0.0.1',DB_PORT:port,DB_NAME:'postgres',DB_USER:'postgres',DB_PASSWORD:password,DB_SSL:'false',GEMINI_ENABLED:'false',QWEN_ENABLED:'false',WHATSAPP_ENABLED:'false',RECOVERY_ENABLED:'false'});
  pool=require('../database/conexao');
  for(let i=0;i<50;i++){try{await pool.query('SELECT 1');break;}catch{if(i===49)throw Error('PostgreSQL unavailable');await new Promise(r=>setTimeout(r,200));}}
- for(const file of ['schema.postgresql.sql','migrations/001_recuperacao_palavra_chave.sql','migrations/002_recuperacao_seguranca.sql','migrations/20261109_whatsapp.postgresql.sql','migrations/20261114_whatsapp_ia.postgresql.sql'])await pool.query(fs.readFileSync(path.join(backend,'database',file),'utf8'));
+ for(const file of ['schema.postgresql.sql','migrations/001_recuperacao_palavra_chave.sql','migrations/002_recuperacao_seguranca.sql','migrations/20261109_whatsapp.postgresql.sql','migrations/20261114_whatsapp_ia.postgresql.sql','migrations/20261118_whatsapp_context.postgresql.sql'])await pool.query(fs.readFileSync(path.join(backend,'database',file),'utf8'));
  check('schema e quatro migrações aplicados somente no container descartável',true);
  const express=require('express');const app=express();app.use(express.json({verify(req,_res,raw){req.rawBody=raw;}}));
  app.use('/api',require('../routes/loginRoutes'));app.use('/api/usuarios',require('../routes/usuariosRoutes'));app.use('/api/transacoes',require('../routes/transacoesRoutes'));

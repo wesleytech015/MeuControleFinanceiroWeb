@@ -9,7 +9,7 @@ async function main(){
  Object.assign(process.env,{NODE_ENV:'development',JWT_SECRET:randomBytes(32).toString('hex'),GEMINI_ENABLED:'false',QWEN_ENABLED:'false',WHATSAPP_ENABLED:'false',RECOVERY_ENABLED:'false'});
  instance=await require('./helpers/isolatedPostgres.cjs').start();pool=instance.pool;
  const databasePath=require.resolve('../database/conexao');require.cache[databasePath]={id:databasePath,filename:databasePath,loaded:true,exports:pool};
- for(const file of ['schema.postgresql.sql','migrations/001_recuperacao_palavra_chave.sql','migrations/002_recuperacao_seguranca.sql','migrations/20261109_whatsapp.postgresql.sql','migrations/20261114_whatsapp_ia.postgresql.sql'])await pool.query(fs.readFileSync(path.join(backend,'database',file),'utf8'));
+ for(const file of ['schema.postgresql.sql','migrations/001_recuperacao_palavra_chave.sql','migrations/002_recuperacao_seguranca.sql','migrations/20261109_whatsapp.postgresql.sql','migrations/20261114_whatsapp_ia.postgresql.sql','migrations/20261118_whatsapp_context.postgresql.sql'])await pool.query(fs.readFileSync(path.join(backend,'database',file),'utf8'));
  check('schema e quatro migrações aplicados somente no container descartável',true);
  const express=require('express');const app=express();app.use(express.json({verify(req,_res,raw){req.rawBody=raw;}}));
  app.use('/api',require('../routes/loginRoutes'));app.use('/api/usuarios',require('../routes/usuariosRoutes'));app.use('/api/transacoes',require('../routes/transacoesRoutes'));

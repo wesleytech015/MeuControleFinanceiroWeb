@@ -1,7 +1,8 @@
 const express = require('express');
 const { equal, validSignature, messages, createSender } = require('./transport');
 const { processMessage } = require('./processor');
-function createWhatsAppRouter({ config, repository, authenticate, assistant = null, aiProvider = 'gemini', send = config && createSender(config) }) {
+const { deliveryFailures } = require('./diagnostics');
+function createWhatsAppRouter({ config, repository, authenticate, assistant = null, aiProvider = 'gemini', send = config && createSender(config), onDeliveryFailure = event => console.warn(JSON.stringify(event)) }) {
   const router = express.Router();
   router.use((_req, res, next) => {
     res.set('Cache-Control', 'no-store');
@@ -16,6 +17,7 @@ function createWhatsAppRouter({ config, repository, authenticate, assistant = nu
   router.post('/webhook', async (req, res) => {
     if (!validSignature(req.rawBody, req.get('X-Hub-Signature-256'), config.appSecret)) return res.sendStatus(403);
     try {
+      for (const failure of deliveryFailures(req.body, config.phoneNumberId)) onDeliveryFailure(failure);
       for (const message of messages(req.body, config.phoneNumberId)) {
         await repository.receive(message, (store, input) => processMessage(store, input, { timeZone: config.timeZone, assistant, aiProvider }));
         // Await the network call before ending the invocation; no detached background work.

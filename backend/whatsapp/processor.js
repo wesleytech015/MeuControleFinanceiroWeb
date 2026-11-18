@@ -1,5 +1,6 @@
 const { randomBytes } = require('node:crypto');
 const { HELP, parseCommand, money, draftReply } = require('./commands');
+const { continuation } = require('../assistant/context');
 
 // The repository executes this handler inside the same transaction as the inbox journal.
 // No login token or conversation state is kept in the function instance.
@@ -38,6 +39,7 @@ async function processMessage(store, message, { now = new Date(), timeZone = 'Am
   if (command.kind === 'ajuda') return HELP + ` IA opcional: ia ativar autoriza enviar mensagens livres ao ${providerName}; ia desativar interrompe.`;
   if (command.kind === 'cancelar') {
     await store.clearDraft(account.usuario_id);
+    if (store.clearConversation) await store.clearConversation(account.usuario_id);
     return 'Lançamento pendente cancelado. Nenhuma movimentação foi cadastrada por este comando.';
   }
   if (command.kind === 'resumo') {
@@ -54,22 +56,33 @@ async function processMessage(store, message, { now = new Date(), timeZone = 'Am
     if (!pending || pending.code !== command.code || new Date(pending.expires_at) <= now) return 'Confirmação inválida ou expirada. Envie o lançamento novamente.';
     const id = await store.save(account.usuario_id, pending.transaction);
     await store.clearDraft(account.usuario_id);
+    if (store.clearConversation) await store.clearConversation(account.usuario_id);
     return `Movimentação ${id} cadastrada: ${money(pending.transaction.valor)}. Atualize o aplicativo para conferir.`;
   }
-  if (pending && new Date(pending.expires_at) > now) return 'Já existe um lançamento aguardando confirmação. Confirme com o código recebido ou envie cancelar antes de criar outro.';
+  const activePending = pending && new Date(pending.expires_at) > now ? pending : null;
+  const correcting = !!activePending && command.kind === 'free' && continuation(message.text);
+  let remember = false;
+  if (activePending && !correcting) return 'Já existe um lançamento aguardando confirmação. Confirme com o código recebido ou envie cancelar antes de criar outro.';
   if (command.kind === 'free') {
     if (!await store.aiConsent(account.usuario_id)) return `A IA é opcional. ia ativar autoriza enviar mensagens livres ao ${providerName}. Não envie dados sensíveis. Comandos estruturados continuam disponíveis.`;
     if (!await store.consumeAiBudget(account.usuario_id)) return 'Limite da IA atingido nesta hora. Use receita, despesa ou resumo; tente a IA mais tarde.';
     try {
-      const result = await assistant(message.text, { now, timeZone });
-      if (result.kind === 'reply') return result.text;
+      const history = store.recentConversation ? await store.recentConversation(account.usuario_id) : [];
+      const result = await assistant(message.text, { now, timeZone, history, pending: correcting ? activePending.transaction : null });
+      if (result.kind === 'reply') {
+        if (result.remember !== false && store.appendConversation) await store.appendConversation(account.usuario_id, message.text, result.text);
+        return result.text;
+      }
       if (result.kind !== 'draft') return HELP;
       // The provider is never allowed to create a confirm command or save directly.
       command = result;
+      remember = true;
     } catch { return 'Assistente indisponível. Nada foi gravado. Use os comandos de receita/despesa ou tente mais tarde.'; }
   }
   const code = confirmationCode();
   await store.setDraft(account.usuario_id, command.transaction, code, new Date(now.getTime() + 10 * 60000));
-  return draftReply(command.transaction, code);
+  const reply = (correcting ? 'Proposta atualizada. O código anterior não é mais válido. ' : '') + draftReply(command.transaction, code);
+  if (remember && store.appendConversation) await store.appendConversation(account.usuario_id, message.text, reply);
+  return reply;
 }
 module.exports = { processMessage };

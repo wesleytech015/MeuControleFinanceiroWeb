@@ -1,5 +1,6 @@
 const { createHash, randomBytes } = require('node:crypto');
 const { validateTransaction } = require('../validation/transacao');
+const { sanitizeHistory } = require('../assistant/context');
 const hash = value => createHash('sha256').update(value).digest('hex');
 function phone(value) {
   if (typeof value !== 'string' || !/^\+?[1-9]\d{9,14}$/.test(value)) throw new Error('Informe o número com DDI e DDD, somente dígitos, sem espaços.');
@@ -46,7 +47,7 @@ function createRepository(pool, aiProvider = 'gemini') {
             if (!rows.length) return false;
             const { rows: existing } = await db.query('SELECT usuario_id FROM whatsapp_links WHERE phone=$1 FOR UPDATE', [number]);
             if (existing.length && existing[0].usuario_id !== rows[0].usuario_id) return false;
-            await db.query('UPDATE whatsapp_links SET phone=$1, pending_phone=NULL, code_hash=NULL, code_expires=NULL WHERE usuario_id=$2', [number, rows[0].usuario_id]);
+            await db.query('UPDATE whatsapp_links SET phone=$1, pending_phone=NULL, code_hash=NULL, code_expires=NULL, conversation=jsonb_build_array(), conversation_updated_at=NULL WHERE usuario_id=$2', [number, rows[0].usuario_id]);
             await db.query('DELETE FROM whatsapp_drafts WHERE usuario_id=$1', [rows[0].usuario_id]);
             return true;
           },
@@ -55,11 +56,26 @@ function createRepository(pool, aiProvider = 'gemini') {
             return rows[0];
           },
           async setAiConsent(userId, enabled) {
-            await db.query(`UPDATE whatsapp_links SET ai_consent_at=CASE WHEN $2 THEN CURRENT_TIMESTAMP ELSE NULL END, ai_provider=CASE WHEN $2 THEN $3 ELSE NULL END WHERE usuario_id=$1`, [userId, enabled, aiProvider]);
+            await db.query(`UPDATE whatsapp_links SET ai_consent_at=CASE WHEN $2 THEN CURRENT_TIMESTAMP ELSE NULL END, ai_provider=CASE WHEN $2 THEN $3 ELSE NULL END, conversation=jsonb_build_array(), conversation_updated_at=NULL WHERE usuario_id=$1`, [userId, enabled, aiProvider]);
           },
           async aiConsent(userId) {
             const { rows } = await db.query(`SELECT ai_consent_at FROM whatsapp_links WHERE usuario_id=$1 AND ai_provider=$2`, [userId, aiProvider]);
             return !!rows[0]?.ai_consent_at;
+          },
+          async recentConversation(userId) {
+            const { rows } = await db.query(
+              "SELECT conversation FROM whatsapp_links WHERE usuario_id=$1 AND phone=$2 AND ai_consent_at IS NOT NULL AND ai_provider=$3 AND conversation_updated_at>CURRENT_TIMESTAMP - INTERVAL '15 minutes'",
+              [userId, message.from, aiProvider]);
+            return sanitizeHistory(rows[0]?.conversation);
+          },
+          async appendConversation(userId, input, reply) {
+            const previous = await this.recentConversation(userId);
+            const history = sanitizeHistory([...previous, { role: 'user', text: input }, { role: 'assistant', text: reply }]);
+            await db.query('UPDATE whatsapp_links SET conversation=$1::jsonb, conversation_updated_at=CURRENT_TIMESTAMP WHERE usuario_id=$2 AND phone=$3 AND ai_consent_at IS NOT NULL AND ai_provider=$4',
+              [JSON.stringify(history), userId, message.from, aiProvider]);
+          },
+          async clearConversation(userId) {
+            await db.query("UPDATE whatsapp_links SET conversation=jsonb_build_array(), conversation_updated_at=NULL WHERE usuario_id=$1 AND phone=$2", [userId, message.from]);
           },
           async consumeAiBudget(userId) {
             const result = await db.query(`UPDATE whatsapp_links SET
