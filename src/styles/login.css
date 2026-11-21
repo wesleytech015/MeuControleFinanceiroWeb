@@ -42,6 +42,9 @@
 .login-button svg,.login-register svg { width:28px; height:28px; }
 .login-divider { display:flex; align-items:center; gap:25px; margin:24px 0; color:#63718a; font-size:14px; white-space:nowrap; }.login-divider::before,.login-divider::after { content:""; height:1px; background:#d5dcea; flex:1; }
 .login-register { min-height:50px; color:#2563eb; border:1.5px solid #2563eb; background:#fbfcff; }.login-register:hover { background:#eff6ff; }
+.login-legal-links { display:flex; flex-wrap:wrap; justify-content:center; gap:8px 18px; margin-top:20px; font-size:13px; }
+.login-legal-links a { color:#52617a; text-decoration:underline; text-underline-offset:3px; }
+.login-legal-links a:focus-visible { outline:3px solid #3b82f6; outline-offset:3px; border-radius:2px; }
 .login-page :focus-visible { outline:3px solid #3b82f6; outline-offset:3px; }
 .login-card .input-erro { border-color:#dc2626; background:#fef2f2; }
 .login-page .erro-login { color:#b91c1c; background:#fef2f2; border:1px solid #fecaca; padding:12px; border-radius:10px; margin-bottom:20px; line-height:1.5; }
