@@ -110,6 +110,11 @@ function Login() {
           </form>
           <div className="login-divider"><span>Ainda não tem conta?</span></div>
           <Link to="/cadastro" className="login-register"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="7" r="4" /><path d="M16 21H3v-3a7 7 0 0 1 11-5M19 13v8m-4-4h8" /></svg>Criar uma conta</Link>
+          <nav className="login-legal-links" aria-label="Documentos legais">
+            <Link to="/privacidade">Privacidade</Link>
+            <Link to="/termos">Termos de Serviço</Link>
+            <Link to="/exclusao-de-dados">Exclusão de Dados</Link>
+          </nav>
         </div>
       </section>
     </main>
