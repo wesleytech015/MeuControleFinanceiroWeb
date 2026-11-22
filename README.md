@@ -123,3 +123,23 @@ fica indisponível, sem apagar os dados já existentes em `localStorage`.
 Metas ainda são armazenadas somente no `localStorage` do navegador. Elas não são
 sincronizadas com a API, com a conta do usuário ou entre dispositivos; portanto,
 devem ser consideradas dados locais até que a integração seja implementada.
+
+
+## Branch de integração WhatsApp
+
+A branch `feature/whatsapp-vercel-academico` recebe as atualizações da main
+preservando o piloto. Veja o [registro desta integração](docs/integracao-whatsapp-2026-11-14.md).
+O frontend agora usa o contexto financeiro integrado à API da equipe; registros
+históricos sobre persistência apenas local não descrevem esta versão.
+Metas e cartões mantêm os limites informados acima.
+Gemini e RAG ainda não estão implementados. O WhatsApp usa regras e confirmação
+antes de salvar. Segredos ficam exclusivamente no ambiente privado do servidor.
+
+
+## Preparar Gemini/RAG e WhatsApp sem expor chaves
+
+Consulte [ambiente e roteiro de validação](docs/gemini-rag-whatsapp.md).
+`npm run check:assistant --prefix backend` mostra pendências sem chamadas externas.
+`.env.assistant.local` é privado e usado somente em desenvolvimento. A chave nunca
+vai para VITE_* ou EXPO_PUBLIC_*. `test:gemini` é um teste real opt-in de uma chamada:
+executar somente após confirmar cota gratuita e configuração no AI Studio.

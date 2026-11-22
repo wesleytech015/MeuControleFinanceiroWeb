@@ -1,0 +1,52 @@
+require('./config/environment').loadEnvironment();
+
+require('./config/jwt');
+const express = require('express');
+const cors = require('cors');
+
+const app = express();
+app.set('trust proxy', require('./config/proxy').trustedProxies(process.env.TRUSTED_PROXY_CIDRS));
+
+app.use(cors());
+app.disable('x-powered-by');
+app.get('/api/health', (_req, res) => {
+  res.set('Cache-Control', 'no-store').json({ status: 'ok' });
+});
+app.use(express.json({ limit: '16kb', inflate: false, verify(req, _res, buffer) {
+  if (req.originalUrl.split('?')[0] === '/api/whatsapp/webhook') req.rawBody = buffer;
+} }));
+
+// rotas
+const testeRoutes = require('./routes/testeroutes');
+const loginRoutes = require('./routes/loginRoutes');
+const usuariosRoutes = require('./routes/usuariosRoutes');
+const transacoesRoutes = require('./routes/transacoesRoutes');
+
+// registro das rotas
+app.use('/api', testeRoutes);
+app.use('/api', loginRoutes);
+app.use('/api/usuarios', usuariosRoutes);
+app.use('/api', require('./routes/recuperacaoRoutes'));
+app.use('/api/transacoes', transacoesRoutes);
+
+const { configuration } = require('./whatsapp/transport');
+const { createRepository } = require('./whatsapp/repository');
+const { createWhatsAppRouter } = require('./whatsapp/routes');
+const whatsappConfig = configuration();
+app.use('/api/whatsapp', createWhatsAppRouter({
+  config: whatsappConfig,
+  assistant: require('./assistant/service').createAssistant(require('./assistant/gemini').createGemini(require('./assistant/gemini').configuration())),
+  repository: whatsappConfig ? createRepository(require('./database/conexao')) : null,
+  authenticate: require('./middlewares/autenticar'),
+}));
+
+// Parser failures should be JSON errors, without Express development stack traces.
+app.use((error, req, res, next) => {
+  if (res.headersSent) return next(error);
+  const status = error.type === 'entity.too.large' ? 413
+    : error.type === 'encoding.unsupported' ? 415
+    : error.type === 'entity.parse.failed' ? 400 : 500;
+  res.status(status).json({ erro: status === 500 ? 'Erro interno.' : 'Corpo da requisiÃ§Ã£o invÃ¡lido ou nÃ£o suportado.' });
+});
+
+module.exports = app;

@@ -5,9 +5,16 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test tests/*.test.js",
+    "test": "node --test tests/*.test.cjs tests/*.test.js",
     "test:connection": "node test-connection.js",
-    "test:security": "node tests/security-review.cjs"
+    "test:security": "node tests/security-review.cjs",
+    "test:integration": "node tests/live-security.cjs",
+    "test:whatsapp": "node tests/whatsapp-live.cjs",
+    "check:assistant": "node scripts/check-assistant.cjs",
+    "check:whatsapp": "node scripts/check-whatsapp.cjs",
+    "test:gemini": "node scripts/test-gemini.cjs",
+    "test:gemini:integration": "node tests/whatsapp-gemini-integration.cjs",
+    "test:qwen": "node scripts/test-qwen.cjs"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
